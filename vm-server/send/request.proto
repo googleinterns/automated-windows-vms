@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+message TaskRequest {
+  string codePath=1;    //  pantheon path where the input code is stored
+  string dataPath=2;    //  pantheon path where the input files are stored
+  string outputPath=3;  //  pantheon path where the output will be stored
+  string target=4;      //  path to file from code root that is to be executed
+  double timeout=5;
+  repeated configPair actionPairs =6;
+}
+message configPair{
+  string key=1;
+  string value=2;
+}
+message TaskResponse {
+  string status=1;
+  string output=2; 
+  string stdout=3;
+  string stderr=4;
+}
