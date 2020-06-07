@@ -3,17 +3,23 @@ repackage.up(2)
 import http.client
 import shutil
 import timeit
-from vm-server.send import Request_pb2
-from vm-server.accept import execute
+from vmServer.send import Request_pb2
 from flask import Flask, request, send_file
-
+import os
+import io
+from pathlib import Path
 
 app = Flask(__name__)
 @app.route('/load', methods=['POST'])
 def load():
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files['task_request'].read())
-    f = open(".\execute\outputfile.pb", "wb")
+    dirpath=Path('execute')
+    if dirpath.exists() and dirpath.is_dir():
+        shutil.rmtree(dirpath)
+
+    os.mkdir('execute')
+    f = open(".\\execute\\outputfile.pb", "wb")
     f.write(task_request.SerializeToString())
     f.close()
     start=timeit.default_timer()
@@ -21,24 +27,26 @@ def load():
     #execute tasks here
     actionCount=1
     #TODO
-    os.mkdir('accept\execute')
+    # os.mkdir('accept\execute')
     for actionPair in task_request.actionPairs:
         if actionPair.key=="execute_macro":
-            currentPath='vm-server\accept\execute\action'+str(actionCount)
+            currentPath='execute\\action'+str(actionCount)
             os.mkdir(currentPath)
             #copy code for action from pantheon
             #TODO need to change this to actual pantheon path
-            shutil.copytree('vm-server\test\code',currentPath)
+            shutil.copytree('..\\test\\code\\',currentPath+"code")
             #copy data for action from pantheon
-            shutil.copytree('vm-server\test\data',currentPath)
+            shutil.copytree('..\\test\\data\\',currentPath+"data")
             #pantheon path where the output is stored
-            shutil.copytree('vm-server\test\output',currentPath)
+            shutil.copytree('..\\test\\output\\',currentPath+"output")
+            from vmServer.accept import execute
             execute.execute_macro(currentPath)
             
         elif actionPair.key=="screenshot":
             #TODO
             pass
         else:
+            pass
             #TODO handle this, this might me user specified action
         actionCount=actionCount+1
     os.remove('execute')
@@ -52,6 +60,9 @@ def load():
     return send_file("respons.pb")
     
 
+
+if __name__=='__main__':
+    app.run(debug=True)
 
 
 

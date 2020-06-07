@@ -6,7 +6,7 @@ URL='http://127.0.0.1:5000/load'
 with open('input_request.pb','rb') as f:
     r=requests.post(url=URL,files={'task_request':f})
 print(type(r))
-print(r.content)
+print(str(r.content))
 with open("response.pb","wb") as f:
     f.write(r.content)
     f.close()
