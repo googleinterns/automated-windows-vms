@@ -64,11 +64,14 @@ def load():
             execute_=__import__("vmServer.accept.execute."+actionName+".code",globals(),locals(),['execute'])
             # target_file=task_request.targetPath
             # p=subprocess.Popen(['powershell.exe',target_file],stdout=sys.stdout)
+            
             try:
-                execute_.execute.execute_macro(currentPath)
+                # execute_.execute.execute_macro(currentPath)
                 # target_file=task_request.target
-                p=subprocess.Popen(['powershell.exe',task_request.targetPath],stdout=sys.stdout)
-                p.communicate()
+                p=subprocess.Popen(['powershell.exe',currentPath+"\\code\\action.ps1"],stdout=subprocess.PIPE)
+                out,err=p.communicate()
+                task_response.stdout=str(out)
+                task_response.stderr=str(err)
             except Exception as e:
                 print(e)
                 print("FAIL")

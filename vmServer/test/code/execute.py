@@ -14,8 +14,13 @@ import pythoncom
 #execute the execute_macro
 def execute_macro(currentPath):
     pythoncom.CoInitialize()
+    # print("I am also here")
+    # print(currentPath)
     pathToFile=currentPath+"\\data\\excelsheet.xlsm"
+    # print(os.listdir())
+    print(pathToFile)
     if os.path.exists(pathToFile):
+        print("I'm not here")
         xl=win32com.client.Dispatch("Excel.Application")
         wb=xl.Workbooks.Open(os.path.abspath(pathToFile), ReadOnly=1)
         wb.Application.Run("excelsheet.xlsm!main.simpleMain")
@@ -26,10 +31,11 @@ def execute_macro(currentPath):
         # xl.Close(savechanges=1)
         del xl
         shutil.copyfile(pathToFile,currentPath+"\\output\\excelsheet.xlsm")
-        os.remove(pathToFile)
+        # os.remove(pathToFile)
         print("Successfully completed...............................................")
 
 if __name__=="__main__":
-    currentPath=".."
+    print("I'm here")
+    currentPath='execute\\action'
     execute_macro(currentPath)
 
