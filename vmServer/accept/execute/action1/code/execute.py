@@ -3,14 +3,23 @@ repackage.up()
 import os, os.path
 import win32com.client
 import shutil
+import pythoncom
+
+
+
 
 
 
 
 #execute the execute_macro
 def execute_macro(currentPath):
-    pathToFile=currentPath+"data\\"+"excelsheet.xlsm"
+    pythoncom.CoInitialize()
+    pathToFile=currentPath+"\\data\\excelsheet.xlsm"
+    print("Im here")
+    print(pathToFile)
+    print(os.listdir())
     if os.path.exists(pathToFile):
+        print("Im not here")
         xl=win32com.client.Dispatch("Excel.Application")
         wb=xl.Workbooks.Open(os.path.abspath(pathToFile), ReadOnly=1)
         wb.Application.Run("excelsheet.xlsm!main.simpleMain")
@@ -20,7 +29,8 @@ def execute_macro(currentPath):
         xl.Quit() # Comment this out if your excel script closes
         # xl.Close(savechanges=1)
         del xl
-        shutil.copyfile(pathToFile,"output\excelsheet.xlsm")
+        shutil.copyfile(pathToFile,currentPath+"\\output\\excelsheet.xlsm")
         os.remove(pathToFile)
+        print("Successfully completed...............................................")
 
 

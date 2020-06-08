@@ -3,13 +3,18 @@ repackage.up()
 import os, os.path
 import win32com.client
 import shutil
+import pythoncom
+
+
+
 
 
 
 
 #execute the execute_macro
 def execute_macro(currentPath):
-    pathToFile=currentPath+"data\\"+"excelsheet.xlsm"
+    pythoncom.CoInitialize()
+    pathToFile=currentPath+"\\data\\excelsheet.xlsm"
     if os.path.exists(pathToFile):
         xl=win32com.client.Dispatch("Excel.Application")
         wb=xl.Workbooks.Open(os.path.abspath(pathToFile), ReadOnly=1)
@@ -20,7 +25,8 @@ def execute_macro(currentPath):
         xl.Quit() # Comment this out if your excel script closes
         # xl.Close(savechanges=1)
         del xl
-        shutil.copyfile(pathToFile,"output\excelsheet.xlsm")
+        shutil.copyfile(pathToFile,currentPath+"\\output\\excelsheet.xlsm")
         os.remove(pathToFile)
+        print("Successfully completed...............................................")
 
 

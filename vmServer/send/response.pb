@@ -2,7 +2,7 @@
   "http://www.w3.org/TR/html4/loose.dtd">
 <html>
   <head>
-    <title>ModuleNotFoundError: No module named 'execute.code'; 'execute' is not a package // Werkzeug Debugger</title>
+    <title>PermissionError: [WinError 5] Access is denied: 'execute' // Werkzeug Debugger</title>
     <link rel="stylesheet" href="?__debugger__=yes&amp;cmd=resource&amp;f=style.css"
         type="text/css">
     <!-- We need to make sure this has a favicon so that the debugger does
@@ -13,23 +13,23 @@
     <script src="?__debugger__=yes&amp;cmd=resource&amp;f=jquery.js"></script>
     <script src="?__debugger__=yes&amp;cmd=resource&amp;f=debugger.js"></script>
     <script type="text/javascript">
-      var TRACEBACK = 2545292861056,
+      var TRACEBACK = 2110000686976,
           CONSOLE_MODE = false,
           EVALEX = true,
           EVALEX_TRUSTED = false,
-          SECRET = "Jv6W81t4HBFmKjYFn9jl";
+          SECRET = "QiMoGQvEhj5JUCP6fnbd";
     </script>
   </head>
   <body style="background-color: #fff">
     <div class="debugger">
-<h1>builtins.ModuleNotFoundError</h1>
+<h1>builtins.PermissionError</h1>
 <div class="detail">
-  <p class="errormsg">ModuleNotFoundError: No module named 'execute.code'; 'execute' is not a package</p>
+  <p class="errormsg">PermissionError: [WinError 5] Access is denied: 'execute'</p>
 </div>
 <h2 class="traceback">Traceback <em>(most recent call last)</em></h2>
 <div class="traceback">
   
-  <ul><li><div class="frame" id="frame-2545292861000">
+  <ul><li><div class="frame" id="frame-2110000686696">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">2309</em>,
       in <code class="function">__call__</code></h4>
@@ -46,7 +46,7 @@
 <pre class="line after"><span class="ws">            </span>self.name,</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292860944">
+<li><div class="frame" id="frame-2110001005624">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">2295</em>,
       in <code class="function">wsgi_app</code></h4>
@@ -63,7 +63,7 @@
 <pre class="line after"><span class="ws">        </span>finally:</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545263757632">
+<li><div class="frame" id="frame-2110000276200">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">1741</em>,
       in <code class="function">handle_exception</code></h4>
@@ -80,7 +80,7 @@
 <pre class="line after"><span class="ws">        </span>if handler is None:</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292973056">
+<li><div class="frame" id="frame-2110001004672">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\_compat.py"</cite>,
       line <em class="line">35</em>,
       in <code class="function">reraise</code></h4>
@@ -97,7 +97,7 @@
 <pre class="line after"><span class="ws">    </span>text_type = unicode</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292974512">
+<li><div class="frame" id="frame-2110000276088">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">2292</em>,
       in <code class="function">wsgi_app</code></h4>
@@ -114,7 +114,7 @@
 <pre class="line after"><span class="ws">                </span>error = sys.exc_info()[1]</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292973896">
+<li><div class="frame" id="frame-2110001023296">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">1815</em>,
       in <code class="function">full_dispatch_request</code></h4>
@@ -131,7 +131,7 @@
 <pre class="line after"><span class="ws">        </span>the request by converting it into a response and invoking the</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292974904">
+<li><div class="frame" id="frame-2110001023408">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">1718</em>,
       in <code class="function">handle_user_exception</code></h4>
@@ -148,7 +148,7 @@
 <pre class="line after"><span class="ws">        </span>occurs that is not caught.  In debug mode the exception will</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292973392">
+<li><div class="frame" id="frame-2110000275976">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\_compat.py"</cite>,
       line <em class="line">35</em>,
       in <code class="function">reraise</code></h4>
@@ -165,7 +165,7 @@
 <pre class="line after"><span class="ws">    </span>text_type = unicode</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292974848">
+<li><div class="frame" id="frame-2110000108768">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">1813</em>,
       in <code class="function">full_dispatch_request</code></h4>
@@ -182,7 +182,7 @@
 <pre class="line after"><span class="ws">    </span>def finalize_request(self, rv, from_error_handler=False):</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292975240">
+<li><div class="frame" id="frame-2110000110168">
   <h4>File <cite class="filename">"C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py"</cite>,
       line <em class="line">1799</em>,
       in <code class="function">dispatch_request</code></h4>
@@ -199,42 +199,24 @@
 <pre class="line after"><span class="ws">        </span>error handling.</pre></div>
 </div>
 
-<li><div class="frame" id="frame-2545292975352">
+<li><div class="frame" id="frame-2110000110952">
   <h4>File <cite class="filename">"C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\server.py"</cite>,
-      line <em class="line">42</em>,
+      line <em class="line">68</em>,
       in <code class="function">load</code></h4>
-  <div class="source"><pre class="line before"><span class="ws">            </span>shutil.copytree('..\\test\\code\\',currentPath+&quot;code&quot;)</pre>
-<pre class="line before"><span class="ws">            </span>#copy data for action from pantheon</pre>
-<pre class="line before"><span class="ws">            </span>shutil.copytree('..\\test\\data\\',currentPath+&quot;data&quot;)</pre>
-<pre class="line before"><span class="ws">            </span>#pantheon path where the output is stored</pre>
-<pre class="line before"><span class="ws">            </span>shutil.copytree('..\\test\\output\\',currentPath+&quot;output&quot;)</pre>
-<pre class="line current"><span class="ws">            </span>from vmServer.accept import execute</pre>
-<pre class="line after"><span class="ws">            </span>execute.execute_macro(currentPath)</pre>
-<pre class="line after"><span class="ws"></span> </pre>
-<pre class="line after"><span class="ws">        </span>elif actionPair.key==&quot;screenshot&quot;:</pre>
-<pre class="line after"><span class="ws">            </span>#TODO</pre>
-<pre class="line after"><span class="ws">            </span>pass</pre></div>
-</div>
-
-<li><div class="frame" id="frame-2545292975296">
-  <h4>File <cite class="filename">"C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\execute.py"</cite>,
-      line <em class="line">1</em>,
-      in <code class="function">&lt;module&gt;</code></h4>
-  <div class="source"><pre class="line current"><span class="ws"></span>from execute.code import execute</pre>
-<pre class="line after"><span class="ws"></span> </pre>
-<pre class="line after"><span class="ws"></span>excecute.execute_macro()</pre></div>
-</div>
-
-<li><div class="frame" id="frame-2545292975408">
-  <h4>File <cite class="filename">"C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\execute.py"</cite>,
-      line <em class="line">1</em>,
-      in <code class="function">&lt;module&gt;</code></h4>
-  <div class="source"><pre class="line current"><span class="ws"></span>from execute.code import execute</pre>
-<pre class="line after"><span class="ws"></span> </pre>
-<pre class="line after"><span class="ws"></span>excecute.execute_macro()</pre></div>
+  <div class="source"><pre class="line before"><span class="ws">            </span>pass</pre>
+<pre class="line before"><span class="ws">        </span>else:</pre>
+<pre class="line before"><span class="ws">            </span>pass</pre>
+<pre class="line before"><span class="ws">            </span>#TODO handle this, this might me user specified action</pre>
+<pre class="line before"><span class="ws">        </span>actionCount=actionCount+1</pre>
+<pre class="line current"><span class="ws">    </span>os.remove('execute')</pre>
+<pre class="line after"><span class="ws">    </span>stop=timeit.default_timer()</pre>
+<pre class="line after"><span class="ws">    </span>timeTaken=stop-start</pre>
+<pre class="line after"><span class="ws">    </span>print(&quot;Time taken is &quot;,timeTaken)</pre>
+<pre class="line after"><span class="ws">    </span>task_response.timeTaken=timeTaken</pre>
+<pre class="line after"><span class="ws">    </span>with open(&quot;response.pb&quot;,&quot;wb&quot;) as f:</pre></div>
 </div>
 </ul>
-  <blockquote>ModuleNotFoundError: No module named 'execute.code'; 'execute' is not a package</blockquote>
+  <blockquote>PermissionError: [WinError 5] Access is denied: 'execute'</blockquote>
 </div>
 
 <div class="plain">
@@ -267,13 +249,9 @@
     rv = self.dispatch_request()
   File &quot;C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py&quot;, line 1799, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File &quot;C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\server.py&quot;, line 42, in load
-    from vmServer.accept import execute
-  File &quot;C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\execute.py&quot;, line 1, in &lt;module&gt;
-    from execute.code import execute
-  File &quot;C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\execute.py&quot;, line 1, in &lt;module&gt;
-    from execute.code import execute
-ModuleNotFoundError: No module named 'execute.code'; 'execute' is not a package</textarea>
+  File &quot;C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\server.py&quot;, line 68, in load
+    os.remove('execute')
+PermissionError: [WinError 5] Access is denied: 'execute'</textarea>
   </form>
 </div>
 <div class="explanation">
@@ -329,12 +307,8 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "C:\ProgramData\Anaconda3\lib\site-packages\flask\app.py", line 1799, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\server.py", line 42, in load
-    from vmServer.accept import execute
-  File "C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\execute.py", line 1, in <module>
-    from execute.code import execute
-  File "C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\execute.py", line 1, in <module>
-    from execute.code import execute
-ModuleNotFoundError: No module named 'execute.code'; 'execute' is not a package
+  File "C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\server.py", line 68, in load
+    os.remove('execute')
+PermissionError: [WinError 5] Access is denied: 'execute'
 
 -->

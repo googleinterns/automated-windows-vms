@@ -8,6 +8,7 @@ from flask import Flask, request, send_file
 import os
 import io
 from pathlib import Path
+import importlib
 
 app = Flask(__name__)
 @app.route('/load', methods=['POST'])
@@ -31,16 +32,31 @@ def load():
     for actionPair in task_request.actionPairs:
         if actionPair.key=="execute_macro":
             currentPath='execute\\action'+str(actionCount)
+            Path('execute\\__init__.py').touch()
             os.mkdir(currentPath)
+            Path(currentPath+"\\__init__.py").touch()
+            actionName="action"+str(actionCount)
             #copy code for action from pantheon
             #TODO need to change this to actual pantheon path
-            shutil.copytree('..\\test\\code\\',currentPath+"code")
+            shutil.copytree('..\\test\\code\\',currentPath+"\\code")
+            Path(currentPath+"\\code\\__init__.py").touch()
             #copy data for action from pantheon
-            shutil.copytree('..\\test\\data\\',currentPath+"data")
+            shutil.copytree('..\\test\\data\\',currentPath+"\\data")
+            Path(currentPath+"\\data\\__init__.py").touch()
             #pantheon path where the output is stored
-            shutil.copytree('..\\test\\output\\',currentPath+"output")
-            from vmServer.accept import execute
-            execute.execute_macro(currentPath)
+            shutil.copytree('..\\test\\output\\',currentPath+"\\output")
+            Path(currentPath+"\\output\\__init__.py").touch()
+            # from vmServer.accept.execute import actionName
+            code=importlib.import_module('code',package="vmServer.accept.execute."+actionName)
+            # from code import execute
+            # code.execute.execute_macro(currentPath)
+            execute=__import__("vmServer.accept.execute."+actionName,globals(),locals(),['code','data','output'])
+            # execute.code.execute.execute_macro(currentPath)
+            execute_=__import__("vmServer.accept.execute."+actionName+".code",globals(),locals(),['execute'])
+            print("calling")
+            execute_.execute.execute_macro(currentPath)
+            print("called")
+            # execute.execute_macro(currentPath)
             
         elif actionPair.key=="screenshot":
             #TODO
