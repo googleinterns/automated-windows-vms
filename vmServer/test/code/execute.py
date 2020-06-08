@@ -29,4 +29,7 @@ def execute_macro(currentPath):
         os.remove(pathToFile)
         print("Successfully completed...............................................")
 
+if __name__=="__main__":
+    currentPath=".."
+    execute_macro(currentPath)
 

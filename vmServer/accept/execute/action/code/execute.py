@@ -15,11 +15,7 @@ import pythoncom
 def execute_macro(currentPath):
     pythoncom.CoInitialize()
     pathToFile=currentPath+"\\data\\excelsheet.xlsm"
-    print("Im here")
-    print(pathToFile)
-    print(os.listdir())
     if os.path.exists(pathToFile):
-        print("Im not here")
         xl=win32com.client.Dispatch("Excel.Application")
         wb=xl.Workbooks.Open(os.path.abspath(pathToFile), ReadOnly=1)
         wb.Application.Run("excelsheet.xlsm!main.simpleMain")
@@ -33,4 +29,7 @@ def execute_macro(currentPath):
         os.remove(pathToFile)
         print("Successfully completed...............................................")
 
+if __name__=="__main__":
+    currentPath=".."
+    execute_macro(currentPath)
 
