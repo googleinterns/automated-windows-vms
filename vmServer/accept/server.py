@@ -35,69 +35,70 @@ def load():
     actionCount=1
     #TODO
     # os.mkdir('accept\execute')
-    for actionPair in task_request.actionPairs:
-        if actionPair.key=="execute_macro":
-            currentPath='execute\\action'
-            Path('execute\\__init__.py').touch()
-            os.mkdir(currentPath)
-            Path(currentPath+"\\__init__.py").touch()
-            actionName="action"
-            #copy code for action from pantheon
-            #TODO need to change this to actual pantheon path
-            # shutil.copytree('..\\test\\code\\',currentPath+"\\code")
-            shutil.copytree(task_request.codePath,currentPath+"\\code")
-            Path(currentPath+"\\code\\__init__.py").touch()
-            #copy data for action from pantheon
-            # shutil.copytree('..\\test\\data\\',currentPath+"\\data")
-            shutil.copytree(task_request.dataPath,currentPath+"\\data")
-            Path(currentPath+"\\data\\__init__.py").touch()
-            #pantheon path where the output is stored
-            # shutil.copytree('..\\test\\output\\',currentPath+"\\output")
-            shutil.copytree(task_request.outputPath,currentPath+"\\output")
-            Path(currentPath+"\\output\\__init__.py").touch()
-            # from vmServer.accept.execute import actionName
-            # code=importlib.import_module('code',package="vmServer.accept.execute."+actionName)
-            # # from code import execute
-            # # code.execute.execute_macro(currentPath)
-            # execute=__import__("vmServer.accept.execute."+actionName,globals(),locals(),['code','data','output'])
-            # # execute.code.execute.execute_macro(currentPath)
-            execute_=__import__("vmServer.accept.execute."+actionName+".code",globals(),locals(),['execute'])
-            # target_file=task_request.targetPath
-            # p=subprocess.Popen(['powershell.exe',target_file],stdout=sys.stdout)
+    currentPath='execute\\action'
+    Path('execute\\__init__.py').touch()
+    os.mkdir(currentPath)
+    Path(currentPath+"\\__init__.py").touch()
+    actionName="action"
+    #copy code for action from pantheon
+    #TODO need to change this to actual pantheon path
+    # shutil.copytree('..\\test\\code\\',currentPath+"\\code")
+    shutil.copytree(task_request.codePath,currentPath+"\\code")
+    Path(currentPath+"\\code\\__init__.py").touch()
+    #copy data for action from pantheon
+    # shutil.copytree('..\\test\\data\\',currentPath+"\\data")
+    shutil.copytree(task_request.dataPath,currentPath+"\\data")
+    Path(currentPath+"\\data\\__init__.py").touch()
+    #pantheon path where the output is stored
+    # shutil.copytree('..\\test\\output\\',currentPath+"\\output")
+    shutil.copytree(task_request.outputPath,currentPath+"\\output")
+    Path(currentPath+"\\output\\__init__.py").touch()
+    # from vmServer.accept.execute import actionName
+    # code=importlib.import_module('code',package="vmServer.accept.execute."+actionName)
+    # # from code import execute
+    # # code.execute.execute_macro(currentPath)
+    # execute=__import__("vmServer.accept.execute."+actionName,globals(),locals(),['code','data','output'])
+    # # execute.code.execute.execute_macro(currentPath)
+    execute_=__import__("vmServer.accept.execute."+actionName+".code",globals(),locals(),['execute'])
+    # target_file=task_request.targetPath
+    # p=subprocess.Popen(['powershell.exe',target_file],stdout=sys.stdout)
             
-            try:
-                # execute_.execute.execute_macro(currentPath)
-                # target_file=task_request.target
-                p=subprocess.Popen(['powershell.exe',currentPath+"\\code\\action.ps1"],stdout=subprocess.PIPE)
-                out,err=p.communicate()
-                task_response.stdout=str(out)
-                task_response.stderr=str(err)
-                f=open("stdout.txt","w")
-                f.write(str(out))
-                f.close
-                f=open("stderr.txt","w")
-                f.write(str(err))
-                f.close
-            except Exception as e:
-                print(e)
-                print("FAIL")
-                task_response.status = "FAILURE"
-                stop=timeit.default_timer()
-                timeTaken=stop-start
-                task_response.timeTaken=timeTaken
-                with open("response.pb","wb") as f:
-                    f.write(task_response.SerializeToString())
-                    f.close()
-                    return send_file("response.pb")
-            # execute.execute_macro(currentPath)
+    try:
+        # execute_.execute.execute_macro(currentPath)
+        # target_file=task_request.target
+        p=subprocess.Popen(['powershell.exe',currentPath+"\\code\\action.ps1"],stdout=subprocess.PIPE)
+        out,err=p.communicate()
+        task_response.stdout=str(out)
+        task_response.stderr=str(err)
+        f=open("stdout.txt","w")
+        f.write(str(out))
+        f.close
+        f=open("stderr.txt","w")
+        f.write(str(err))
+        f.close
+    except Exception as e:
+        print(e)
+        print("FAIL")
+        task_response.status = "FAILURE"
+        stop=timeit.default_timer()
+        timeTaken=stop-start
+        task_response.timeTaken=timeTaken
+        with open("response.pb","wb") as f:
+            f.write(task_response.SerializeToString())
+            f.close()
+            return send_file("response.pb")
+    # for actionPair in task_request.actionPairs:
+    #     if actionPair.key=="execute_macro":
             
-        elif actionPair.key=="screenshot":
-            #TODO
-            pass
-        else:
-            pass
-            #TODO handle this, this might me user specified action
-        actionCount=actionCount+1
+    #         # execute.execute_macro(currentPath)
+            
+    #     elif actionPair.key=="screenshot":
+    #         #TODO
+    #         pass
+    #     else:
+    #         pass
+    #         #TODO handle this, this might me user specified action
+    #     actionCount=actionCount+1
     stop=timeit.default_timer()
     timeTaken=stop-start
     print("Time taken is ",timeTaken)

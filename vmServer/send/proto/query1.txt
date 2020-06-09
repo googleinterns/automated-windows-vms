@@ -1,0 +1,4 @@
+codePath : "..\\test\\code\\"
+dataPath : "..\\test\\data\\"
+outputPath : "..\\test\\output\\"
+targetPath : "..\\test\\code\\action.ps1"
