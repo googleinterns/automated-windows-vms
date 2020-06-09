@@ -1,0 +1,11 @@
+{
+    "codePath": "..\\test\\code\\",
+    "dataPath": "..\\test\\data\\",
+    "outputPath": "..\\test\\output\\",
+    "targetPath": "..\\test\\code\\action2.ps1",
+    "timeout": 3600.0,
+    "actionPairs": {
+        "key": "",
+        "value": ""
+    }
+}

@@ -72,6 +72,12 @@ def load():
                 out,err=p.communicate()
                 task_response.stdout=str(out)
                 task_response.stderr=str(err)
+                f=open("stdout.txt","w")
+                f.write(str(out))
+                f.close
+                f=open("stderr.txt","w")
+                f.write(str(err))
+                f.close
             except Exception as e:
                 print(e)
                 print("FAIL")
