@@ -15,8 +15,6 @@ message configPair{ //key value pairs containing action and related parameters
 message TaskResponse {
   string status=1;    
   int32 numberOfFiles=2;
-  string stdout=3;
-  string stderr=4;
   double timeTaken=5;
 }
  

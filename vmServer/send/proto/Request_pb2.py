@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rRequest.proto\"\x8c\x01\n\x0bTaskRequest\x12\x10\n\x08\x63odePath\x18\x01 \x01(\t\x12\x10\n\x08\x64\x61taPath\x18\x02 \x01(\t\x12\x12\n\noutputPath\x18\x03 \x01(\t\x12\x12\n\ntargetPath\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12 \n\x0b\x61\x63tionPairs\x18\x06 \x03(\x0b\x32\x0b.configPair\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"h\n\x0cTaskResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x15\n\rnumberOfFiles\x18\x02 \x01(\x05\x12\x0e\n\x06stdout\x18\x03 \x01(\t\x12\x0e\n\x06stderr\x18\x04 \x01(\t\x12\x11\n\ttimeTaken\x18\x05 \x01(\x01\x62\x06proto3'
+  serialized_pb=b'\n\rRequest.proto\"\x8c\x01\n\x0bTaskRequest\x12\x10\n\x08\x63odePath\x18\x01 \x01(\t\x12\x10\n\x08\x64\x61taPath\x18\x02 \x01(\t\x12\x12\n\noutputPath\x18\x03 \x01(\t\x12\x12\n\ntargetPath\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12 \n\x0b\x61\x63tionPairs\x18\x06 \x03(\x0b\x32\x0b.configPair\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"H\n\x0cTaskResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x15\n\rnumberOfFiles\x18\x02 \x01(\x05\x12\x11\n\ttimeTaken\x18\x05 \x01(\x01\x62\x06proto3'
 )
 
 
@@ -154,21 +154,7 @@ _TASKRESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='stdout', full_name='TaskResponse.stdout', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='stderr', full_name='TaskResponse.stderr', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='timeTaken', full_name='TaskResponse.timeTaken', index=4,
+      name='timeTaken', full_name='TaskResponse.timeTaken', index=2,
       number=5, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -187,7 +173,7 @@ _TASKRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=202,
-  serialized_end=306,
+  serialized_end=274,
 )
 
 _TASKREQUEST.fields_by_name['actionPairs'].message_type = _CONFIGPAIR

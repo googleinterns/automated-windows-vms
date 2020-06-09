@@ -1,14 +1,25 @@
-"""Program to send a post request with the proto file and accept and save the response in response.pb"""
-import requests
-import os
-URL='http://127.0.0.1:5000/load'
+#!/usr/bin/python
+"""Program to send a post request with
+    the proto file and accept and
+    save the response in response.pb
 
-with open('input_request.pb','rb') as f:
-    r=requests.post(url=URL,files={'task_request':f})
-print(type(r))
-print(str(r.content))
-if os.path.exists("response.pb"):
-    os.remove("response.pb")
-with open("response.pb","wb") as f:
-    f.write(r.content)
+    It takes the input_request.pb in the .\\proto\\ directory
+    sends it to the VM server, and accepts the response as
+    response.pb and saves it in .\\proto\\ directory
+"""
+import os
+import requests
+
+
+
+URL = "http://127.0.0.1:5000/load"
+ROOT = ".\\proto\\"
+with open(ROOT+'input_request.pb', 'rb') as input_request:
+    RESPONSE = requests.post(url=URL, files={'task_request':input_request})
+print(type(RESPONSE))
+print(str(RESPONSE.content))
+if os.path.exists(ROOT+"response.pb"):
+    os.remove(ROOT+"response.pb")
+with open(ROOT+"response.pb", "wb") as f:
+    f.write(RESPONSE.content)
     f.close()

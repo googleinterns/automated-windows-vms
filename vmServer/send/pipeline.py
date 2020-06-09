@@ -1,8 +1,13 @@
-#script to send the file, it does everything from compiling to sending POST request
+#!/usr/bin/python
+"""Script to create the protofile
+
+    It compiles the proto definition and
+    then creates the proto file from the text specified
+    in query1.txt or query2.txt
+"""
 import os
-import sys
 
-os.system('python compile_proto.py')
-os.system('python create_proto.py')
-os.system('python post_request.py')
 
+os.chdir('proto')
+os.system("python .\\compile_proto.py")
+os.system("python .\\create_proto.py .\\query1.txt")
