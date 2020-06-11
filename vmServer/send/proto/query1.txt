@@ -1,4 +1,4 @@
-codePath : "..\\test_macro\\code\\"
-dataPath : "..\\test_macro\\data\\"
-outputPath : "..\\test_macro\\output\\"
+codePath : "..\\test\\execute_macro\\code\\"
+dataPath : "..\\test\\execute_macro\\data\\"
+outputPath : "..\\test\\execute_macro\\output\\"
 targetPath : "\\code\\action.ps1"

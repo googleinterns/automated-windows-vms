@@ -1,4 +1,4 @@
-codePath : "..\\test_screenshot\\code\\"
-dataPath : "..\\test_screenshot\\data\\"
-outputPath : "..\\test_screenshot\\output\\"
+codePath : "..\\test\\screenshot\\code\\"
+dataPath : "..\\test\\screenshot\\data\\"
+outputPath : "..\\test\\screenshot\\output\\"
 targetPath : "\\code\\action.ps1"

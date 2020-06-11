@@ -1,2 +1,2 @@
 
-..\test_macro\code\..\test_macro\data\..\test_macro\output\"\code\action.ps1
+..\test\execute_macro\code\..\test\execute_macro\data\..\test\execute_macro\output\"\code\action.ps1

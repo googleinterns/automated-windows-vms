@@ -1,0 +1,3 @@
+C:\Users\neera\OneDrive\Desktop\Project1\automated-windows-vms\vmServer\accept\execute\action\code\action.ps1
+Action successfully executed
+Execution Done

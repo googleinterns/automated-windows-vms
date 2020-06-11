@@ -10,4 +10,4 @@ import os
 
 os.chdir('proto')
 os.system("python .\\compile_proto.py")
-os.system("python .\\create_proto.py .\\query1.txt")
+os.system("python .\\create_proto.py .\\query2.txt")
