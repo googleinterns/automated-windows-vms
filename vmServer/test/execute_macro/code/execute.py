@@ -5,13 +5,8 @@ import os
 import shutil
 import win32com.client
 import pythoncom
-
 import repackage
 repackage.up()
-
-
-
-
 
 
 def execute_macro(current_path):

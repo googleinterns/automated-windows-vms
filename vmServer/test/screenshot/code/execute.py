@@ -13,8 +13,6 @@ import win32gui
 repackage.up()
 
 
-
-
 def window_enumeration_handler(hwnd, top_windows):
   """Handles window enumeration
   """
@@ -35,10 +33,10 @@ def take_screenshot():
     win32gui.EnumWindows(window_enumeration_handler, top_windows)
     # Select the word document tab and bring it to foreground
     # also maximise the word document
-    for i in top_windows:
-      if " - Word" in i[1]:
-        win32gui.ShowWindow(i[0], win32con.SW_MAXIMIZE)
-        win32gui.SetForegroundWindow(i[0])
+    for window in top_windows:
+      if " - Word" in window[1]:
+        win32gui.ShowWindow(window[0], win32con.SW_MAXIMIZE)
+        win32gui.SetForegroundWindow(window[0])
         break
     app = wx.App()
     screen = wx.ScreenDC()

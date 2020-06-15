@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rRequest.proto\"\x8c\x01\n\x0bTaskRequest\x12\x10\n\x08\x63odePath\x18\x01 \x01(\t\x12\x10\n\x08\x64\x61taPath\x18\x02 \x01(\t\x12\x12\n\noutputPath\x18\x03 \x01(\t\x12\x12\n\ntargetPath\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12 \n\x0b\x61\x63tionPairs\x18\x06 \x03(\x0b\x32\x0b.configPair\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"H\n\x0cTaskResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x15\n\rnumberOfFiles\x18\x02 \x01(\x05\x12\x11\n\ttimeTaken\x18\x05 \x01(\x01\x62\x06proto3'
+  serialized_pb=b'\n\rRequest.proto\"\xac\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x61\x63tion_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11numner_of_retries\x18\x07 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"K\n\x0cTaskResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\x62\x06proto3'
 )
 
 
@@ -34,28 +34,28 @@ _TASKREQUEST = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='codePath', full_name='TaskRequest.codePath', index=0,
+      name='code_path', full_name='TaskRequest.code_path', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='dataPath', full_name='TaskRequest.dataPath', index=1,
+      name='data_path', full_name='TaskRequest.data_path', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='outputPath', full_name='TaskRequest.outputPath', index=2,
+      name='output_path', full_name='TaskRequest.output_path', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='targetPath', full_name='TaskRequest.targetPath', index=3,
+      name='target_path', full_name='TaskRequest.target_path', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -69,9 +69,16 @@ _TASKREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='actionPairs', full_name='TaskRequest.actionPairs', index=5,
+      name='action_pairs', full_name='TaskRequest.action_pairs', index=5,
       number=6, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='numner_of_retries', full_name='TaskRequest.numner_of_retries', index=6,
+      number=7, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -88,7 +95,7 @@ _TASKREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=158,
+  serialized_end=190,
 )
 
 
@@ -126,8 +133,8 @@ _CONFIGPAIR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=160,
-  serialized_end=200,
+  serialized_start=192,
+  serialized_end=232,
 )
 
 
@@ -147,15 +154,15 @@ _TASKRESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='numberOfFiles', full_name='TaskResponse.numberOfFiles', index=1,
+      name='number_of_files', full_name='TaskResponse.number_of_files', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='timeTaken', full_name='TaskResponse.timeTaken', index=2,
-      number=5, type=1, cpp_type=5, label=1,
+      name='time_taken', full_name='TaskResponse.time_taken', index=2,
+      number=3, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -172,11 +179,11 @@ _TASKRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=202,
-  serialized_end=274,
+  serialized_start=234,
+  serialized_end=309,
 )
 
-_TASKREQUEST.fields_by_name['actionPairs'].message_type = _CONFIGPAIR
+_TASKREQUEST.fields_by_name['action_pairs'].message_type = _CONFIGPAIR
 DESCRIPTOR.message_types_by_name['TaskRequest'] = _TASKREQUEST
 DESCRIPTOR.message_types_by_name['configPair'] = _CONFIGPAIR
 DESCRIPTOR.message_types_by_name['TaskResponse'] = _TASKRESPONSE

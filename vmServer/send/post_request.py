@@ -13,12 +13,12 @@ import requests
 
 URL = "http://127.0.0.1:5000/load"
 ROOT = ".\\proto\\"
-with open(ROOT+'input_request.pb', 'rb') as input_request:
+with open(ROOT + 'input_request.pb', 'rb') as input_request:
   RESPONSE = requests.post(url=URL, files={'task_request': input_request})
 print(type(RESPONSE))
 print(str(RESPONSE.content))
-if os.path.exists(ROOT+"response.pb"):
-  os.remove(ROOT+"response.pb")
-with open(ROOT+"response.pb", "wb") as f:
+if os.path.exists(ROOT + "response.pb"):
+  os.remove(ROOT + "response.pb")
+with open(ROOT + "response.pb", "wb") as f:
   f.write(RESPONSE.content)
   f.close()

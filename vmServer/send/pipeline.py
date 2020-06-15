@@ -9,5 +9,5 @@ import os
 
 
 os.chdir('proto')
-os.system("python .\\compile_proto.py")
-os.system("python .\\create_proto.py .\\query1.txt")
+os.system("protoc  --python_out=.\\ .\\Request.proto")
+os.system("python .\\create_proto.py .\\query3.txt")
