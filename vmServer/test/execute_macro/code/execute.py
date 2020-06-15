@@ -36,5 +36,5 @@ def execute_macro(current_path):
     print("Action successfully executed")
 
 if __name__ == "__main__":
-  CURRENT_PATH = 'execute\\action'
+  CURRENT_PATH = '..\\execute\\action'
   execute_macro(CURRENT_PATH)

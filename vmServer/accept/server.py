@@ -16,6 +16,13 @@ import repackage
 repackage.up(2)
 from vmServer.send.proto import Request_pb2
 
+def remove_execute_dir():
+  """Deletes the execute directory if it exists
+
+  """
+  dirpath = Path('..\\execute')
+  if dirpath.exists() and dirpath.is_dir(): # delete leftover files
+    shutil.rmtree(dirpath)
 
 def make_directories(task_request):
   """Creates the directories for execution
@@ -23,13 +30,11 @@ def make_directories(task_request):
   Args:
     task_request: TaskRequest() object that is read from the protobuf
   """
-  dirpath = Path('execute')
-  if dirpath.exists() and dirpath.is_dir(): # delete leftover files
-    shutil.rmtree(dirpath)                # from previos run
-  current_path = 'execute\\action'
-  os.mkdir('execute')
+  remove_execute_dir()
+  current_path = '..\\execute\\action'
+  os.mkdir('..\\execute')
   os.mkdir(current_path)
-  Path('execute\\__init__.py').touch() # __init__.py for package
+  Path('..\\execute\\__init__.py').touch() # __init__.py for package
   Path(current_path+"\\__init__.py").touch()
   shutil.copytree(task_request.codePath, current_path+"\\code")
   Path(current_path+"\\code\\__init__.py").touch() # __init__.py for package
@@ -44,7 +49,8 @@ def execute_action(task_request, task_response):
     task_request: an object of TaskResponse() that is sent in the request
     task_response: an object of TaskResponse() that will be sent back
   """
-  current_path = 'execute\\action'
+  current_path = '..\\execute\\action'
+  print(current_path+task_request.targetPath)
   try:
     execute = subprocess.Popen(['powershell.exe', #  execute the target file
                                 current_path+task_request.targetPath],
@@ -84,8 +90,8 @@ def load():
   time_taken = stop-start
   print("Time taken is ", time_taken)
   task_response.timeTaken = time_taken
-  output_files = [name for name in os.listdir(".\\execute\\action\\output\\")
-                  if os.path.isfile(".\\execute\\action\\output\\"+name)]
+  output_files = [name for name in os.listdir("..\\execute\\action\\output\\")
+                  if os.path.isfile("..\\execute\\action\\output\\"+name)]
   task_response.numberOfFiles = len(output_files)
   if task_response.status != "FAILURE":
     task_response.status = "SUCCESS"
