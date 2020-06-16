@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rRequest.proto\"\xac\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x61\x63tion_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11numner_of_retries\x18\x07 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"K\n\x0cTaskResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\x62\x06proto3'
+  serialized_pb=b'\n\rRequest.proto\"\xac\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x61\x63tion_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"K\n\x0cTaskResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\x62\x06proto3'
 )
 
 
@@ -76,7 +76,7 @@ _TASKREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='numner_of_retries', full_name='TaskRequest.numner_of_retries', index=6,
+      name='number_of_retries', full_name='TaskRequest.number_of_retries', index=6,
       number=7, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,

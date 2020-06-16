@@ -78,6 +78,7 @@ APP = Flask(__name__)
 def load():
   """load endpoint. Accepts post requests with protobuffer
   """
+  print("Accepted request", request)
   task_request = Request_pb2.TaskRequest()
   task_request.ParseFromString(request.files['task_request'].read())
   start = timeit.default_timer()
@@ -99,4 +100,4 @@ def load():
   return send_file("response.pb")
 
 if __name__ == '__main__':
-  APP.run(debug=True)
+  APP.run(debug = True)

@@ -2,3 +2,4 @@ code_path : "..\\test\\screenshot\\code\\"
 data_path : "..\\test\\screenshot\\data\\"
 output_path : "..\\test\\screenshot\\output\\"
 target_path : "\\code\\action.ps1"
+timeout : 3600

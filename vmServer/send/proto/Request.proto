@@ -7,7 +7,7 @@ message TaskRequest {
   string target_path = 4;  //  path to file from code root that is to be executed
   double timeout = 5;      //  timeout for the execution 
   repeated configPair action_pairs = 6; //key value pairs containing action and related parameters
-  int32 numner_of_retries = 7;  //number of times teh request will be sent again in case of failure
+  int32 number_of_retries = 7;  //number of times teh request will be sent again in case of failure
 }
 
 message configPair { //key value pairs containing action and related parameters
