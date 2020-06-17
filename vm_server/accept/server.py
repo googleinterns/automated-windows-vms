@@ -9,11 +9,14 @@ import timeit
 import os
 import subprocess
 from pathlib import Path
+import threading
 from flask import Flask, request, send_file
 import repackage
 repackage.up(2)
-from vmServer.send.proto import Request_pb2
+from vm_server.send.proto import Request_pb2
 
+
+sem = threading.Semaphore()
 
 def remove_execute_dir():
   """Deletes the execute directory if it exists
@@ -52,7 +55,7 @@ def execute_action(task_request, task_response):
   try:
     execute = subprocess.Popen(['powershell.exe', #  execute the target file
                                 current_path + task_request.target_path],
-                               stdout = subprocess.PIPE)
+                               stdout=subprocess.PIPE)
     out, err = execute.communicate(timeout=task_request.timeout)
     encoding = 'utf-8'
     if out is None:
@@ -78,26 +81,33 @@ APP = Flask(__name__)
 def load():
   """load endpoint. Accepts post requests with protobuffer
   """
-  print("Accepted request", request)
-  task_request = Request_pb2.TaskRequest()
-  task_request.ParseFromString(request.files['task_request'].read())
-  start = timeit.default_timer()
   task_response = Request_pb2.TaskResponse()
-  make_directories(task_request)
-  execute_action(task_request, task_response)
-  stop = timeit.default_timer()
-  time_taken = stop-start
-  print("Time taken is ", time_taken)
-  task_response.time_taken = time_taken
-  output_files = [name for name in os.listdir("..\\execute\\action\\output\\")
-                  if os.path.isfile("..\\execute\\action\\output\\" + name)]
-  task_response.number_of_files = len(output_files)
-  if task_response.status != "FAILURE":
-    task_response.status = "SUCCESS"
-  with open("response.pb", "wb") as response:
-    response.write(task_response.SerializeToString())
-    response.close()
+  if sem.acquire(blocking=False):
+    print("Accepted request", request)
+    task_request = Request_pb2.TaskRequest()
+    task_request.ParseFromString(request.files['task_request'].read())
+    start = timeit.default_timer()
+    make_directories(task_request)
+    execute_action(task_request, task_response)
+    stop = timeit.default_timer()
+    time_taken = stop-start
+    print("Time taken is ", time_taken)
+    task_response.time_taken = time_taken
+    output_files = [name for name in os.listdir("..\\execute\\action\\output\\")
+                    if os.path.isfile("..\\execute\\action\\output\\" + name)]
+    task_response.number_of_files = len(output_files)
+    if task_response.status != "FAILURE":
+      task_response.status = "SUCCESS"
+    with open("response.pb", "wb") as response:
+      response.write(task_response.SerializeToString())
+      response.close()
+    sem.release()
+  else:
+    task_response.status = "BUSY"
+    with open("response.pb", "wb") as response:
+      response.write(task_response.SerializeToString())
+      response.close()
   return send_file("response.pb")
 
 if __name__ == '__main__':
-  APP.run(debug = True)
+  APP.run(debug=True)
