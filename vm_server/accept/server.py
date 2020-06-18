@@ -58,23 +58,25 @@ def execute_action(task_request, task_response):
                                stdout=subprocess.PIPE)
     out, err = execute.communicate(timeout=task_request.timeout)
     encoding = 'utf-8'
-    if out is None:
-      out = "".encode(encoding)
-    if err is None:
-      err = "".encode(encoding)
-      std_out = open(current_path + "\\output\\stdout.txt", "w")
-      std_out.write(out.decode(encoding))
-      std_out.close()
-      std_err = open(current_path + "\\output\\stderr.txt", "w")
-      std_err.write(err.decode(encoding))
-      std_err.close()
   except Exception as exception:  #catch errors if any
     print(exception)
     print("FAIL")
     task_response.status = Request_pb2.TaskResponse.FAILURE
+    err=err+str(exception).encode(encoding)
+  if out is None:
+      out = "".encode(encoding)
+  if err is None:
+    err = "".encode(encoding)
+  try:
+    std_out = open(current_path + "\\output\\stdout.txt", "w")
+    std_out.write(out.decode(encoding))
+    std_out.close()
     std_err = open(current_path + "\\output\\stderr.txt", "w")
-    std_err.write(str(exception))
+    std_err.write(err.decode(encoding))
     std_err.close()
+  except Exception as exception:
+    print("Error writing in std out, stderr", exception)
+
 
 APP = Flask(__name__)
 @APP.route('/load', methods=['POST'])
