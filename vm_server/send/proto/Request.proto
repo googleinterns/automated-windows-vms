@@ -16,7 +16,12 @@ message configPair { //key value pairs containing action and related parameters
 }
 
 message TaskResponse {
-  string status = 1;    
+  enum options {
+    SUCCESS = 0;
+    FAILURE = 1;
+    BUSY = 2;
+  }
+  options status = 1;    
   int32 number_of_files = 2;
   double time_taken = 3;
 }

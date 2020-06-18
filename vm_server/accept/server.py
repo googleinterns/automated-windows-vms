@@ -71,7 +71,7 @@ def execute_action(task_request, task_response):
   except Exception as exception:  #catch errors if any
     print(exception)
     print("FAIL")
-    task_response.status = "FAILURE"
+    task_response.status = Request_pb2.TaskResponse.FAILURE
     std_err = open(current_path + "\\output\\stderr.txt", "w")
     std_err.write(str(exception))
     std_err.close()
@@ -96,14 +96,14 @@ def load():
     output_files = [name for name in os.listdir("..\\execute\\action\\output\\")
                     if os.path.isfile("..\\execute\\action\\output\\" + name)]
     task_response.number_of_files = len(output_files)
-    if task_response.status != "FAILURE":
-      task_response.status = "SUCCESS"
+    if task_response.status != Request_pb2.TaskResponse.FAILURE:
+      task_response.status = Request_pb2.TaskResponse.SUCCESS
     with open("response.pb", "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
     sem.release()
   else:
-    task_response.status = "BUSY"
+    task_response.status = Request_pb2.TaskResponse.BUSY
     with open("response.pb", "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()

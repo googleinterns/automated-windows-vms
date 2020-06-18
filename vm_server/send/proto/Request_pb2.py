@@ -19,10 +19,40 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rRequest.proto\"\xac\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x61\x63tion_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"K\n\x0cTaskResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\x62\x06proto3'
+  serialized_pb=b'\n\rRequest.proto\"\xac\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x61\x63tion_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x91\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\"-\n\x07options\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x08\n\x04\x42USY\x10\x02\x62\x06proto3'
 )
 
 
+
+_TASKRESPONSE_OPTIONS = _descriptor.EnumDescriptor(
+  name='options',
+  full_name='TaskResponse.options',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SUCCESS', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='FAILURE', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='BUSY', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=335,
+  serialized_end=380,
+)
+_sym_db.RegisterEnumDescriptor(_TASKRESPONSE_OPTIONS)
 
 
 _TASKREQUEST = _descriptor.Descriptor(
@@ -148,8 +178,8 @@ _TASKRESPONSE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='status', full_name='TaskResponse.status', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -172,6 +202,7 @@ _TASKRESPONSE = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
+    _TASKRESPONSE_OPTIONS,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -179,11 +210,13 @@ _TASKRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=234,
-  serialized_end=309,
+  serialized_start=235,
+  serialized_end=380,
 )
 
 _TASKREQUEST.fields_by_name['action_pairs'].message_type = _CONFIGPAIR
+_TASKRESPONSE.fields_by_name['status'].enum_type = _TASKRESPONSE_OPTIONS
+_TASKRESPONSE_OPTIONS.containing_type = _TASKRESPONSE
 DESCRIPTOR.message_types_by_name['TaskRequest'] = _TASKREQUEST
 DESCRIPTOR.message_types_by_name['configPair'] = _CONFIGPAIR
 DESCRIPTOR.message_types_by_name['TaskResponse'] = _TASKRESPONSE
