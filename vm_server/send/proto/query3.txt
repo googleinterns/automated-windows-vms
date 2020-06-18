@@ -1,5 +1,5 @@
 code_path : "..\\test\\timeout\\code\\"
 data_path : "..\\test\\timeout\\data\\"
 output_path : "..\\test\\timeout\\output\\"
-target_path : "\\code\\action.ps1"
+target_path : ".\\code\\action.ps1"
 timeout : 30

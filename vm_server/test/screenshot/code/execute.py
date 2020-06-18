@@ -24,7 +24,7 @@ def take_screenshot():
   """
   pythoncom.CoInitialize()
   root_path = os.path.dirname(os.getcwd())
-  path_to_file = root_path+"\\execute\\action\\data\\sample.docx"
+  path_to_file = root_path+"\\action\\data\\sample.docx"
   if os.path.exists(path_to_file):
     word = win32com.client.Dispatch("Word.Application")
     word.Visible = 1
@@ -48,8 +48,8 @@ def take_screenshot():
     bmp.SaveFile('screenshot.png', wx.BITMAP_TYPE_PNG)
     word.Quit()
     del word
-    dest_path = "\\execute\\action\\output\\screenshot.png"
-    shutil.move(root_path+"\\accept\\screenshot.png",
+    dest_path = "\\action\\output\\screenshot.png"
+    shutil.move(".\\screenshot.png",
                 root_path+dest_path)
     print("Action successfully executed")
 

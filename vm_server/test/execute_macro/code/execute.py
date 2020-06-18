@@ -9,15 +9,12 @@ import repackage
 repackage.up()
 
 
-def execute_macro(current_path):
-  """Execute macro
-
-  Args:
-    current_path: path of current directory (for convenience,
-    this is executed from some other directory)
+def execute_macro():
+  """Execute VBA macro in MS Excel
   """
   pythoncom.CoInitialize()
-  path_to_file = current_path+"\\data\\excelsheet.xlsm"
+  current_path = os.path.dirname(os.getcwd())
+  path_to_file = current_path+"\\action\\data\\excelsheet.xlsm"
   if os.path.exists(path_to_file):
     xl_file = win32com.client.Dispatch("Excel.Application")
     xl_run = xl_file.Workbooks.Open(os.path.abspath(path_to_file),
@@ -27,9 +24,8 @@ def execute_macro(current_path):
     xl_run.Close()
     xl_file.Quit()
     del xl_file
-    shutil.move(path_to_file, current_path+"\\output\\excelsheet.xlsm")
+    shutil.move(path_to_file, current_path+"\\action\\output\\excelsheet.xlsm")
     print("Action successfully executed")
 
 if __name__ == "__main__":
-  CURRENT_PATH = '..\\execute\\action'
-  execute_macro(CURRENT_PATH)
+  execute_macro()

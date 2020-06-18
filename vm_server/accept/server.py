@@ -52,19 +52,22 @@ def execute_action(task_request, task_response):
   """
   current_path = '..\\execute\\action'
   print(current_path + task_request.target_path)
+  encoding = 'utf-8'
+  out = None
+  err = None
   try:
     execute = subprocess.Popen(['powershell.exe', #  execute the target file
-                                current_path + task_request.target_path],
-                               stdout=subprocess.PIPE)
+                                task_request.target_path],
+                               stdout=subprocess.PIPE,
+                               cwd=current_path)
     out, err = execute.communicate(timeout=task_request.timeout)
-    encoding = 'utf-8'
   except Exception as exception:  #catch errors if any
     print(exception)
     print("FAIL")
     task_response.status = Request_pb2.TaskResponse.FAILURE
-    err=err+str(exception).encode(encoding)
+    err = str(exception).encode(encoding)
   if out is None:
-      out = "".encode(encoding)
+    out = "".encode(encoding)
   if err is None:
     err = "".encode(encoding)
   try:
@@ -109,6 +112,7 @@ def load():
     with open("response.pb", "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
+  print(task_response.status)
   return send_file("response.pb")
 
 if __name__ == '__main__':

@@ -10,4 +10,4 @@ import os
 
 os.chdir('proto')
 os.system("protoc  --python_out=.\\ .\\Request.proto")
-os.system("python .\\create_proto.py .\\query2.txt")
+os.system("python .\\create_proto.py .\\query3.txt")
