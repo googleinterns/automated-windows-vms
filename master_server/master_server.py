@@ -33,8 +33,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 
-working_vm_address = []
-available_vm_address = []
+working_vm_address_list = []
+available_vm_address_list = []
 
 class Newrequestentry(db.Model):
   """
@@ -89,11 +89,11 @@ def hello_world():
 
 @app.route('/register', methods=['GET', 'POST'])
 def add_vm_address():
-  """Add a VM to working_vm_address list.
+  """Add a VM to working_vm_address_list list.
   """
   address = request.data.decode('utf-8')
-  if address not in working_vm_address:
-    working_vm_address.append(address)
+  if address not in working_vm_address_list:
+    working_vm_address_list.append(address)
   return {'message': 'success'}
 
 @app.route('/upload')
@@ -111,12 +111,11 @@ def upload_fil():
   f = request.files['file']
   read = f.read()
   vm_n = find_working_vm()
-  print(vm_n)
   if vm_n == 'NOT':
     return 'try again later'
   else:
     try:
-      working_vm_address.remove(vm_n)
+      working_vm_address_list.remove(vm_n)
       task_request = Request_pb2.TaskRequest()
       task_request.ParseFromString(read)
       requ = create_new_request(
@@ -133,7 +132,7 @@ def upload_fil():
 def upload_fi():
   """Return VM address which are active.
   """
-  return str(working_vm_address)
+  return str(working_vm_address_list)
 
 @app.route('/success', methods=['GET', 'POST'])
 def task_completed():
@@ -186,18 +185,18 @@ def find_working_vm():
   """
     Find working VM address.
   """
-  for i in working_vm_address:
-    if not is_engaged(i):
-      return i
+  for address in working_vm_address_list:
+    if not is_engaged(address):
+      return address
   return 'NOT'
 
 def get_working_vm_address():
   """
     Append IP addresses of working VMs to a list.
   """
-  for i in available_vm_address:
-    if is_healthy(i) and not is_engaged(i):
-      working_vm_address.append(i)
+  for address in available_vm_address_list:
+    if is_healthy(address) and not is_engaged(address):
+      working_vm_address_list.append(address)
 
 def get_available_vm_address():
   """
@@ -207,7 +206,7 @@ def get_available_vm_address():
   with open('listfile.txt', 'r') as filehandle:
     for line in filehandle:
       new_address = line[:-1]
-      available_vm_address.append(new_address)
+      available_vm_address_list.append(new_address)
 
 def pre_tasks():
   """
