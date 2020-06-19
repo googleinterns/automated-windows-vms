@@ -9,6 +9,7 @@ from datetime import datetime
 import requests
 from flask import Flask
 from flask import request
+import random
 
 
 class MyFlaskApp(Flask):
@@ -40,7 +41,8 @@ def task_done():
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
-  os.system('sleep 10')
+  n = random.randint(0,3000)
+  os.system('sleep '+str(n))
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
