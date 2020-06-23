@@ -1,8 +1,4 @@
-#!/usr/bin/python
-
 """This script works on the asssumption of a certain directory structure.
-
-
      It then acts the master server and load balances the incoming
      requests.
      A database is created to store the incoming requests from user.
@@ -17,8 +13,7 @@ from datetime import datetime
 import Request_pb2
 
 class MyFlaskApp(Flask):
-  """
-    This class configures the flask app and executes function
+  """This class configures the flask APP and executes function
     pre_task before starting flask server.
   """
   def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
@@ -28,29 +23,28 @@ class MyFlaskApp(Flask):
     super(MyFlaskApp, self).run(
         host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
 
-app = MyFlaskApp(__name__)
+APP = MyFlaskApp(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-db = SQLAlchemy(app)
+APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.DB'
+DB = SQLAlchemy(APP)
 
 
 working_vm_address_list = []
 available_vm_address_list = []
 
-class Newrequestentry(db.Model):
-  """
-    This class creates a table Newrequestentry
+class Newrequestentry(DB.Model):
+  """This class creates a table Newrequestentry
     init function in this class inserts a new row
     the table.
   """
-  request_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-  request_proto_file = db.Column(db.BLOB)
-  response_proto_file = db.Column(db.BLOB)
-  request_status = db.Column(db.String(50))
-  last_vm_assigned = db.Column(db.String(100))
-  number_of_retries_allowed = db.Column(db.Integer)
-  number_of_retries_till_now = db.Column(db.Integer)
-  datetime_of_accepting_request = db.Column(db.DateTime, default=datetime.now())
+  request_id = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
+  request_proto_file = DB.Column(DB.BLOB)
+  response_proto_file = DB.Column(DB.BLOB)
+  request_status = DB.Column(DB.String(50))
+  last_vm_assigned = DB.Column(DB.String(100))
+  number_of_retries_allowed = DB.Column(DB.Integer)
+  number_of_retries_till_now = DB.Column(DB.Integer)
+  datetime_of_accepting_request = DB.Column(DB.DateTime, default=datetime.now())
 
   def __init__(
       self, request_proto_file, request_status, last_vm_assigned,
@@ -64,61 +58,55 @@ class Newrequestentry(db.Model):
 def create_new_request(
     request_proto_file, request_status, last_vm_assigned,
     number_of_retries_allowed, number_of_retries_till_now):
-  """This function adds a new row to database.
-  """
+#  This function adds a new row to database.
   dessert = Newrequestentry(
       request_proto_file, request_status, last_vm_assigned,
       number_of_retries_allowed, number_of_retries_till_now)
-  db.session.add(dessert)
-  db.session.commit()
+  DB.session.add(dessert)
+  DB.session.commit()
   return dessert
 
 def get_status(request_id):
-  """Get status of previous request.
-  """
+#  Get status of previous request.
   get_row_data = Newrequestentry.query.get(request_id)
   return get_row_data
 
 def change_state(request_id, input_file):
-  """Change request_status of a request.
-  """
+#  Change request_status of a request.
   Newrequestentry.query.filter_by(request_id=request_id).\
   update({Newrequestentry.response_proto_file: input_file})
-  db.session.commit()
+  DB.session.commit()
 
 def change_state_again(request_id, last_vm_assigned,
       number_of_retries_till_now):
-  """Change request_status of a request.
-  """
+#  Change request_status of a request.
+  
   Newrequestentry.query.filter_by(request_id=request_id).\
   update({Newrequestentry.last_vm_assigned: last_vm_assigned, Newrequestentry.\
       number_of_retries_till_now: number_of_retries_till_now})
-  db.session.commit()
+  DB.session.commit()
 
-@app.route('/', methods=['GET', 'POST'])
+@APP.route('/', methods=['GET', 'POST'])
 def hello_world():
   return(' You have reached master server \n')
 
-@app.route('/register', methods=['GET', 'POST'])
+@APP.route('/register', methods=['GET', 'POST'])
 def add_vm_address():
-  """Add a VM to working_vm_address_list list.
-  """
+#  Add a VM to working_vm_address_list list.
   address = request.data.decode('utf-8')
   if address not in working_vm_address_list:
     working_vm_address_list.append(address)
   return {'message': 'success'}
 
-@app.route('/upload')
-def upload_file():
-  """Serve web page
-  """
+@APP.route('/upload')
+def upload_file_webpage():
+#  Serve web page
   return render_template('upload.html')
 
-@app.route('/uploader', methods=['GET', 'POST'])
-def upload_fil():
-  """
-    Accept proto file from user and
-    assign it to VM.
+@APP.route('/uploader', methods=['GET', 'POST'])
+def upload_file():
+  """Accept proto file from user and
+     assign it to VM.
   """
   f = request.files['file']
   read = f.read()
@@ -136,24 +124,19 @@ def upload_fil():
       response = requests.post(url=vm_n, files={'task_request':
           task_request.SerializeToString()})
       return 'file uploaded successfully,your request_id is '+ \
-          str(requ.request_id)+'  '+' address is '+str(requ.last_vm_assigned)+ \
-          ' number of retries allowed is '+str(requ.number_of_retries_allowed)
+          str(requ.request_id)+'  ' + ' address is ' + str(requ.last_vm_assigned)+ \
+          ' number of retries allowed is ' + str(requ.number_of_retries_allowed)
     except:
       return 'try again later'
 
-@app.route('/vm_status', methods=['GET', 'POST'])
-def upload_fi():
-  """Return VM address which are active.
-  """
+@APP.route('/vm_status', methods=['GET', 'POST'])
+def vm_status():
+#  Return VM address which are active.
   return str(working_vm_address_list)
 
-@app.route('/success', methods=['GET', 'POST'])
+@APP.route('/success', methods=['GET', 'POST'])
 def task_completed():
-  """Completed request
-  request_id = request.data.decode('utf-8')
-  change_state(int(request_id))
-  return 'success'
-  """
+#  Receive response from vm_server.
   input_file = request.files['task_response']
   req = request.files['request_id'].read()
   task_response = Request_pb2.TaskResponse()
@@ -164,10 +147,9 @@ def task_completed():
     result = retry_again(request_id)
   return 'success'
 
-@app.route('/request_status', methods=['GET', 'POST'])
+@APP.route('/request_status', methods=['GET', 'POST'])
 def status_of_request():
-  """Check status of a request
-  """
+#  Check status of a request
   req_id = request.form['request_id']
   request_row = get_status(req_id)
   if request_row is None:
@@ -182,8 +164,8 @@ def status_of_request():
       return str(task_response)
 
 def retry_again(request_id):
-  """Retry again if request fails.
-  """
+#  Retry again if request fails.
+  
   request_row = get_status(request_id)
   if request_row.number_of_retries_allowed > request_row.number_of_retries_till_now:
     vm_n = find_working_vm()
@@ -203,10 +185,9 @@ def retry_again(request_id):
         return 'try again later'
 
 def is_healthy(node):
-  """
-    Check given VM is healthy or not.
-    Args:
-      node:
+  """Check given VM is healthy or not.
+     Args:
+       node:
   """
   try:
     req = requests.get(node+str('/active'))
@@ -215,11 +196,10 @@ def is_healthy(node):
     return False
 
 def is_engaged(node):
-  """
-    Check whether given VM is engaged in any
-    task or not.
-    Args:
-      node:
+  """Check whether given VM is engaged in any
+     task or not.
+     Args:
+       node:
   """
   if is_healthy(node):
     try:
@@ -231,26 +211,21 @@ def is_engaged(node):
   return False
 
 def find_working_vm():
-  """
-    Find working VM address.
-  """
+#  Find working VM address.
   for address in working_vm_address_list:
     if not is_engaged(address):
       return address
   return 'NOT'
 
 def get_working_vm_address():
-  """
-    Append IP addresses of working VMs to a list.
-  """
+#   Append IP addresses of working VMs to a list.
   for address in available_vm_address_list:
     if is_healthy(address) and not is_engaged(address):
       working_vm_address_list.append(address)
 
 def get_available_vm_address():
-  """
-    Append IP addresses of available VMs to a list.
-    It assumes IP addresses are present in a text file.
+  """Append IP addresses of available VMs to a list.
+     It assumes IP addresses are present in a text file.
   """
   with open('listfile.txt', 'r') as filehandle:
     for line in filehandle:
@@ -258,12 +233,10 @@ def get_available_vm_address():
       available_vm_address_list.append(new_address)
 
 def pre_tasks():
-  """
-    Tasks to do before flask server starts.
-  """
-  db.create_all()
+#   Tasks to do before flask server starts.
+  DB.create_all()
   get_available_vm_address()
   get_working_vm_address()
 
 if __name__ == '__main__':
-  app.run()
+  APP.run()
