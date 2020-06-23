@@ -19,9 +19,8 @@ from vm_server.send.proto import Request_pb2
 sem = threading.Semaphore()
 
 def remove_execute_dir():
-  """Deletes the execute directory if it exists
-  """
-  dirpath = Path('..\\execute')
+  """Deletes the execute directory if it exists"""
+  dirpath = Path("..\\execute")
   if dirpath.exists() and dirpath.is_dir(): # delete leftover files
     shutil.rmtree(dirpath)
 
@@ -32,10 +31,10 @@ def make_directories(task_request):
     task_request: TaskRequest() object that is read from the protobuf
   """
   remove_execute_dir()
-  current_path = '..\\execute\\action'
-  os.mkdir('..\\execute')
+  current_path = "..\\execute\\action"
+  os.mkdir("..\\execute")
   os.mkdir(current_path)
-  Path('..\\execute\\__init__.py').touch() # __init__.py for package
+  Path("..\\execute\\__init__.py").touch() # __init__.py for package
   Path(current_path + "\\__init__.py").touch()
   shutil.copytree(task_request.code_path, current_path + "\\code")
   Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
@@ -50,13 +49,13 @@ def execute_action(task_request, task_response):
     task_request: an object of TaskResponse() that is sent in the request
     task_response: an object of TaskResponse() that will be sent back
   """
-  current_path = '..\\execute\\action'
+  current_path = "..\\execute\\action"
   print(current_path + task_request.target_path)
-  encoding = 'utf-8'
+  encoding = "utf-8"
   out = None
   err = None
   try:
-    execute = subprocess.Popen(['powershell.exe', #  execute the target file
+    execute = subprocess.Popen(["powershell.exe", #  execute the target file
                                 task_request.target_path],
                                stdout=subprocess.PIPE,
                                cwd=current_path)
@@ -82,15 +81,14 @@ def execute_action(task_request, task_response):
 
 
 APP = Flask(__name__)
-@APP.route('/load', methods=['POST'])
+@APP.route("/load", methods=["POST"])
 def load():
-  """load endpoint. Accepts post requests with protobuffer
-  """
+  """load endpoint. Accepts post requests with protobuffer"""
   task_response = Request_pb2.TaskResponse()
   if sem.acquire(blocking=False):
     print("Accepted request", request)
     task_request = Request_pb2.TaskRequest()
-    task_request.ParseFromString(request.files['task_request'].read())
+    task_request.ParseFromString(request.files["task_request"].read())
     start = timeit.default_timer()
     make_directories(task_request)
     execute_action(task_request, task_response)
@@ -115,5 +113,5 @@ def load():
   print(task_response.status)
   return send_file("response.pb")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   APP.run(debug=True)
