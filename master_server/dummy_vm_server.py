@@ -1,6 +1,5 @@
-"""
-  This is a dummy VM server.
-  It is built to test master server.
+"""This is a dummy VM server.
+  It is built to test the master server.
 """
 import sys
 import os
@@ -15,9 +14,8 @@ from flask import Flask
 import Request_pb2
 
 class MyFlaskApp(Flask):
-  """
-    This class configures the flask app and executes function
-    pre_task before starting flask server.
+  """This class configures the flask app and executes function
+     pre_task before starting flask server.
   """
   def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
     if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
@@ -27,19 +25,18 @@ class MyFlaskApp(Flask):
         host=host, port=int(sys.argv[1]), debug=debug,
         load_dotenv=load_dotenv, **options)
 
-app = MyFlaskApp(__name__)
+APP = MyFlaskApp(__name__)
 
 flag = False
-master_server = 'http://127.0.0.1:5000'
-vm_address = 'http://127.0.0.1:'
+MASTER_SERVER = 'http://127.0.0.1:5000'
+VM_ADDRESS = 'http://127.0.0.1:'
 request_id = ''
 task_response = Request_pb2.TaskResponse()
 task_request = Request_pb2.TaskRequest()
 
 def task_done():
-  """
-    It prints time and then sleep for some time
-    and then again print time.
+  """It prints time and then sleep for some time
+     and then again print time.
   """
   global flag
   global task_response
@@ -73,17 +70,16 @@ def execute_task():
   time.sleep(10)
 
 def task_completed():
-  """Notify the master server after task is completed.
-  """
+#  Notify the master server after task is completed.
+  
   read = task_response.SerializeToString()
   response = requests.post(url='http://127.0.0.1:5000/success', files=
       {'task_response': read, 'request_id': ('', str(task_request.request_id))})
 
-@app.route('/', methods=['GET', 'POST'])
+@APP.route('/', methods=['GET', 'POST'])
 def hello_world():
-  """
-    This function receives files from master server.
-    And executes some task to make the VM busy.
+  """This function receives files from master server.
+     And executes some task to make the VM busy.
   """
   global flag
   global request_id
@@ -97,35 +93,31 @@ def hello_world():
   t.start()
   return 'success'
 
-@app.route('/active', methods=['GET', 'POST'])
-def f():
-  """Master can check here if VM is active or not.
-  """
+@APP.route('/active', methods=['GET', 'POST'])
+def is_active():
+#  Master can check here if VM is active or not.
   return {'hello': 'world'}
 
-@app.route('/status', methods=['GET', 'POST'])
-def g():
-  """returns the state of VM
-  """
+@APP.route('/status', methods=['GET', 'POST'])
+def flag_status():
+#  Returns the state of VM
   return {'status': flag}
 
 def register_vm_address():
-  """This functions tells the master server that VM is healhty.
-  """
-  data = 'http://127.0.0.1:'+str(sys.argv[1])
+#  This functions tells the master server that VM is healhty.
+  data = 'http://127.0.0.1:' + str(sys.argv[1])
   try:
-    req = requests.get(master_server+str('/register'), data=data)
+    req = requests.get(MASTER_SERVER + str('/register'), data=data)
   except:
     print('can''t connect to master server')
 
 def pre_task():
-  """This function performs tasks before the start of flask server.
-  """
+#  This function performs tasks before the start of flask server.
   if len(sys.argv) != 2:
     print('Usage:', sys.argv[0], 'INPUT_PORT')
     sys.exit(-1)
-  vm_address = 'http://127.0.0.1:' + sys.argv[1]
+  VM_ADDRESS = 'http://127.0.0.1:' + sys.argv[1]
   register_vm_address()
 
 if __name__ == '__main__':
-  app.run()
+  APP.run()
