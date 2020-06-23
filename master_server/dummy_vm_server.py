@@ -13,8 +13,7 @@ import random
 
 
 class MyFlaskApp(Flask):
-  """
-    This class configures the flask app and executes function
+  """This class configures the flask APP and executes function
     pre_task before starting flask server.
   """
   def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
@@ -25,82 +24,75 @@ class MyFlaskApp(Flask):
         host=host, port=int(sys.argv[1]), debug=debug,
         load_dotenv=load_dotenv, **options)
 
-app = MyFlaskApp(__name__)
+APP = MyFlaskApp(__name__)
 
-flag = False
-master_server = 'http://127.0.0.1:5000'
-vm_address = 'http://127.0.0.1:'
-request_id = ''
+FLAG = False
+MASTER_SERVER = 'http://127.0.0.1:5000'
+VM_ADDRESS = 'http://127.0.0.1:'
+REQUEST_ID = ''
 
 def task_done():
+  """It prints time and then sleep for some time
+     and then again print time.
   """
-    It prints time and then sleep for some time
-    and then again print time.
-  """
-  global flag
+  global FLAG
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
   n = random.randint(0,3000)
-  os.system('sleep '+str(n))
+  os.system('sleep ' + str(n))
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
   task_completed()
-  flag = False
+  FLAG = False
   register_vm_address()
 
 def task_completed():
-  """Notify the master server after task is completed.
-  """
-  req = requests.get(master_server+str('/success'), data=request_id)
+#  Notify the master server after task is completed.
+  req = requests.get(MASTER_SERVER + str('/success'), data=REQUEST_ID)
 
-@app.route('/', methods=['GET', 'POST'])
+@APP.route('/', methods=['GET', 'POST'])
 def hello_world():
+  """This function receives files from master server.
+     And executes some task to make the VM busy.
   """
-    This function receives files from master server.
-    And executes some task to make the VM busy.
-  """
-  global flag
-  global request_id
+  global FLAG
+  global REQUEST_ID
   input_file = request.files['task_request']
   req = request.files['request_id'].read()
   req = req.decode('utf-8')
-  request_id = req
-  flag = True
+  REQUEST_ID = req
+  FLAG = True
   t = threading.Thread(target=task_done)
   t.start()
   return 'success'
 
-@app.route('/active', methods=['GET', 'POST'])
+@APP.route('/active', methods=['GET', 'POST'])
 def f():
-  """Master can check here if VM is active or not.
-  """
+# Master can check here if VM is active or not.
   return {'hello': 'world'}
 
-@app.route('/status', methods=['GET', 'POST'])
+@APP.route('/status', methods=['GET', 'POST'])
 def g():
-  """returns the state of VM
-  """
-  return {'status': flag}
+# returns the state of VM
+  return {'status': FLAG}
 
 def register_vm_address():
-  """This functions tells the master server that VM is healhty.
-  """
-  data = 'http://127.0.0.1:'+str(sys.argv[1])
+#  This functions tells the master server that VM is healhty.
+  data = 'http://127.0.0.1:' + str(sys.argv[1])
   try:
-    req = requests.get(master_server+str('/register'), data=data)
+    req = requests.get(MASTER_SERVER + str('/register'), data=data)
   except:
     print('can''t connect to master server')
 
 def pre_task():
-  """This function performs tasks before the start of flask server.
-  """
+#  This function performs tasks before the start of flask server.
   if len(sys.argv) != 2:
     print("Usage:", sys.argv[0], "INPUT_PORT")
     sys.exit(-1)
-  vm_address = 'http://127.0.0.1:' + sys.argv[1]
+  VM_ADDRESS = 'http://127.0.0.1:' + sys.argv[1]
   register_vm_address()
 
 if __name__ == '__main__':
-  app.run()
+  APP.run()
