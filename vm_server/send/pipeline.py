@@ -12,9 +12,10 @@ def execute_commands():
   """Executes commands to compile and create a proto file"""
   os.chdir("proto")
   os.system("protoc  --python_out=.\\ .\\Request.proto")
-  os.system("python .\\create_proto.py " + sys.argv[1])
+  os.system("python .\\create_proto.py .\\" + sys.argv[1])
 
 if __name__ == "__main__":
   if len(sys.argv) != 2:
     print("Usage:", sys.argv[0], "QUERY_TEXT_FILE")
     sys.exit(-1)
+  execute_commands()
