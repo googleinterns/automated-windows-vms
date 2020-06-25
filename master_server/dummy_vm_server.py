@@ -1,10 +1,13 @@
+
 """This is a dummy VM server.
   It is built to test the master server.
+
 """
 import sys
 import os
 import threading
 from datetime import datetime
+
 import timeit
 import multiprocessing
 import time
@@ -16,6 +19,7 @@ import Request_pb2
 class MyFlaskApp(Flask):
   """This class configures the flask app and executes function
      pre_task before starting flask server.
+
   """
   def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
     if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
@@ -34,10 +38,12 @@ request_id = ''
 task_response = Request_pb2.TaskResponse()
 task_request = Request_pb2.TaskRequest()
 
+
 def task_done():
   """It prints time and then sleep for some time
      and then again print time.
   """
+
   global flag
   global task_response
   now = datetime.now()
@@ -76,11 +82,13 @@ def task_completed():
   response = requests.post(url='http://127.0.0.1:5000/success', files=
       {'task_response': read, 'request_id': ('', str(task_request.request_id))})
 
+
 @APP.route('/', methods=['GET', 'POST'])
 def hello_world():
   """This function receives files from master server.
      And executes some task to make the VM busy.
   """
+
   global flag
   global request_id
   global task_request
@@ -89,11 +97,13 @@ def hello_world():
   print(task_request)
   request_id = task_request.request_id
   flag = True
+
   t = threading.Thread(target=task_done)
   t.start()
   return 'success'
 
 @APP.route('/active', methods=['GET', 'POST'])
+
 def is_active():
 #  Master can check here if VM is active or not.
   return {'hello': 'world'}
@@ -102,6 +112,7 @@ def is_active():
 def flag_status():
 #  Returns the state of VM
   return {'status': flag}
+
 
 def register_vm_address():
 #  This functions tells the master server that VM is healhty.
@@ -114,7 +125,9 @@ def register_vm_address():
 def pre_task():
 #  This function performs tasks before the start of flask server.
   if len(sys.argv) != 2:
+
     print('Usage:', sys.argv[0], 'INPUT_PORT')
+
     sys.exit(-1)
   VM_ADDRESS = 'http://127.0.0.1:' + sys.argv[1]
   register_vm_address()
