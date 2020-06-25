@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\rRequest.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x61\x63tion_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x9e\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\":\n\x07options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\x0b\n\x07\x46\x41ILURE\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\x62\x06proto3')
+  serialized_pb=_b('\n\rRequest.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x63onfig_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x9e\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\":\n\x07options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\x0b\n\x07\x46\x41ILURE\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\x62\x06proto3')
 )
 
 
@@ -98,7 +98,7 @@ _TASKREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='action_pairs', full_name='TaskRequest.action_pairs', index=5,
+      name='config_pairs', full_name='TaskRequest.config_pairs', index=5,
       number=6, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -218,7 +218,7 @@ _TASKRESPONSE = _descriptor.Descriptor(
   serialized_end=413,
 )
 
-_TASKREQUEST.fields_by_name['action_pairs'].message_type = _CONFIGPAIR
+_TASKREQUEST.fields_by_name['config_pairs'].message_type = _CONFIGPAIR
 _TASKRESPONSE.fields_by_name['status'].enum_type = _TASKRESPONSE_OPTIONS
 _TASKRESPONSE_OPTIONS.containing_type = _TASKRESPONSE
 DESCRIPTOR.message_types_by_name['TaskRequest'] = _TASKREQUEST
