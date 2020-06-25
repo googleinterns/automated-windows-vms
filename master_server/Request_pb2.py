@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\rRequest.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x63onfig_pairs\x18\x06 \x03(\x0b\x32\x0b.configPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nconfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x9e\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\":\n\x07options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\x0b\n\x07\x46\x41ILURE\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\x62\x06proto3')
+  serialized_pb=_b('\n\rRequest.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x63onfig_pairs\x18\x06 \x03(\x0b\x32\x0b.ConfigPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nConfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x9e\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\":\n\x07options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\x0b\n\x07\x46\x41ILURE\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\x62\x06proto3')
 )
 
 
@@ -136,21 +136,21 @@ _TASKREQUEST = _descriptor.Descriptor(
 
 
 _CONFIGPAIR = _descriptor.Descriptor(
-  name='configPair',
-  full_name='configPair',
+  name='ConfigPair',
+  full_name='ConfigPair',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='configPair.key', index=0,
+      name='key', full_name='ConfigPair.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='configPair.value', index=1,
+      name='value', full_name='ConfigPair.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -222,7 +222,7 @@ _TASKREQUEST.fields_by_name['config_pairs'].message_type = _CONFIGPAIR
 _TASKRESPONSE.fields_by_name['status'].enum_type = _TASKRESPONSE_OPTIONS
 _TASKRESPONSE_OPTIONS.containing_type = _TASKRESPONSE
 DESCRIPTOR.message_types_by_name['TaskRequest'] = _TASKREQUEST
-DESCRIPTOR.message_types_by_name['configPair'] = _CONFIGPAIR
+DESCRIPTOR.message_types_by_name['ConfigPair'] = _CONFIGPAIR
 DESCRIPTOR.message_types_by_name['TaskResponse'] = _TASKRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -233,12 +233,12 @@ TaskRequest = _reflection.GeneratedProtocolMessageType('TaskRequest', (_message.
   ))
 _sym_db.RegisterMessage(TaskRequest)
 
-configPair = _reflection.GeneratedProtocolMessageType('configPair', (_message.Message,), dict(
+ConfigPair = _reflection.GeneratedProtocolMessageType('ConfigPair', (_message.Message,), dict(
   DESCRIPTOR = _CONFIGPAIR,
   __module__ = 'Request_pb2'
-  # @@protoc_insertion_point(class_scope:configPair)
+  # @@protoc_insertion_point(class_scope:ConfigPair)
   ))
-_sym_db.RegisterMessage(configPair)
+_sym_db.RegisterMessage(ConfigPair)
 
 TaskResponse = _reflection.GeneratedProtocolMessageType('TaskResponse', (_message.Message,), dict(
   DESCRIPTOR = _TASKRESPONSE,

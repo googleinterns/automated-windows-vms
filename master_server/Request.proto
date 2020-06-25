@@ -6,13 +6,13 @@ message TaskRequest {
   string output_path = 3; // Pantheon path where the output will be stored.
   string target_path = 4; // Path to file from code root that is to be executed.
   double timeout = 5; // Timeout for the execution .
-  repeated configPair config_pairs = 6; // Key value pairs containing action and related parameters.
-  int32 number_of_retries = 7;  // Number of times the request will be sent again in case of failure.
-  int32 request_id = 8;    // Request id assigned to task by master server.
+  repeated ConfigPair config_pairs = 6; // Key value pairs containing action and related parameters.
+  int32 number_of_retries = 7; // Number of times the request will be sent again in case of failure.
+  int32 request_id = 8; // Request id assigned to task by master server.
 }
 
 // Key value pairs containing action and related parameters.
-message configPair { 
+message ConfigPair { 
   string key = 1;
   string value = 2;
 }
