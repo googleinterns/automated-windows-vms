@@ -4,6 +4,7 @@
   It accepts the requests in the form of protobufs
   and executes the same in the specified path
 """
+import logging
 import shutil
 import timeit
 import os
@@ -20,6 +21,7 @@ sem = threading.Semaphore()
 
 def remove_execute_dir():
   """Deletes the execute directory if it exists"""
+  logging.debug("Removing execute directory")
   dirpath = Path("..\\execute")
   if dirpath.exists() and dirpath.is_dir(): # delete leftover files
     shutil.rmtree(dirpath)
@@ -30,6 +32,7 @@ def make_directories(task_request):
   Args:
     task_request: TaskRequest() object that is read from the protobuf
   """
+  logging.debug("Creating execute directory structure")
   remove_execute_dir()
   current_path = "..\\execute\\action"
   os.mkdir("..\\execute")
@@ -49,8 +52,10 @@ def execute_action(task_request, task_response):
     task_request: an object of TaskResponse() that is sent in the request
     task_response: an object of TaskResponse() that will be sent back
   """
+  logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
-  print(current_path + task_request.target_path)
+  print("Action path is: ", current_path + task_request.target_path)
+  logging.debug("Action path is: " + str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
   err = None
@@ -63,6 +68,8 @@ def execute_action(task_request, task_response):
   except Exception as exception:  #catch errors if any
     print(exception)
     print("FAIL")
+    logging.debug(str(exception))
+    logging.debug("FAILED TO EXECUTE THE ACTION")
     task_response.status = Request_pb2.TaskResponse.FAILURE
     err = str(exception).encode(encoding)
   if out is None:
@@ -78,6 +85,7 @@ def execute_action(task_request, task_response):
     std_err.close()
   except Exception as exception:
     print("Error writing in std out, stderr", exception)
+    logging.debug("Error writing in std out, stderr" + str(exception))
 
 
 APP = Flask(__name__)
@@ -87,14 +95,18 @@ def load():
   task_response = Request_pb2.TaskResponse()
   if sem.acquire(blocking=False):
     print("Accepted request", request)
+    logging.debug("Accepted request: " + str(request))
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
+    print("Request Proto: ", task_response)
+    logging.debug("Request Proto: " + str(task_request))
     start = timeit.default_timer()
     make_directories(task_request)
     execute_action(task_request, task_response)
     stop = timeit.default_timer()
     time_taken = stop-start
     print("Time taken is ", time_taken)
+    logging.debug("Time taken is " + str(time_taken))
     task_response.time_taken = time_taken
     output_files = [name for name in os.listdir("..\\execute\\action\\output\\")
                     if os.path.isfile("..\\execute\\action\\output\\" + name)]
@@ -112,8 +124,10 @@ def load():
     with open(response_proto, "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
-  print(task_response.status)
+  print("Response Proto: ", task_response)
+  logging.debug("Response Proto: " + str(task_response))
   return send_file(response_proto)
 
 if __name__ == "__main__":
+  logging.basicConfig(filename = "server.log", level = logging.DEBUG)
   APP.run(debug=True)
