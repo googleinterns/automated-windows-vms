@@ -101,17 +101,19 @@ def load():
     task_response.number_of_files = len(output_files)
     if task_response.status != Request_pb2.TaskResponse.FAILURE:
       task_response.status = Request_pb2.TaskResponse.SUCCESS
-    with open("response.pb", "wb") as response:
+    current_path = os.path.dirname(os.path.realpath("__file__"))
+    response_proto = os.path.join(current_path, "..\\execute\\response.pb")
+    with open(response_proto, "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
     sem.release()
   else:
     task_response.status = Request_pb2.TaskResponse.BUSY
-    with open("response.pb", "wb") as response:
+    with open(response_proto, "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
   print(task_response.status)
-  return send_file("response.pb")
+  return send_file(response_proto)
 
 if __name__ == "__main__":
   APP.run(debug=True)
