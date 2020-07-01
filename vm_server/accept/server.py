@@ -20,29 +20,49 @@ from vm_server.send.proto import Request_pb2
 sem = threading.Semaphore()
 
 def remove_execute_dir():
-  """Deletes the execute directory if it exists"""
+  """Deletes the execute directory if it exists
+  
+  Args:
+    task_response: an object of TaskResponse() that will be sent back
+  """
   logging.debug("Removing execute directory")
   dirpath = Path("..\\execute")
-  if dirpath.exists() and dirpath.is_dir(): # delete leftover files
-    shutil.rmtree(dirpath)
+  try: 
+    if dirpath.exists() and dirpath.is_dir(): # delete leftover files
+      shutil.rmtree(dirpath)
+  except Exception as exception:  #catch errors if any
+    print(exception)
+    logging.exception(str(exception))
+    print("Error deleting the execute directory")
+    logging.debug("Error deleting the execute directory")
+    task_response.status = Request_pb2.TaskResponse.FAILURE
 
-def make_directories(task_request):
+def make_directories(task_request, task_response):
   """Creates the directories for execution
 
   Args:
     task_request: TaskRequest() object that is read from the protobuf
+    task_response: an object of TaskResponse() that will be sent back
   """
   logging.debug("Creating execute directory structure")
   remove_execute_dir()
+  if task_response.status == Request_pb2.TaskResponse.FAILURE:
+    return
   current_path = "..\\execute\\action"
   os.mkdir("..\\execute")
   os.mkdir(current_path)
   Path("..\\execute\\__init__.py").touch() # __init__.py for package
   Path(current_path + "\\__init__.py").touch()
-  shutil.copytree(task_request.code_path, current_path + "\\code")
-  Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
-  shutil.copytree(task_request.data_path, current_path + "\\data")
-  shutil.copytree(task_request.output_path, current_path + "\\output")
+  try: 
+    shutil.copytree(task_request.code_path, current_path + "\\code")
+    Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
+    shutil.copytree(task_request.data_path, current_path + "\\data")
+  except Exception as exception:  #catch errors if any
+    print(exception)
+    logging.exception(str(exception))
+    print("Error copying code and data directories")
+    logging.debug("Error copying code and data directories")
+    task_response.status = Request_pb2.TaskResponse.FAILURE
 
 
 def execute_action(task_request, task_response):
@@ -52,6 +72,8 @@ def execute_action(task_request, task_response):
     task_request: an object of TaskResponse() that is sent in the request
     task_response: an object of TaskResponse() that will be sent back
   """
+  if task_response.status == Request_pb2.TaskResponse.FAILURE:
+    return
   logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
   print("Action path is: ", current_path + task_request.target_path)
@@ -101,7 +123,7 @@ def load():
     print("Request Proto: ", task_response)
     logging.debug("Request Proto: " + str(task_request))
     start = timeit.default_timer()
-    make_directories(task_request)
+    make_directories(task_request, task_response)
     execute_action(task_request, task_response)
     stop = timeit.default_timer()
     time_taken = stop-start
