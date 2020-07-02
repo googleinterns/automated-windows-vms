@@ -25,11 +25,12 @@ def remove_execute_dir(task_response):
   Args:
     task_response: an object of TaskResponse() that will be sent back
   """
+  print("Removing execute directory")
   logging.debug("Removing execute directory")
   dirpath = Path("..\\execute")
   try: 
     if dirpath.exists() and dirpath.is_dir(): # delete leftover files
-      shutil.rmtree(dirpath, ignore_errors = True)
+      shutil.rmtree(dirpath)
   except Exception as exception:  #catch errors if any
     print(exception)
     logging.exception(str(exception))
@@ -111,6 +112,8 @@ def execute_action(task_request, task_response):
                                cwd=current_path)
     out, err = execute.communicate(timeout=task_request.timeout)
   except Exception as exception:  # catch errors if any
+    kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
+    kill_process.communicate()
     print(exception)
     print("FAIL")
     logging.debug(str(exception))
