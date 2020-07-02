@@ -29,7 +29,7 @@ def remove_execute_dir(task_response):
   dirpath = Path("..\\execute")
   try: 
     if dirpath.exists() and dirpath.is_dir(): # delete leftover files
-      shutil.rmtree(dirpath)
+      shutil.rmtree(dirpath, ignore_errors = True)
   except Exception as exception:  #catch errors if any
     print(exception)
     logging.exception(str(exception))
@@ -73,12 +73,13 @@ def move_output(task_request, task_response):
     task_response: an object of TaskResponse() that will be sent back
   """
   logging.debug("Moving the output path to the specified output path")
-  source_path = "..\\execute\\action\\output\\"
-  destination_path = task_request.output_path
+  current_path = os.getcwd()
+  source_path = current_path + "\\..\\execute\\action\\output\\"
+  destination_path = current_path + "\\" + task_request.output_path
   files = os.listdir(source_path)
   try:
     for file in files:
-      shutil.move(source_path + file, destination_path)
+      shutil.move(os.path.join(source_path, file), os.path.join(destination_path, file))
   except Exception as exception:  #catch errors if any
     print(exception)
     logging.exception(str(exception))
@@ -147,7 +148,7 @@ def load():
     logging.debug("Accepted request: " + str(request))
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
-    print("Request Proto: ", task_response)
+    print("Request Proto: ", task_request)
     logging.debug("Request Proto: " + str(task_request))
     start = timeit.default_timer()
     make_directories(task_request, task_response)
@@ -160,16 +161,18 @@ def load():
     if task_response.status != Request_pb2.TaskResponse.FAILURE:
       task_response.status = Request_pb2.TaskResponse.SUCCESS
     current_path = os.path.dirname(os.path.realpath("__file__"))
-    response_proto = os.path.join(current_path, "..\\execute\\response.pb")
+    response_proto = os.path.join(current_path, ".\\response.pb")
     with open(response_proto, "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
     sem.release()
   else:
     task_response.status = Request_pb2.TaskResponse.BUSY
+    response_proto = os.path.join(current_path, ".\\response.pb")
     with open(response_proto, "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
+  remove_execute_dir(task_response)
   print("Response Proto: ", task_response)
   logging.debug("Response Proto: " + str(task_response))
   return send_file(response_proto)
