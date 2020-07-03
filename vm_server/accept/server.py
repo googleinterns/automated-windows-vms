@@ -15,6 +15,7 @@ from flask import Flask, request, send_file
 import repackage
 repackage.up(2)
 from vm_server.send.proto import Request_pb2
+from waitress import serve
 
 
 sem = threading.Semaphore()
@@ -182,4 +183,5 @@ def load():
 
 if __name__ == "__main__":
   logging.basicConfig(filename = "server.log", level = logging.DEBUG)
-  APP.run(debug=True)
+  # APP.run(debug=True)
+  serve(APP, host='127.0.0.1', port=5000)
