@@ -20,6 +20,22 @@ from waitress import serve
 
 sem = threading.Semaphore()
 
+def get_processes(file_name):
+  """Logs the current running processes in the file named file_name
+
+  Args:
+    file_name: Name of the file where the names of the processes are saved 
+  """
+  logging.debug("Getting the list of processes")
+  get_process = subprocess.Popen("powershell.exe Get-Process >{file}".format(file=file_name))
+  get_process.communicate()
+
+def get_diff_processes():
+  """Prints the difference in processes before and after execution of a request"""
+  logging.debug("Getting the diff of the processes")
+  compare_process = subprocess.Popen("powershell.exe Compare-Object (Get-Content process_before.txt) (Get-Content process_after.txt)")
+  compare_process.communicate()
+
 def remove_execute_dir(task_response):
   """Deletes the execute directory if it exists
   
@@ -136,6 +152,7 @@ APP = Flask(__name__)
 def load():
   """load endpoint. Accepts post requests with protobuffer"""
   task_response = Request_pb2.TaskResponse()
+  get_processes("process_before.txt")
   if sem.acquire(blocking=False):
     logging.debug("Accepted request: " + str(request))
     task_request = Request_pb2.TaskRequest()
@@ -164,10 +181,11 @@ def load():
       response.close()
   remove_execute_dir(task_response)
   logging.debug("Response Proto: " + str(task_response))
+  get_processes("process_after.txt")
+  get_diff_processes()
   return send_file(response_proto)
 
 if __name__ == "__main__":
-  # logging.basicConfig(filename = "server.log", level = logging.DEBUG)
   logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
