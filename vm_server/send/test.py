@@ -11,7 +11,7 @@ import sys
 import requests
 
 
-URL = "http://127.0.0.1:5000/load"
+URL = "http://127.0.0.1:8000/load"
 ROOT = ".\\"
 
 def usage_message():

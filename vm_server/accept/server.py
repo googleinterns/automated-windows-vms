@@ -184,4 +184,4 @@ def load():
 if __name__ == "__main__":
   logging.basicConfig(filename = "server.log", level = logging.DEBUG)
   # APP.run(debug=True)
-  serve(APP, host='127.0.0.1', port=5000)
+  serve(APP, host='127.0.0.1', port=8000)
