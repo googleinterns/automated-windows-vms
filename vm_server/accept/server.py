@@ -21,13 +21,13 @@ sem = threading.Semaphore()
 
 def remove_execute_dir(task_response):
   """Deletes the execute directory if it exists
-  
+
   Args:
     task_response: an object of TaskResponse() that will be sent back
   """
   logging.debug("Removing execute directory")
   dirpath = Path("..\\execute")
-  try: 
+  try:
     if dirpath.exists() and dirpath.is_dir(): # delete leftover files
       shutil.rmtree(dirpath)
   except Exception as exception:  #catch errors if any
@@ -52,7 +52,7 @@ def make_directories(task_request, task_response):
   os.mkdir(current_path + "\\output\\")
   Path("..\\execute\\__init__.py").touch() # __init__.py for package
   Path(current_path + "\\__init__.py").touch()
-  try: 
+  try:
     shutil.copytree(task_request.code_path, current_path + "\\code")
     Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
     shutil.copytree(task_request.data_path, current_path + "\\data")
@@ -68,7 +68,8 @@ def move_output(task_request, task_response):
     task_request: an object of TaskResponse() that is sent in the request
     task_response: an object of TaskResponse() that will be sent back
   """
-  logging.debug("Moving the output path to the specified output path")
+  logging.debug("Moving the output path", end=" ")
+  logging.debug("to the specified output path")
   source_path = "..\\execute\\action\\output\\"
   destination_path = task_request.output_path
   files = os.listdir(source_path)
@@ -77,7 +78,8 @@ def move_output(task_request, task_response):
       shutil.move(source_path + file, destination_path)
   except Exception as exception:  #catch errors if any
     logging.exception(str(exception))
-    logging.debug("Error moving the output files to the specified output directory")
+    logging.debug("Error moving the output files", end=" ")
+    logging.debug("to the specified output directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
 
@@ -92,7 +94,8 @@ def execute_action(task_request, task_response):
     return
   logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
-  logging.debug("Action path is: " + str(current_path + task_request.target_path))
+  logging.debug("Action path is:", end=" ")
+  logging.debug(str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
   err = None
@@ -161,6 +164,8 @@ def load():
   return send_file(response_proto)
 
 if __name__ == "__main__":
-  logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
+  logging.basicConfig(filename="server.log",
+                      level=logging.DEBUG,
+                      format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   APP.run(debug=True)

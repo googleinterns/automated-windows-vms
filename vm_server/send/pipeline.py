@@ -18,9 +18,11 @@ def execute_commands():
   os.system("python .\\create_proto.py .\\" + sys.argv[1])
 
 if __name__ == "__main__":
-  logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
+  logging.basicConfig(filename="server.log",
+                      level=logging.DEBUG,
+                      format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   if len(sys.argv) != 2:
-    logging.debug("Usage:", sys.argv[0], "QUERY_TEXT_FILE")
+    logging.debug("Usage:" + sys.argv[0] + "QUERY_TEXT_FILE")
     sys.exit(-1)
   execute_commands()

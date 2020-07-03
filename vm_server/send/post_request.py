@@ -11,7 +11,9 @@ import logging
 import os
 import requests
 
-logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
+logging.basicConfig(filename="server.log",
+                    level=logging.DEBUG,
+                    format="%(asctime)s:%(levelname)s: %(message)s")
 logging.getLogger().addHandler(logging.StreamHandler())
 URL = "http://127.0.0.1:5000/load"
 ROOT = ".\\proto\\"
