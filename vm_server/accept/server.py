@@ -31,9 +31,7 @@ def remove_execute_dir(task_response):
     if dirpath.exists() and dirpath.is_dir(): # delete leftover files
       shutil.rmtree(dirpath)
   except Exception as exception:  #catch errors if any
-    print(exception)
     logging.exception(str(exception))
-    print("Error deleting the execute directory")
     logging.debug("Error deleting the execute directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
@@ -59,9 +57,7 @@ def make_directories(task_request, task_response):
     Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
     shutil.copytree(task_request.data_path, current_path + "\\data")
   except Exception as exception:  #catch errors if any
-    print(exception)
     logging.exception(str(exception))
-    print("Error copying code and data directories")
     logging.debug("Error copying code and data directories")
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
@@ -80,9 +76,7 @@ def move_output(task_request, task_response):
     for file in files:
       shutil.move(source_path + file, destination_path)
   except Exception as exception:  #catch errors if any
-    print(exception)
     logging.exception(str(exception))
-    print("Error moving the output files to the specified output directory")
     logging.debug("Error moving the output files to the specified output directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
@@ -98,7 +92,6 @@ def execute_action(task_request, task_response):
     return
   logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
-  print("Action path is: ", current_path + task_request.target_path)
   logging.debug("Action path is: " + str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
@@ -110,8 +103,6 @@ def execute_action(task_request, task_response):
                                cwd=current_path)
     out, err = execute.communicate(timeout=task_request.timeout)
   except Exception as exception:  # catch errors if any
-    print(exception)
-    print("FAIL")
     logging.debug(str(exception))
     logging.debug("FAILED TO EXECUTE THE ACTION")
     task_response.status = Request_pb2.TaskResponse.FAILURE
@@ -132,7 +123,6 @@ def execute_action(task_request, task_response):
     task_response.number_of_files = len(output_files)
     move_output(task_request, task_response)
   except Exception as exception:
-    print("Error writing in std out, stderr", exception)
     logging.debug("Error writing in std out, stderr" + str(exception))
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
@@ -143,18 +133,15 @@ def load():
   """load endpoint. Accepts post requests with protobuffer"""
   task_response = Request_pb2.TaskResponse()
   if sem.acquire(blocking=False):
-    print("Accepted request", request)
     logging.debug("Accepted request: " + str(request))
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
-    print("Request Proto: ", task_response)
     logging.debug("Request Proto: " + str(task_request))
     start = timeit.default_timer()
     make_directories(task_request, task_response)
     execute_action(task_request, task_response)
     stop = timeit.default_timer()
     time_taken = stop-start
-    print("Time taken is ", time_taken)
     logging.debug("Time taken is " + str(time_taken))
     task_response.time_taken = time_taken
     if task_response.status != Request_pb2.TaskResponse.FAILURE:
@@ -170,10 +157,10 @@ def load():
     with open(response_proto, "wb") as response:
       response.write(task_response.SerializeToString())
       response.close()
-  print("Response Proto: ", task_response)
   logging.debug("Response Proto: " + str(task_response))
   return send_file(response_proto)
 
 if __name__ == "__main__":
-  logging.basicConfig(filename = "server.log", level = logging.DEBUG)
+  logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
+  logging.getLogger().addHandler(logging.StreamHandler())
   APP.run(debug=True)
