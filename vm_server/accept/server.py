@@ -72,6 +72,9 @@ def make_directories(task_request, task_response):
   try: 
     shutil.copytree(task_request.code_path, current_path + "\\code")
     Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
+    data_path = Path(task_request.data_path)
+    if data_path.exists() == False:
+      os.mkdir(data_path)
     shutil.copytree(task_request.data_path, current_path + "\\data")
   except Exception as exception:  #catch errors if any
     logging.exception(str(exception))
@@ -87,7 +90,9 @@ def move_output(task_request, task_response):
   """
   logging.debug("Moving the output path to the specified output path")
   current_path = os.getcwd()
-  source_path = current_path + "\\..\\execute\\action\\output\\"
+  source_path = Path(current_path + "\\..\\execute\\action\\output\\")
+  if source_path.exists() == False:
+      os.mkdir(source_path)
   destination_path = current_path + "\\" + task_request.output_path
   files = os.listdir(source_path)
   try:
