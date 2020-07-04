@@ -11,7 +11,7 @@ import sys
 import requests
 
 
-URL = "http://127.0.0.1:8000/load"
+URL = "http://127.0.0.1:8000/accept_task"
 ROOT = ".\\"
 
 def usage_message():

@@ -16,9 +16,15 @@ import repackage
 repackage.up(2)
 from vm_server.send.proto import Request_pb2
 from waitress import serve
+import requests
 
 
 sem = threading.Semaphore()
+MASTER_SERVER = "http://127.0.0.1:5000"
+request_id=""
+task_response = Request_pb2.TaskResponse()
+task_request = Request_pb2.TaskRequest()
+task_status_response = Request_pb2.TaskStatusResponse()
 
 def get_processes(file_name):
   """Logs the current running processes in the file named file_name
@@ -130,8 +136,14 @@ def execute_action(task_request, task_response):
     logging.debug("FAILED TO EXECUTE THE ACTION")
     task_response.status = Request_pb2.TaskResponse.FAILURE
     err = str(exception).encode(encoding)
-  kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
-  kill_process.communicate()
+  try:
+    os.kill(execute.pid, 0)
+  except OSError:
+    logging.debug("PID is unassigned. The process exited on its own")
+  else:
+    logging.debug("Process is running, force killing the process")
+    kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
+    kill_process.communicate()
   if out is None:
     out = "".encode(encoding)
   if err is None:
@@ -151,44 +163,83 @@ def execute_action(task_request, task_response):
     logging.debug("Error writing in std out, stderr" + str(exception))
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
+def register_vm_address():
+  data = "http://127.0.0.1:8000"
+  try:
+    request = requests.get(MASTER_SERVER + str("/register"), data=data)
+  except:
+    logging.debug("Can't connect to the master server")
+
+def task_completed(task_request, task_response):
+  if task_response.status != Request_pb2.TaskResponse.FAILURE:
+      task_response.status = Request_pb2.TaskResponse.SUCCESS
+  current_path = os.path.dirname(os.path.realpath("__file__"))
+  response_proto = os.path.join(current_path, ".\\response.pb")
+  with open(response_proto, "wb") as response:
+    response.write(task_response.SerializeToString())
+    response.close()
+  remove_execute_dir(task_response)
+  logging.debug("Response Proto: " + str(task_response))
+  get_processes("process_after.txt")
+  get_diff_processes()
+  sem.release()
+  response = requests.post(url="http://127.0.0.1:5000/success", 
+                            files={
+                              "task_response" : response_proto,
+                              "request_id" : ("", str(task_request.request_id)) 
+                            }
+                          )
+  # return send_file(response_proto)
+  
+
+def execute_wrapper(task_request, task_response):
+  start = timeit.default_timer()
+  make_directories(task_request, task_response)
+  execute_action(task_request, task_response)
+  stop = timeit.default_timer()
+  time_taken = stop-start
+  logging.debug("Time taken is " + str(time_taken))
+  task_response.time_taken = time_taken
+  task_completed(task_request, task_response)
+  register_vm_address()
+
 
 APP = Flask(__name__)
-@APP.route("/load", methods=["POST"])
-def load():
+
+@APP.route("/get_status", methods=["POST"])
+def get_status():
+  global task_status_response
+  response_proto = os.path.join(current_path, ".\\response.pb")
+  with open(response_proto, "wb") as response:
+    response.write(task_status_response.SerializeToString())
+    response.close()
+  return send_file(response_proto)
+
+@APP.route("/accept_task", methods=["POST"])
+def accept_task():
   """load endpoint. Accepts post requests with protobuffer"""
   task_response = Request_pb2.TaskResponse()
+  global task_status_response
   get_processes("process_before.txt")
   if sem.acquire(blocking=False):
     logging.debug("Accepted request: " + str(request))
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
     logging.debug("Request Proto: " + str(task_request))
-    start = timeit.default_timer()
-    make_directories(task_request, task_response)
-    execute_action(task_request, task_response)
-    stop = timeit.default_timer()
-    time_taken = stop-start
-    logging.debug("Time taken is " + str(time_taken))
-    task_response.time_taken = time_taken
-    if task_response.status != Request_pb2.TaskResponse.FAILURE:
-      task_response.status = Request_pb2.TaskResponse.SUCCESS
-    current_path = os.path.dirname(os.path.realpath("__file__"))
-    response_proto = os.path.join(current_path, ".\\response.pb")
-    with open(response_proto, "wb") as response:
-      response.write(task_response.SerializeToString())
-      response.close()
-    sem.release()
+    thread = threading.Thread(target=execute_wrapper, args=(task_request, task_response,))
+    thread.start()
+    task_status_response.current_task_id = task_request.request_id
+    task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
   else:
+    task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
     task_response.status = Request_pb2.TaskResponse.BUSY
-    response_proto = os.path.join(current_path, ".\\response.pb")
-    with open(response_proto, "wb") as response:
-      response.write(task_response.SerializeToString())
-      response.close()
-  remove_execute_dir(task_response)
-  logging.debug("Response Proto: " + str(task_response))
-  get_processes("process_after.txt")
-  get_diff_processes()
+  current_path = os.path.dirname(os.path.realpath("__file__"))
+  response_proto = os.path.join(current_path, ".\\response.pb")
+  with open(response_proto, "wb") as response:
+    response.write(task_status_response.SerializeToString())
+    response.close()
   return send_file(response_proto)
+  
 
 if __name__ == "__main__":
   logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
