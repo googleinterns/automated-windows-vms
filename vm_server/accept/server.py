@@ -30,7 +30,7 @@ def remove_execute_dir(task_response):
   try:
     if dirpath.exists() and dirpath.is_dir(): # delete leftover files
       shutil.rmtree(dirpath)
-  except Exception as exception:  #catch errors if any
+  except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error deleting the execute directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
@@ -56,7 +56,7 @@ def make_directories(task_request, task_response):
     shutil.copytree(task_request.code_path, current_path + "\\code")
     Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
     shutil.copytree(task_request.data_path, current_path + "\\data")
-  except Exception as exception:  #catch errors if any
+  except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error copying code and data directories")
     task_response.status = Request_pb2.TaskResponse.FAILURE
@@ -76,7 +76,7 @@ def move_output(task_request, task_response):
   try:
     for file in files:
       shutil.move(source_path + file, destination_path)
-  except Exception as exception:  #catch errors if any
+  except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error moving the output files", end=" ")
     logging.debug("to the specified output directory")
