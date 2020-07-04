@@ -7,7 +7,8 @@ message TaskRequest {
   string target_path = 4; // Path to file from code root that is to be executed.
   double timeout = 5; // Timeout for the execution.
   repeated ConfigPair config_pairs = 6; // Key value pairs containing action and related parameters.
-  int32 number_of_retries = 7; // Number of times teh request will be sent again in case of failure.
+  int32 number_of_retries = 7; // Number of times the request will be sent again in case of failure.
+  int32 request_id = 8; // Request id that is assigned to the task by the master server.
 }
 
 // Key value pairs containing action and related parameters.
@@ -18,9 +19,10 @@ message ConfigPair {
 
 message TaskResponse {
   enum options {
-    SUCCESS = 0;
-    FAILURE = 1;
-    BUSY = 2;
+    UNKNOWN = 0;
+    BUSY = 1;
+    FAILURE = 2;
+    SUCCESS = 3;
   }
   options status = 1;    
   int32 number_of_files = 2;
