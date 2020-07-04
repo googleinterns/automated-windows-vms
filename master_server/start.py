@@ -1,19 +1,19 @@
 import os
 import threading
 import sys
-port=5000
+port = int(sys.argv[1])
 
-def new_serve():
+def new_dummy_server():
   global port
-  port=port + 1
-  os.system('python dummy_vm_server.py '+str(port))
+  port = port + 1
+  os.system('python dummy_vm_server.py ' + str(port))
 def master_server():
   os.system('python master_server.py')
 if __name__ == '__main__':
   t=threading.Thread(target=master_server)
   t.start()
-  z=int(sys.argv[1])
-  for i in range(z):
-    t=threading.Thread(target=new_serve)
+  count=int(sys.argv[2])
+  for i in range(count):
+    t=threading.Thread(target=new_dummy_server)
     t.start()
   
