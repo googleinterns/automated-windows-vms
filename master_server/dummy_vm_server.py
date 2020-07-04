@@ -118,6 +118,8 @@ def pre_task():
     print('Usage:', sys.argv[0], 'INPUT_PORT')
     sys.exit(-1)
   VM_ADDRESS = 'http://127.0.0.1:' + sys.argv[1]
+  file = open('listfile.txt', 'a')
+  file.write(VM_ADDRESS + '\n')
   register_vm_address()
 
 if __name__ == '__main__':
