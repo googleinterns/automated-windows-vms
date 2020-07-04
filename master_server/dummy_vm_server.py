@@ -12,6 +12,7 @@ import time
 import requests
 from flask import request
 from flask import Flask
+from flask import send_file
 import Request_pb2
 
 class MyFlaskApp(Flask):
@@ -34,6 +35,7 @@ VM_ADDRESS = 'http://127.0.0.1:'
 request_id = ''
 task_response = Request_pb2.TaskResponse()
 task_request = Request_pb2.TaskRequest()
+task_status_response = Request_pb2.TaskStatusResponse()
 
 def task_done():
   """It prints time and then sleep for some time
@@ -44,7 +46,7 @@ def task_done():
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
-  task_response.status = Request_pb2.TaskResponse.BUSY
+#  task_response.status = Request_pb2.TaskResponse.BUSY
   start = timeit.default_timer()
   t = multiprocessing.Process(target=execute_task)
   t.start()
@@ -77,7 +79,7 @@ def task_completed():
   response = requests.post(url='http://127.0.0.1:5000/success', files=
       {'task_response': read, 'request_id': ('', str(task_request.request_id))})
 
-@APP.route('/', methods=['GET', 'POST'])
+@APP.route('/assign_task', methods=['GET', 'POST'])
 def hello_world():
   """This function receives files from master server.
      And executes some task to make the VM busy.
@@ -85,6 +87,7 @@ def hello_world():
   global flag
   global request_id
   global task_request
+  global task_status_response
   input_file = request.files['task_request']
   task_request.ParseFromString(input_file.read())
   print(task_request)
@@ -92,7 +95,14 @@ def hello_world():
   flag = True
   t = threading.Thread(target=task_done)
   t.start()
-  return 'success'
+  task_status_response.current_task_id = task_request.request_id
+  task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
+  current_path = os.path.dirname(os.path.realpath("__file__"))
+  response_proto = os.path.join(current_path, "/response.pb")
+  with open(response_proto, 'wb') as response:
+    response.write(task_status_response.SerializeToString())
+    response.close()
+  return send_file(response_proto)
 
 @APP.route('/active', methods=['GET', 'POST'])
 def is_active():
@@ -103,7 +113,19 @@ def is_active():
 def flag_status():
 #  Returns the state of VM
   return {'status': flag}
-
+  
+@APP.route('/get_status', methods=['GET', 'POST'])
+def get_status_of_request():
+  task_status_request = Request_pb2.TaskStatusRequest()
+  input_file = request.files['task_request']
+  task_status_request.ParseFromString(input_file.read())
+  current_path = os.path.dirname(os.path.realpath("__file__"))
+  response_proto = os.path.join(current_path, "/response.pb")
+  with open(response_proto, 'wb') as response:
+    response.write(task_status_response.SerializeToString())
+    response.close()
+  return send_file(response_proto)
+  
 def register_vm_address():
 #  This functions tells the master server that VM is healhty.
   data = 'http://127.0.0.1:' + str(sys.argv[1])

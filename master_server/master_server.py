@@ -30,7 +30,6 @@ APP = MyFlaskApp(__name__)
 APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.DB'
 DB = SQLAlchemy(APP)
 
-
 working_vm_address_list = []
 available_vm_address_list = []
 
@@ -138,13 +137,29 @@ def upload_file():
 
           read, 'accepted', vm_n, task_request. number_of_retries, 0)
       task_request.request_id = requ.request_id
-      response = requests.post(url=vm_n, files={'task_request':
+      response = requests.post(url=vm_n + '/assign_task', files={'task_request':
           task_request.SerializeToString()})
-      return 'file uploaded successfully,your request_id is '+ \
-          str(requ.request_id)+'  ' + ' address is ' + str(requ.last_vm_assigned)+ \
-          ' number of retries allowed is ' + str(requ.number_of_retries_allowed)
+      task_status_response = Request_pb2.TaskStatusResponse()
+      task_status_response.ParseFromString(response.content)
+#      print(task_status_response)
+      
+      if task_status_response.status == 1:
+        return 'file uploaded successfully,your request_id is '+ \
+            str(requ.request_id)+'  ' + ' address is ' + str(requ.last_vm_assigned)+ \
+            ' number of retries allowed is ' + str(requ.number_of_retries_allowed)
     except:
       return 'try again later'
+
+@APP.route('/get_the_status',methods=['GET', 'POST'])
+def get_the_status():
+  task_status_request = Request_pb2.TaskStatusRequest()
+  task_status_request.request_id = request.form['request_id']
+  row = get_status(task_status_request.request_id)
+  response = requests.post(url=row.last_vm_assigned + '/get_status', files={'task_request':
+          task_status_request.SerializeToString()})
+  task_status_response = Request_pb2.TaskStatusResponse()
+  task_status_response.ParseFromString(response.content)
+  return str(task_status_response)
 
 @APP.route('/vm_status', methods=['GET', 'POST'])
 
@@ -260,15 +275,16 @@ def get_available_vm_address():
      It assumes IP addresses are present in a text file.
 
   """
-  with open('listfile.txt', 'r') as filehandle:
-    for line in filehandle:
-      new_address = line[:-1]
-      available_vm_address_list.append(new_address)
+  try:
+    with open('listfile.txt', 'r') as filehandle:
+      for line in filehandle:
+        new_address = line[:-1]
+        available_vm_address_list.append(new_address)
+  except:
+    print(' ')
 
 def pre_tasks():
-
 #   Tasks to do before flask server starts.
-
   DB.create_all()
   get_available_vm_address()
   get_working_vm_address()
