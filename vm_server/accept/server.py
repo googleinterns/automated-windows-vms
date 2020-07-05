@@ -25,6 +25,8 @@ request_id=""
 task_response = Request_pb2.TaskResponse()
 task_request = Request_pb2.TaskRequest()
 task_status_response = Request_pb2.TaskStatusResponse()
+PORT = 8000
+VM_SERVER = "127.0.0.1"
 
 def get_processes(file_name):
   """Logs the current running processes in the file named file_name
@@ -164,7 +166,7 @@ def execute_action(task_request, task_response):
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
 def register_vm_address():
-  data = "http://127.0.0.1:8000"
+  data = "http://" + VM_ADDRESS + ":" + str(PORT)
   try:
     request = requests.get(MASTER_SERVER + str("/register"), data=data)
   except:
@@ -183,7 +185,7 @@ def task_completed(task_request, task_response):
   get_processes("process_after.txt")
   get_diff_processes()
   sem.release()
-  response = requests.post(url="http://127.0.0.1:5000/success", 
+  response = requests.post(url="http://" + MASTER_SERVER + ":" + str(5000) + "/success",
                             files={
                               "task_response" : response_proto,
                               "request_id" : ("", str(task_request.request_id)) 
@@ -252,4 +254,4 @@ if __name__ == "__main__":
   logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
-  serve(APP, host='127.0.0.1', port=8000)
+  serve(APP, host=VM_ADDRESS, port=PORT)
