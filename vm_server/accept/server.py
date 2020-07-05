@@ -193,6 +193,7 @@ def task_completed(task_request, task_response):
   
 
 def execute_wrapper(task_request, task_response):
+  global task_status_response
   start = timeit.default_timer()
   make_directories(task_request, task_response)
   execute_action(task_request, task_response)
@@ -200,6 +201,7 @@ def execute_wrapper(task_request, task_response):
   time_taken = stop-start
   logging.debug("Time taken is " + str(time_taken))
   task_response.time_taken = time_taken
+  task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
   task_completed(task_request, task_response)
   register_vm_address()
 
@@ -209,14 +211,19 @@ APP = Flask(__name__)
 @APP.route("/get_status", methods=["POST"])
 def get_status():
   global task_status_response
+  request_task_status_response = Request_pb2.TaskStatusResponse()
+  request_task_status_response.ParseFromString(request.files["task_request"].read())
+  response_task_status = task_status_response
+  if task_status_response.current_task_id != request_task_status_response.current_task_id:
+    response_task_status.status = Request_pb2.TaskStatusResponse.INVALID_ID
   response_proto = os.path.join(current_path, ".\\response.pb")
   with open(response_proto, "wb") as response:
-    response.write(task_status_response.SerializeToString())
+    response.write(response_task_status.SerializeToString())
     response.close()
   return send_file(response_proto)
 
-@APP.route("/accept_task", methods=["POST"])
-def accept_task():
+@APP.route("/assign_task", methods=["POST"])
+def assign_task():
   """load endpoint. Accepts post requests with protobuffer"""
   task_response = Request_pb2.TaskResponse()
   global task_status_response
