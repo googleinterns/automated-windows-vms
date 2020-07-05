@@ -185,7 +185,7 @@ def task_completed(task_request, task_response):
   get_processes("process_after.txt")
   get_diff_processes()
   sem.release()
-  response = requests.post(url="http://" + MASTER_SERVER + ":" + str(5000) + "/success",
+  response = requests.post(url="http://" + MASTER_SERVER + "/success",
                             files={
                               "task_response" : response_proto,
                               "request_id" : ("", str(task_request.request_id)) 
