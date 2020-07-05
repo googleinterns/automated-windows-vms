@@ -26,7 +26,7 @@ task_response = Request_pb2.TaskResponse()
 task_request = Request_pb2.TaskRequest()
 task_status_response = Request_pb2.TaskStatusResponse()
 PORT = 8000
-VM_SERVER = "127.0.0.1"
+VM_ADDRESS = "127.0.0.1"
 
 def get_processes(file_name):
   """Logs the current running processes in the file named file_name
@@ -254,4 +254,4 @@ if __name__ == "__main__":
   logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
-  serve(APP, host=VM_ADDRESS, port=PORT)
+  serve(APP, host="127.0.0.1", port=PORT)
