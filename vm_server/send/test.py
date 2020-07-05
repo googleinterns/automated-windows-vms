@@ -9,11 +9,17 @@ import logging
 import os
 import sys
 import requests
+from flask import Flask, request, send_file
+from waitress import serve
+from proto import Request_pb2
+import threading
+import multiprocessing
 
-
-URL = "http://127.0.0.1:8000/accept_task"
+APP = Flask(__name__)
+URL = "http://127.0.0.1:8000/assign_task"
 ROOT = ".\\"
-
+RESPONSE = False
+REQUEST_ID=0
 def usage_message():
   """Prints the valid usage details"""
   print("Usage:", sys.argv[0], "TEST_FLAG")
@@ -24,6 +30,20 @@ def usage_message():
   print("--3 : Run query3.txt test")
   logging.debug("Usage:", sys.argv[0], "TEST_FLAG")
 
+@APP.route("/success", methods=["POST"])
+def status_task():
+  global REQUEST_ID, RESPONSE
+  logging.debug(str(request.content))
+  task_status_response = Request_pb2.TaskStatusResponse()
+  task_status_response.ParseFromString(request.files["response_proto"].read())
+  if task_status_response.current_task_id == REQUEST_ID:
+    if task_status_response.task_response.status == Request_pb2.TaskResponse.SUCCESS:
+      RESPONSE = True 
+
+
+def start_server():
+  serve(APP, host='127.0.0.1', port=5000)
+
 def execute_commands(proto_text_number):
   """Executes commands to compile and create a proto file
 
@@ -32,13 +52,47 @@ def execute_commands(proto_text_number):
     the input information for the proto request is read.
     For example, query1.txt, query2.txt etc
   """
+  global REQUEST_ID, RESPONSE
   file_name = "query" + str(proto_text_number) + ".txt"
   print("Executing " + file_name + " test")
   logging.debug("Executing" + file_name + "test")
   logging.debug("Creating proto file from" + file_name)
   os.system("python .\\proto\\create_proto.py .\\proto\\" + file_name)
+  task_request = Request_pb2.TaskRequest()
   with open(ROOT + "input_request.pb", "rb") as input_request:
+    task_request.ParseFromString(input_request.read())
+  with open(ROOT + "input_request.pb", "rb") as input_request:
+    print("I am here0")
     response = requests.post(url=URL, files={"task_request": input_request})
+    print("I am here1")
+    print("Sending this proto: " + str(task_request))
+    print(task_request.timeout)
+    print("I am here2")
+    REQUEST_ID = task_request.request_id
+    task_status_response = Request_pb2.TaskStatusResponse()
+    task_status_response.ParseFromString((response.content))
+    if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
+      logging.debug("Request was accepted. Starting up server and listening to the response")
+      RESPONSE = False
+      print("I am here")
+      print("Timeout is " + str(task_request.timeout))
+      print(task_request.timeout)
+      thread = multiprocessing.Process(target=start_server)
+      thread.start()
+      thread.join(int(task_request.timeout))
+      print("Done with thread")
+      if thread.is_alive():
+        thread.terminate()
+        thread.join()
+      if RESPONSE == True:
+        print("Test "+ str(proto_text_number) + "passed")
+      else:
+        print("Test "+ str(proto_text_number) + "failed")
+    else:
+      logging.debug("Request was not accepted")
+      logging.debug(str(task_status_response))
+      return
+
   print(type(response))
   print(response.content)
   logging.debug(type(response))
@@ -49,8 +103,12 @@ def execute_commands(proto_text_number):
     f.write(response.content)
     f.close()
 
+
+
+
 if __name__ == "__main__":
-  logging.basicConfig(filename = "response.log", level = logging.DEBUG)
+  logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
+  logging.getLogger().addHandler(logging.StreamHandler())
   if len(sys.argv) != 2:
     usage_message()
     sys.exit(-1)
@@ -62,8 +120,6 @@ if __name__ == "__main__":
         print(err)
         logging.debug(err)
         sys.exit(-1)
-      print("Test " + str(file_id) + " successfully passed")
-      logging.debug("Test " + str(file_id) + " successfully passed")
   elif sys.argv[1] == "--1":
     file_id = 1
     try:
@@ -72,8 +128,6 @@ if __name__ == "__main__":
       print(err)
       logging.debug(err)
       sys.exit(-1)
-    print("Test " + str(file_id) + " successfully passed")
-    logging.debug("Test "+ str(file_id) +" successfully passed")
   elif sys.argv[1] == "--2":
     file_id = 2
     try:
@@ -82,8 +136,6 @@ if __name__ == "__main__":
       print(err)
       logging.debug(err)
       sys.exit(-1)
-    print("Test " + str(file_id) + " successfully passed")
-    logging.debug("Test "+ str(file_id) +" successfully passed")
   elif sys.argv[1] == "--3":
     file_id = 3
     try:
@@ -92,10 +144,6 @@ if __name__ == "__main__":
       print(err)
       logging.debug(err)
       sys.exit(-1)
-    print("Test " + str(file_id) + " successfully passed")
-    logging.debug("Test "+ str(file_id) +" successfully passed")
   else:
     usage_message()
     sys.exit(-1)
-  print("All tests successfully passed")
-  logging.debug("All tests successfully passed")
