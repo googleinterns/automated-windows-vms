@@ -30,8 +30,8 @@ def usage_message():
   print("--3 : Run query3.txt test")
   logging.debug("Usage:", sys.argv[0], "TEST_FLAG")
 
-@APP.route("/success", methods=["POST"])
-def status_task():
+@APP.route("/success", methods=["GET", "POST"])
+def success():
   global REQUEST_ID, RESPONSE
   logging.debug(str(request.content))
   task_status_response = Request_pb2.TaskStatusResponse()
@@ -39,10 +39,12 @@ def status_task():
   if task_status_response.current_task_id == REQUEST_ID:
     if task_status_response.task_response.status == Request_pb2.TaskResponse.SUCCESS:
       RESPONSE = True 
+  return "success hit yo"
 
 
 def start_server():
   serve(APP, host='127.0.0.1', port=5000)
+  # APP.run(debug=True, host='127.0.0.1', port=5000)
 
 def execute_commands(proto_text_number):
   """Executes commands to compile and create a proto file
@@ -71,6 +73,7 @@ def execute_commands(proto_text_number):
     REQUEST_ID = task_request.request_id
     task_status_response = Request_pb2.TaskStatusResponse()
     task_status_response.ParseFromString((response.content))
+    print(task_status_response)
     if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
       logging.debug("Request was accepted. Starting up server and listening to the response")
       RESPONSE = False
@@ -109,6 +112,7 @@ def execute_commands(proto_text_number):
 if __name__ == "__main__":
   logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
+  # APP.run(debug=True, host='127.0.0.1', port=5000)
   if len(sys.argv) != 2:
     usage_message()
     sys.exit(-1)

@@ -45,7 +45,7 @@ def get_diff_processes():
   compare_process.communicate()
 
 def remove_execute_dir(task_response):
-  """Deletes the execute directory if it exists
+  """Deletes the execute directory if it existsh
   
   Args:
     task_response: an object of TaskResponse() that will be sent back
@@ -185,7 +185,7 @@ def task_completed(task_request, task_response):
   get_processes("process_after.txt")
   get_diff_processes()
   sem.release()
-  response = requests.post(url="http://" + MASTER_SERVER + "/success",
+  response = requests.post(url=MASTER_SERVER + "/success",
                             files={
                               "task_response" : response_proto,
                               "request_id" : ("", str(task_request.request_id)) 
@@ -244,6 +244,7 @@ def assign_task():
     task_response.status = Request_pb2.TaskResponse.BUSY
   current_path = os.path.dirname(os.path.realpath("__file__"))
   response_proto = os.path.join(current_path, ".\\response.pb")
+  logging.debug("Task Status Response: " + str(task_status_response))
   with open(response_proto, "wb") as response:
     response.write(task_status_response.SerializeToString())
     response.close()
