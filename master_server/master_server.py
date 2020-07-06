@@ -298,6 +298,8 @@ def get_available_vm_address():
       for line in filehandle:
         new_address = line[:-1]
         available_vm_address_list.append(new_address)
+    with open('listfile.txt', 'w') as filehandle:
+      print('\n')
   except:
     print(' ')
 
