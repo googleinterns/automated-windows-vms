@@ -34,9 +34,12 @@ def get_processes(file_name):
   Args:
     file_name: Name of the file where the names of the processes are saved 
   """
+  print("yooooooooo")
   logging.debug("Getting the list of processes")
+  print("i am hereeeeeee")
   get_process = subprocess.Popen("powershell.exe Get-Process >{file}".format(file=file_name))
   get_process.communicate()
+  print("probably done executing")
 
 def get_diff_processes():
   """Prints the difference in processes before and after execution of a request"""
@@ -138,14 +141,9 @@ def execute_action(task_request, task_response):
     logging.debug("FAILED TO EXECUTE THE ACTION")
     task_response.status = Request_pb2.TaskResponse.FAILURE
     err = str(exception).encode(encoding)
-  try:
-    os.kill(execute.pid, 0)
-  except OSError:
-    logging.debug("PID is unassigned. The process exited on its own")
-  else:
-    logging.debug("Process is running, force killing the process")
-    kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
-    kill_process.communicate()
+  logging.debug("Process is running, force killing the process")
+  kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
+  kill_process.communicate()
   if out is None:
     out = "".encode(encoding)
   if err is None:
@@ -173,25 +171,33 @@ def register_vm_address():
     logging.debug("Can't connect to the master server")
 
 def task_completed(task_request, task_response):
+  print("Task completed called!!!!!")
+  global task_status_response
   if task_response.status != Request_pb2.TaskResponse.FAILURE:
       task_response.status = Request_pb2.TaskResponse.SUCCESS
+  task_status_response.task_response.CopyFrom(task_response)
   current_path = os.path.dirname(os.path.realpath("__file__"))
-  response_proto = os.path.join(current_path, ".\\response.pb")
-  with open(response_proto, "wb") as response:
-    response.write(task_response.SerializeToString())
-    response.close()
+  print("Task completed called!!!!! 1111111111111")
+  response_proto = os.path.join(current_path, ".\\task_completed_response.pb")
+  with open(response_proto, "wb") as status_response:
+    status_response.write(task_status_response.SerializeToString())
+    status_response.close()
+  print("Task completed called!!!!!22222222")
   remove_execute_dir(task_response)
   logging.debug("Response Proto: " + str(task_response))
+  print("Task completed called!!!!!33333333333")
   get_processes("process_after.txt")
+  print("Task completed called!!!!!444444444444")
   get_diff_processes()
+  print("Task completed called!!!!!5555555555555")
+  with open(response_proto, "rb") as status_response:
+    try:
+      response = requests.post(url=MASTER_SERVER + "/success", files={"task_response" : status_response})
+    except:
+      logging.debug("Can't connect to the master server")
+    status_response.close()
+  print("Releasing semaphore!!!!!")
   sem.release()
-  response = requests.post(url=MASTER_SERVER + "/success",
-                            files={
-                              "task_response" : response_proto,
-                              "request_id" : ("", str(task_request.request_id)) 
-                            }
-                          )
-  # return send_file(response_proto)
   
 
 def execute_wrapper(task_request, task_response):
