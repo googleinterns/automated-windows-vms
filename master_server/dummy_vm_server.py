@@ -78,6 +78,7 @@ def task_completed():
   read = task_response.SerializeToString()
   response = requests.post(url='http://127.0.0.1:5000/success', files=
       {'task_response': read, 'request_id': ('', str(task_request.request_id))})
+  print(response.status_code)
 
 @APP.route('/assign_task', methods=['GET', 'POST'])
 def hello_world():
@@ -98,7 +99,7 @@ def hello_world():
   task_status_response.current_task_id = task_request.request_id
   task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
   current_path = os.path.dirname(os.path.realpath("__file__"))
-  response_proto = os.path.join(current_path, "/response.pb")
+  response_proto = os.path.join(current_path, "..\\response.pb")
   with open(response_proto, 'wb') as response:
     response.write(task_status_response.SerializeToString())
     response.close()
@@ -120,7 +121,7 @@ def get_status_of_request():
   input_file = request.files['task_request']
   task_status_request.ParseFromString(input_file.read())
   current_path = os.path.dirname(os.path.realpath("__file__"))
-  response_proto = os.path.join(current_path, "/response.pb")
+  response_proto = os.path.join(current_path, "..\\response.pb")
   with open(response_proto, 'wb') as response:
     response.write(task_status_response.SerializeToString())
     response.close()

@@ -29,6 +29,7 @@ class MyFlaskApp(Flask):
 APP = MyFlaskApp(__name__)
 
 APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.DB'
+APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 DB = SQLAlchemy(APP)
 
 working_vm_address_list = []
@@ -147,7 +148,7 @@ def upload_file():
       t = threading.Thread(target=retry_after_timeout,args=(task_request.request_id,task_request.timeout))
       t.start()
       if task_status_response.status == 1:
-        print('yyyy')
+#        print('yyyy')
         task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
         return str(task_status_response)
     except Exception as e:
@@ -156,6 +157,7 @@ def upload_file():
       return str(task_status_response)
 
 def retry_after_timeout(request_id,timeout):
+#  print('qqqq '+str(timeout)+'  '+str(request_id))
   time.sleep(timeout)
   retry_again(request_id)
 
@@ -188,7 +190,8 @@ def task_completed():
   task_response.ParseFromString(input_file.read())
   request_id = int(req.decode('utf-8'))
   change_state(int(request_id), task_response.SerializeToString())
-  if task_response.status == 2:
+  if task_response.status == Request_pb2.TaskResponse.FAILURE:
+#    print('bbbbb '+str(request_id))
     result = retry_again(request_id)
 
   return 'success'
@@ -229,7 +232,7 @@ def retry_again(request_id):
         task_request.ParseFromString(request_row.request_proto_file)
         task_request.request_id = request_id
         working_vm_address_list.remove(vm_n)
-        response = requests.post(url=vm_n, files={'task_request':
+        response = requests.post(url=vm_n + '/assign_task', files={'task_request':
              task_request.SerializeToString()})
         change_state_again(request_id, vm_n, request_row.number_of_retries_till_now+1)
         return 'success'
