@@ -12,7 +12,9 @@ import requests
 from flask import Flask, request, send_file
 from waitress import serve
 from proto import Request_pb2
+import signal
 import threading
+import trace
 import multiprocessing
 
 APP = Flask(__name__)
@@ -20,6 +22,41 @@ URL = "http://127.0.0.1:8000/assign_task"
 ROOT = ".\\"
 RESPONSE = False
 REQUEST_ID=0
+
+class KThread(threading.Thread):
+  """A subclass of threading.Thread, with a kill() method."""
+  
+  def __init__(self, *args, **keywords):
+    threading.Thread.__init__(self, *args, **keywords)
+    self.killed = False
+
+  def start(self):
+    """Start the thread."""
+    self.__run_backup = self.run
+    self.run = self.__run      # Force the Thread to install our trace.
+    threading.Thread.start(self)
+
+  def __run(self):
+    """Hacked run function, which installs the trace."""
+    sys.settrace(self.globaltrace)
+    self.__run_backup()
+    self.run = self.__run_backup
+
+  def globaltrace(self, frame, why, arg):
+    if why == 'call':
+      return self.localtrace
+    else:
+      return None
+
+  def localtrace(self, frame, why, arg):
+    if self.killed:
+      if why == 'line':
+        raise SystemExit()
+    return self.localtrace
+
+  def kill(self):
+    self.killed = True
+
 def usage_message():
   """Prints the valid usage details"""
   print("Usage:", sys.argv[0], "TEST_FLAG")
@@ -32,19 +69,34 @@ def usage_message():
 
 @APP.route("/success", methods=["GET", "POST"])
 def success():
-  global REQUEST_ID, RESPONSE
-  logging.debug(str(request.content))
+  print("I am in success")
+  global REQUEST_ID
+  global RESPONSE
+  print(1)
   task_status_response = Request_pb2.TaskStatusResponse()
-  task_status_response.ParseFromString(request.files["response_proto"].read())
+  print(2)
+  task_status_response.ParseFromString(request.files["task_response"].read())
+  print(3)
+  # logging.debug("The response proto is : " + str(task_status_response))
+  print("The response proto is :" + str(task_status_response))
+  print(4)
   if task_status_response.current_task_id == REQUEST_ID:
     if task_status_response.task_response.status == Request_pb2.TaskResponse.SUCCESS:
       RESPONSE = True 
-  return "success hit yo"
+  print(5)
+  if RESPONSE == True:
+    print("I am here")
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+      raise RuntimeError("Not running with the Werkzeug Server")
+    func()
+  return "Success endpoint"
+
 
 
 def start_server():
-  serve(APP, host='127.0.0.1', port=5000)
-  # APP.run(debug=True, host='127.0.0.1', port=5000)
+  # serve(APP, host='127.0.0.1', port=5000)
+  APP.run(debug=True, host='127.0.0.1', port=5000, use_reloader=False)
 
 def execute_commands(proto_text_number):
   """Executes commands to compile and create a proto file
@@ -54,7 +106,8 @@ def execute_commands(proto_text_number):
     the input information for the proto request is read.
     For example, query1.txt, query2.txt etc
   """
-  global REQUEST_ID, RESPONSE
+  global REQUEST_ID
+  global RESPONSE
   file_name = "query" + str(proto_text_number) + ".txt"
   print("Executing " + file_name + " test")
   logging.debug("Executing" + file_name + "test")
@@ -80,13 +133,18 @@ def execute_commands(proto_text_number):
       print("I am here")
       print("Timeout is " + str(task_request.timeout))
       print(task_request.timeout)
-      thread = multiprocessing.Process(target=start_server)
+      # thread = threading.Thread(target=start_server)
+      thread = KThread(target=start_server)
       thread.start()
       thread.join(int(task_request.timeout))
       print("Done with thread")
       if thread.is_alive():
-        thread.terminate()
+        # thread.terminate()
+        # thread._stop_event.set()
+        print("Trying to kill the alive thread")
+        thread.kill()
         thread.join()
+      print("Response is ", RESPONSE)
       if RESPONSE == True:
         print("Test "+ str(proto_text_number) + "passed")
       else:
