@@ -104,7 +104,9 @@ def move_output(task_request, task_response):
   source_path = Path(current_path + "\\..\\execute\\action\\output\\")
   if source_path.exists() == False:
       os.mkdir(source_path)
-  destination_path = current_path + "\\" + task_request.output_path
+  destination_path = Path(current_path + "\\" + task_request.output_path)
+  if destination_path.exists() == False:
+      os.mkdir(destination_path)
   files = os.listdir(source_path)
   try:
     for file in files:
