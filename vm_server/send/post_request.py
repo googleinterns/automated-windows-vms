@@ -11,9 +11,13 @@ import logging
 import os
 import requests
 
-logging.basicConfig(filename = "response.log", level = logging.DEBUG)
-URL = "http://127.0.0.1:8000/load"
-ROOT = ".\\"
+
+logging.basicConfig(filename="server.log",
+                    level=logging.DEBUG,
+                    format="%(asctime)s:%(levelname)s: %(message)s")
+logging.getLogger().addHandler(logging.StreamHandler())
+URL = "http://127.0.0.1:5000/load"
+ROOT = ".\\proto\\"
 with open(ROOT + "input_request.pb", "rb") as input_request:
   RESPONSE = requests.post(url=URL, files={"task_request": input_request})
 logging.debug(type(RESPONSE))

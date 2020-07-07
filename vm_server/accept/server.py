@@ -45,7 +45,8 @@ def get_diff_processes():
   compare_process.communicate()
 
 def remove_execute_dir(task_response):
-  """Deletes the execute directory if it existsh
+
+  """Deletes the execute directory if it exists
 
   Args:
     task_response: an object of TaskResponse() that will be sent back
@@ -125,8 +126,9 @@ def execute_action(task_request, task_response):
   if task_response.status == Request_pb2.TaskResponse.FAILURE:
     return
   logging.debug("Trying to execute the action")
-  current_path = EXECUTE_ACTION_DIR
-  logging.debug("Action path is: " + str(current_path + task_request.target_path))
+  current_path = "..\\execute\\action"
+  logging.debug("Action path is:", end=" ")
+  logging.debug(str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
   err = None
@@ -275,3 +277,4 @@ if __name__ == "__main__":
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
   serve(APP, host="127.0.0.1", port=PORT)
+
