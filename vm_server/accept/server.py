@@ -5,60 +5,57 @@
   and executes the same in the specified path
 """
 import logging
-import shutil
-import timeit
 import os
-import subprocess
 from pathlib import Path
+import shutil
+import subprocess
 import threading
+import timeit
+import requests
+from waitress import serve
 from flask import Flask, request, send_file
 import repackage
 repackage.up(2)
 from vm_server.send.proto import Request_pb2
-from waitress import serve
-import requests
-
 
 sem = threading.Semaphore()
 MASTER_SERVER = "http://127.0.0.1:5000"
-request_id=""
-task_response = Request_pb2.TaskResponse()
-task_request = Request_pb2.TaskRequest()
 task_status_response = Request_pb2.TaskStatusResponse()
 PORT = 8000
 VM_ADDRESS = "127.0.0.1"
-
+EXECUTE_DIR = "..\\execute"
+EXECUTE_ACTION_DIR = "..\\execute\\action"
+OUTPUT_DIR = "\\output\\"
 def get_processes(file_name):
   """Logs the current running processes in the file named file_name
 
   Args:
-    file_name: Name of the file where the names of the processes are saved 
+    file_name: Name of the file where the names of the processes are saved
   """
-  print("yooooooooo")
   logging.debug("Getting the list of processes")
-  print("i am hereeeeeee")
   get_process = subprocess.Popen("powershell.exe Get-Process >{file}".format(file=file_name))
   get_process.communicate()
-  print("probably done executing")
 
 def get_diff_processes():
-  """Prints the difference in processes before and after execution of a request"""
+  """Prints the difference in processes before and
+     after execution of a request
+  """
   logging.debug("Getting the diff of the processes")
   compare_process = subprocess.Popen("powershell.exe Compare-Object (Get-Content process_before.txt) (Get-Content process_after.txt)")
   compare_process.communicate()
 
 def remove_execute_dir(task_response):
   """Deletes the execute directory if it existsh
-  
+
   Args:
     task_response: an object of TaskResponse() that will be sent back
   """
   logging.debug("Removing execute directory")
-  dirpath = Path("..\\execute")
-  try: 
+  dirpath = Path(EXECUTE_DIR)
+  try:
     if dirpath.exists() and dirpath.is_dir(): # delete leftover files
       shutil.rmtree(dirpath)
-  except Exception as exception:  #catch errors if any
+  except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error deleting the execute directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
@@ -74,20 +71,20 @@ def make_directories(task_request, task_response):
   remove_execute_dir(task_response)
   if task_response.status == Request_pb2.TaskResponse.FAILURE:
     return
-  current_path = "..\\execute\\action"
-  os.mkdir("..\\execute")
+  current_path = EXECUTE_ACTION_DIR
+  os.mkdir(EXECUTE_DIR)
   os.mkdir(current_path)
-  os.mkdir(current_path + "\\output\\")
-  Path("..\\execute\\__init__.py").touch() # __init__.py for package
+  os.mkdir(current_path + OUTPUT_DIR)
+  Path(EXECUTE_DIR + "\\__init__.py").touch() # __init__.py for package
   Path(current_path + "\\__init__.py").touch()
-  try: 
+  try:
     shutil.copytree(task_request.code_path, current_path + "\\code")
     Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
     data_path = Path(task_request.data_path)
-    if data_path.exists() == False:
+    if data_path.exists() is False:
       os.mkdir(data_path)
     shutil.copytree(task_request.data_path, current_path + "\\data")
-  except Exception as exception:  #catch errors if any
+  except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error copying code and data directories")
     task_response.status = Request_pb2.TaskResponse.FAILURE
@@ -101,17 +98,18 @@ def move_output(task_request, task_response):
   """
   logging.debug("Moving the output path to the specified output path")
   current_path = os.getcwd()
-  source_path = Path(current_path + "\\..\\execute\\action\\output\\")
-  if source_path.exists() == False:
-      os.mkdir(source_path)
+  source_path = Path(current_path + EXECUTE_ACTION_DIR + OUTPUT_DIR)
+  if source_path.exists() is False:
+    os.mkdir(source_path)
   destination_path = Path(current_path + "\\" + task_request.output_path)
-  if destination_path.exists() == False:
-      os.mkdir(destination_path)
+  if destination_path.exists() is False:
+    os.mkdir(destination_path)
   files = os.listdir(source_path)
   try:
     for file in files:
-      shutil.move(os.path.join(source_path, file), os.path.join(destination_path, file))
-  except Exception as exception:  #catch errors if any
+      shutil.move(os.path.join(source_path, file),
+                  os.path.join(destination_path, file))
+  except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error moving the output files to the specified output directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
@@ -127,7 +125,7 @@ def execute_action(task_request, task_response):
   if task_response.status == Request_pb2.TaskResponse.FAILURE:
     return
   logging.debug("Trying to execute the action")
-  current_path = "..\\execute\\action"
+  current_path = EXECUTE_ACTION_DIR
   logging.debug("Action path is: " + str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
@@ -151,14 +149,14 @@ def execute_action(task_request, task_response):
   if err is None:
     err = "".encode(encoding)
   try:
-    std_out = open(current_path + "\\output\\stdout.txt", "w")
+    std_out = open(current_path + OUTPUT_DIR + "stdout.txt", "w")
     std_out.write(out.decode(encoding))
     std_out.close()
-    std_err = open(current_path + "\\output\\stderr.txt", "w")
+    std_err = open(current_path + OUTPUT_DIR + "stderr.txt", "w")
     std_err.write(err.decode(encoding))
     std_err.close()
-    output_files = [name for name in os.listdir("..\\execute\\action\\output\\")
-                    if os.path.isfile("..\\execute\\action\\output\\" + name)]
+    output_files = [name for name in os.listdir(EXECUTE_ACTION_DIR + OUTPUT_DIR)
+                    if os.path.isfile(EXECUTE_ACTION_DIR + OUTPUT_DIR + name)]
     task_response.number_of_files = len(output_files)
     move_output(task_request, task_response)
   except Exception as exception:
@@ -166,43 +164,52 @@ def execute_action(task_request, task_response):
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
 def register_vm_address():
+  """Send request to master server to inform that VM is free"""
   data = "http://" + VM_ADDRESS + ":" + str(PORT)
   try:
-    request = requests.get(MASTER_SERVER + str("/register"), data=data)
-  except:
+    requests.get(MASTER_SERVER + str("/register"), data=data)
+  except Exception as exception:
+    logging.debug(str(exception))
     logging.debug("Can't connect to the master server")
 
-def task_completed(task_request, task_response):
-  print("Task completed called!!!!!")
+def task_completed(task_response):
+  """Send response to the master server when the task has been executed
+
+  Args:
+    task_response: an object of TaskResponse() that will be sent back
+  """
   global task_status_response
   if task_response.status != Request_pb2.TaskResponse.FAILURE:
-      task_response.status = Request_pb2.TaskResponse.SUCCESS
+    task_response.status = Request_pb2.TaskResponse.SUCCESS
   task_status_response.task_response.CopyFrom(task_response)
   current_path = os.path.dirname(os.path.realpath("__file__"))
-  print("Task completed called!!!!! 1111111111111")
   response_proto = os.path.join(current_path, ".\\task_completed_response.pb")
   with open(response_proto, "wb") as status_response:
     status_response.write(task_status_response.SerializeToString())
     status_response.close()
-  print("Task completed called!!!!!22222222")
   remove_execute_dir(task_response)
   logging.debug("Response Proto: " + str(task_response))
-  print("Task completed called!!!!!33333333333")
   get_processes("process_after.txt")
-  print("Task completed called!!!!!444444444444")
   get_diff_processes()
-  print("Task completed called!!!!!5555555555555")
   with open(response_proto, "rb") as status_response:
     try:
-      response = requests.post(url=MASTER_SERVER + "/success", files={"task_response" : status_response})
-    except:
+      requests.post(url=MASTER_SERVER + "/success",
+                    files={"task_response": status_response})
+    except Exception as exception:
+      logging.debug(str(exception))
       logging.debug("Can't connect to the master server")
     status_response.close()
-  print("Releasing semaphore!!!!!")
+  logging.debug("Releasing semaphore")
   sem.release()
-  
+
 
 def execute_wrapper(task_request, task_response):
+  """Execute the tasks in the request
+  
+  Args:
+    task_request: an object of TaskResponse() that is sent in the request
+    task_response: an object of TaskResponse() that will be sent back
+  """
   global task_status_response
   start = timeit.default_timer()
   make_directories(task_request, task_response)
@@ -212,7 +219,7 @@ def execute_wrapper(task_request, task_response):
   logging.debug("Time taken is " + str(time_taken))
   task_response.time_taken = time_taken
   task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
-  task_completed(task_request, task_response)
+  task_completed(task_response)
   register_vm_address()
 
 
@@ -220,13 +227,14 @@ APP = Flask(__name__)
 
 @APP.route("/get_status", methods=["POST"])
 def get_status():
+  """Endpoint for the master to know the status of the VM"""
   global task_status_response
   request_task_status_response = Request_pb2.TaskStatusResponse()
   request_task_status_response.ParseFromString(request.files["task_request"].read())
   response_task_status = task_status_response
   if task_status_response.current_task_id != request_task_status_response.current_task_id:
     response_task_status.status = Request_pb2.TaskStatusResponse.INVALID_ID
-  response_proto = os.path.join(current_path, ".\\response.pb")
+  response_proto = os.path.join(".\\response.pb")
   with open(response_proto, "wb") as response:
     response.write(response_task_status.SerializeToString())
     response.close()
@@ -234,7 +242,7 @@ def get_status():
 
 @APP.route("/assign_task", methods=["POST"])
 def assign_task():
-  """load endpoint. Accepts post requests with protobuffer"""
+  """Endpoint to accept post requests with protobuffer"""
   task_response = Request_pb2.TaskResponse()
   global task_status_response
   get_processes("process_before.txt")
@@ -243,7 +251,8 @@ def assign_task():
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
     logging.debug("Request Proto: " + str(task_request))
-    thread = threading.Thread(target=execute_wrapper, args=(task_request, task_response,))
+    thread = threading.Thread(target=execute_wrapper,
+                              args=(task_request, task_response,))
     thread.start()
     task_status_response.current_task_id = task_request.request_id
     task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
@@ -257,10 +266,12 @@ def assign_task():
     response.write(task_status_response.SerializeToString())
     response.close()
   return send_file(response_proto)
-  
+
 
 if __name__ == "__main__":
-  logging.basicConfig(filename="server.log", level=logging.DEBUG, format="%(asctime)s:%(levelname)s: %(message)s")
+  logging.basicConfig(filename="server.log",
+                      level=logging.DEBUG,
+                      format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
   serve(APP, host="127.0.0.1", port=PORT)
