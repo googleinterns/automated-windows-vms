@@ -22,7 +22,6 @@ def create_proto():
 if __name__ == "__main__":
   logging.basicConfig(filename="response.log", level=logging.DEBUG)
   if len(sys.argv) != 2:
-    print("Usage:", sys.argv[0], "QUERY_TEXT_FILE")
     logging.debug("Usage:" + sys.argv[0] + "QUERY_TEXT_FILE")
     sys.exit(-1)
   compile_proto()

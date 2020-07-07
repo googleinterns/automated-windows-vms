@@ -5,6 +5,7 @@
     then creates the proto file from the text specified
     in query1.txt or query2.txt
 """
+import argparse
 import logging
 import os
 import sys
@@ -19,6 +20,21 @@ URL = "http://127.0.0.1:8000/assign_task"
 ROOT = ".\\"
 RESPONSE = False
 REQUEST_ID = 0
+ALL_TESTS = "--all"
+TEST_1 = "--1"
+TEST_2 = "--2"
+TEST_3 = "--3"
+parser =  argparse.ArgumentParser(description="Tets the working of VM Server")
+parser.add_argument("test_flag", 
+                    type=string,
+                    help="""Usage:" + sys.argv[0] +  "TEST_FLAG
+                    TEST_FLAG : Test description
+                    --1 : Run query1.txt test
+                    --2 : Run query2.txt test
+                    --3 : Run query3.txt test
+                    """)
+args = parser.parse_args()
+
 
 class KThread(threading.Thread):
   """A subclass of threading.Thread, with a kill() method."""
@@ -145,28 +161,28 @@ if __name__ == "__main__":
   if len(sys.argv) != 2:
     usage_message()
     sys.exit(-1)
-  if sys.argv[1] == "--all":
+  if args.test_flag == ALL_TESTS:
     for file_id in range(1, 4):
       try:
         execute_commands(file_id)
       except Exception as err:
         logging.debug(err)
         sys.exit(-1)
-  elif sys.argv[1] == "--1":
+  elif args.test_flag == TEST_1:
     file_id = 1
     try:
       execute_commands(file_id)
     except Exception as err:
       logging.debug(err)
       sys.exit(-1)
-  elif sys.argv[1] == "--2":
+  elif args.test_flag == TEST_2:
     file_id = 2
     try:
       execute_commands(file_id)
     except Exception as err:
       logging.debug(err)
       sys.exit(-1)
-  elif sys.argv[1] == "--3":
+  elif args.test_flag == TEST_3:
     file_id = 3
     try:
       execute_commands(file_id)
