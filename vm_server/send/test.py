@@ -89,6 +89,9 @@ def success():
   global RESPONSE
   task_status_response = Request_pb2.TaskStatusResponse()
   task_status_response.ParseFromString(request.files["task_response"].read())
+  with open(ROOT + "after_response.pb", "wb") as after_response:
+      after_response.write(task_status_response.SerializeToString())
+      after_response.close()
   if task_status_response.current_task_id == REQUEST_ID and task_status_response.task_response.status == Request_pb2.TaskResponse.SUCCESS:
     RESPONSE = True
   if RESPONSE is True:
@@ -126,6 +129,9 @@ def execute_commands(proto_text_number):
     REQUEST_ID = task_request.request_id
     task_status_response = Request_pb2.TaskStatusResponse()
     task_status_response.ParseFromString((response.content))
+    with open(ROOT + "initial_response.pb", "wb") as initial_response:
+      initial_response.write(task_status_response.SerializeToString())
+      initial_response.close()
     if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
       logging.debug("Request was accepted.")
       logging.debug("Starting up server and listening to the response")
