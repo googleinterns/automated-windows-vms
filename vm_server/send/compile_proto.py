@@ -20,10 +20,10 @@ def create_proto():
   os.system("python .\\proto\\create_proto.py .\\proto\\" + sys.argv[1])
 
 if __name__ == "__main__":
-  logging.basicConfig(filename = "response.log", level = logging.DEBUG)
+  logging.basicConfig(filename="response.log", level=logging.DEBUG)
   if len(sys.argv) != 2:
     print("Usage:", sys.argv[0], "QUERY_TEXT_FILE")
-    logging.debug("Usage:", sys.argv[0], "QUERY_TEXT_FILE")
+    logging.debug("Usage:" + sys.argv[0] + "QUERY_TEXT_FILE")
     sys.exit(-1)
   compile_proto()
   create_proto()

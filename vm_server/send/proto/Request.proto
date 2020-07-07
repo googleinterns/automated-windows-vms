@@ -28,4 +28,22 @@ message TaskResponse {
   int32 number_of_files = 2;
   double time_taken = 3;
 }
- 
+
+message TaskStatusRequest {                                                                                        
+  int32 request_id = 1;                                                                                            
+}
+
+message TaskStatusResponse {                                                                                       
+  enum Status {                                                                                                    
+    UNKNOWN = 0;                                                                                                   
+    ACCEPTED = 1;                                                                                                  
+    REJECTED = 2;                                                                                                  
+    COMPLETED = 3;                                                                                                 
+    INVALID_ID = 4; // if the request if doesnt match with the request id on the system                            
+  }                                                                                                                
+  int32 current_task_id = 1;                                                                                       
+  Status status = 2;                                                                                               
+  TaskResponse task_response = 3; 
+  }
+
+
