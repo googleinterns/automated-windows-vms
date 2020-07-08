@@ -5,7 +5,7 @@ import sys
 import Request_pb2
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   if len(sys.argv) != 2:
     print("Usage:", sys.argv[0], "INPUT_REQUEST_FILE")
     sys.exit(-1)
