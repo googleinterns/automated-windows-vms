@@ -24,8 +24,8 @@ ALL_TESTS = "all"
 TEST_1 = "1"
 TEST_2 = "2"
 TEST_3 = "3"
-parser =  argparse.ArgumentParser(description="Tets the working of VM Server")
-parser.add_argument("test_flag", 
+parser = argparse.ArgumentParser(description="Tets the working of VM Server")
+parser.add_argument("test_flag",
                     type=str,
                     help="""Usage: " + sys.argv[0] +  "TEST_FLAG
                     TEST_FLAG : Test description
@@ -33,7 +33,7 @@ parser.add_argument("test_flag",
                     2 : Run query2.txt test
                     3 : Run query3.txt test
                     """)
-args = parser.parse_args()
+arguments = parser.parse_args()
 
 
 class KThread(threading.Thread):
@@ -90,8 +90,8 @@ def success():
   task_status_response = Request_pb2.TaskStatusResponse()
   task_status_response.ParseFromString(request.files["task_response"].read())
   with open(ROOT + "after_response.pb", "wb") as after_response:
-      after_response.write(task_status_response.SerializeToString())
-      after_response.close()
+    after_response.write(task_status_response.SerializeToString())
+    after_response.close()
   if task_status_response.current_task_id == REQUEST_ID and task_status_response.task_response.status == Request_pb2.TaskResponse.SUCCESS:
     RESPONSE = True
   if RESPONSE is True:
@@ -168,28 +168,28 @@ if __name__ == "__main__":
   if len(sys.argv) != 2:
     usage_message()
     sys.exit(-1)
-  if args.test_flag == ALL_TESTS:
+  if arguments.test_flag == ALL_TESTS:
     for file_id in range(1, 4):
       try:
         execute_commands(file_id)
       except Exception as err:
         logging.debug(err)
         sys.exit(-1)
-  elif args.test_flag == TEST_1:
+  elif arguments.test_flag == TEST_1:
     file_id = 1
     try:
       execute_commands(file_id)
     except Exception as err:
       logging.debug(err)
       sys.exit(-1)
-  elif args.test_flag == TEST_2:
+  elif arguments.test_flag == TEST_2:
     file_id = 2
     try:
       execute_commands(file_id)
     except Exception as err:
       logging.debug(err)
       sys.exit(-1)
-  elif args.test_flag == TEST_3:
+  elif arguments.test_flag == TEST_3:
     file_id = 3
     try:
       execute_commands(file_id)
