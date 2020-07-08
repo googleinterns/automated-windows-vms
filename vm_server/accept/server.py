@@ -131,6 +131,7 @@ def execute_action(task_request, task_response):
   encoding = "utf-8"
   out = None
   err = None
+  status = None
   try:
     execute = subprocess.Popen(["powershell.exe", # execute the target file
                                 task_request.target_path],
@@ -142,6 +143,10 @@ def execute_action(task_request, task_response):
     logging.debug("FAILED TO EXECUTE THE ACTION")
     task_response.status = Request_pb2.TaskResponse.FAILURE
     err = str(exception).encode(encoding)
+  status = execute.returncode
+  if status:
+    logging.debug("Execution was unsuccessful")
+    task_response.status = Request_pb2.TaskResponse.FAILURE
   logging.debug("Process is running, force killing the process")
   kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
   kill_process.communicate()
@@ -203,16 +208,25 @@ def task_completed(task_response):
   logging.debug("Releasing semaphore")
   sem.release()
 
+def set_environment_variables(task_request):
+  """Set the environment variables in config pair
+
+  Args:
+    task_request: an object of TaskResponse() that is sent in the request
+  """
+  for config_pair in task_request.config_pairs:
+    os.environ[config_pair.key] = config_pair.value
 
 def execute_wrapper(task_request, task_response):
   """Execute the tasks in the request
-  
+
   Args:
     task_request: an object of TaskResponse() that is sent in the request
     task_response: an object of TaskResponse() that will be sent back
   """
   global task_status_response
   start = timeit.default_timer()
+  set_environment_variables(task_request)
   make_directories(task_request, task_response)
   execute_action(task_request, task_response)
   stop = timeit.default_timer()

@@ -24,6 +24,7 @@ ALL_TESTS = "all"
 TEST_1 = "1"
 TEST_2 = "2"
 TEST_3 = "3"
+TEST_4 = "4"
 parser = argparse.ArgumentParser(description="Tets the working of VM Server")
 parser.add_argument("test_flag",
                     type=str,
@@ -118,7 +119,7 @@ def execute_commands(proto_text_number):
   global REQUEST_ID
   global RESPONSE
   file_name = "query" + str(proto_text_number) + ".txt"
-  logging.debug("Executing" + file_name + "test")
+  logging.debug("Executing " + file_name + " test")
   logging.debug("Creating proto file from" + file_name)
   os.system("python .\\proto\\create_proto.py .\\proto\\" + file_name)
   task_request = Request_pb2.TaskRequest()
@@ -140,7 +141,7 @@ def execute_commands(proto_text_number):
       # thread = threading.Thread(target=start_server)
       thread = KThread(target=start_server)
       thread.start()
-      thread.join(int(task_request.timeout))
+      thread.join(int(task_request.timeout) + 10)
       if thread.is_alive():
         thread.kill()
         thread.join()
@@ -169,7 +170,7 @@ if __name__ == "__main__":
     usage_message()
     sys.exit(-1)
   if arguments.test_flag == ALL_TESTS:
-    for file_id in range(1, 4):
+    for file_id in range(1, 5):
       try:
         execute_commands(file_id)
       except Exception as err:
@@ -191,6 +192,13 @@ if __name__ == "__main__":
       sys.exit(-1)
   elif arguments.test_flag == TEST_3:
     file_id = 3
+    try:
+      execute_commands(file_id)
+    except Exception as err:
+      logging.debug(err)
+      sys.exit(-1)
+  elif arguments.test_flag == TEST_4:
+    file_id = 4
     try:
       execute_commands(file_id)
     except Exception as err:
