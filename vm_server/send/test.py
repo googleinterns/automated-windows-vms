@@ -20,18 +20,18 @@ URL = "http://127.0.0.1:8000/assign_task"
 ROOT = ".\\"
 RESPONSE = False
 REQUEST_ID = 0
-ALL_TESTS = "--all"
-TEST_1 = "--1"
-TEST_2 = "--2"
-TEST_3 = "--3"
+ALL_TESTS = "all"
+TEST_1 = "1"
+TEST_2 = "2"
+TEST_3 = "3"
 parser =  argparse.ArgumentParser(description="Tets the working of VM Server")
 parser.add_argument("test_flag", 
-                    type=string,
-                    help="""Usage:" + sys.argv[0] +  "TEST_FLAG
+                    type=str,
+                    help="""Usage: " + sys.argv[0] +  "TEST_FLAG
                     TEST_FLAG : Test description
-                    --1 : Run query1.txt test
-                    --2 : Run query2.txt test
-                    --3 : Run query3.txt test
+                    1 : Run query1.txt test
+                    2 : Run query2.txt test
+                    3 : Run query3.txt test
                     """)
 args = parser.parse_args()
 
@@ -72,7 +72,7 @@ class KThread(threading.Thread):
 
 def usage_message():
   """Prints the valid usage details"""
-  logging.debug("Usage:" + sys.argv[0] +  "TEST_FLAG")
+  logging.debug("Usage: " + sys.argv[0] +  " TEST_FLAG")
   logging.debug("TEST_FLAG : Test description")
   logging.debug("--all : Run all tests at once")
   logging.debug("--1 : Run query1.txt test")
@@ -129,6 +129,7 @@ def execute_commands(proto_text_number):
     REQUEST_ID = task_request.request_id
     task_status_response = Request_pb2.TaskStatusResponse()
     task_status_response.ParseFromString((response.content))
+    logging.debug("Initial response : " + str(task_status_response))
     with open(ROOT + "initial_response.pb", "wb") as initial_response:
       initial_response.write(task_status_response.SerializeToString())
       initial_response.close()

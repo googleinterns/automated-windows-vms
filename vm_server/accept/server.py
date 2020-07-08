@@ -13,7 +13,7 @@ import threading
 import timeit
 import requests
 from waitress import serve
-from flask import Flask, request, send_file
+from flask import Flask, request
 import repackage
 repackage.up(2)
 from vm_server.send.proto import Request_pb2
@@ -236,11 +236,7 @@ def get_status():
   response_task_status = task_status_response
   if task_status_response.current_task_id != request_task_status_response.current_task_id:
     response_task_status.status = Request_pb2.TaskStatusResponse.INVALID_ID
-  response_proto = os.path.join(".\\response.pb")
-  with open(response_proto, "wb") as response:
-    response.write(response_task_status.SerializeToString())
-    response.close()
-  return send_file(response_proto)
+  return response_task_status.SerializeToString()
 
 @APP.route("/assign_task", methods=["POST"])
 def assign_task():
@@ -267,7 +263,7 @@ def assign_task():
   with open(response_proto, "wb") as response:
     response.write(task_status_response.SerializeToString())
     response.close()
-  return send_file(response_proto)
+  return task_status_response.SerializeToString()
 
 
 if __name__ == "__main__":
