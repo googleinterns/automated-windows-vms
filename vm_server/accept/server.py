@@ -99,7 +99,7 @@ def move_output(task_request, task_response):
   """
   logging.debug("Moving the output path to the specified output path")
   current_path = os.getcwd()
-  source_path = Path(current_path + EXECUTE_ACTION_DIR + OUTPUT_DIR)
+  source_path = Path(current_path + "\\" + EXECUTE_ACTION_DIR + OUTPUT_DIR)
   if source_path.exists() is False:
     os.mkdir(source_path)
   destination_path = Path(current_path + "\\" + task_request.output_path)
@@ -127,8 +127,7 @@ def execute_action(task_request, task_response):
     return
   logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
-  logging.debug("Action path is:", end=" ")
-  logging.debug(str(current_path + task_request.target_path))
+  logging.debug("Action path is: " + str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
   err = None
@@ -162,7 +161,7 @@ def execute_action(task_request, task_response):
     task_response.number_of_files = len(output_files)
     move_output(task_request, task_response)
   except Exception as exception:
-    logging.debug("Error writing in std out, stderr" + str(exception))
+    logging.debug("Error writing in stdout, stderr" + str(exception))
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
 def register_vm_address():
@@ -192,7 +191,7 @@ def task_completed(task_response):
   remove_execute_dir(task_response)
   logging.debug("Response Proto: " + str(task_response))
   get_processes("process_after.txt")
-  get_diff_processes()
+  # get_diff_processes()
   with open(response_proto, "rb") as status_response:
     try:
       requests.post(url=MASTER_SERVER + "/success",
