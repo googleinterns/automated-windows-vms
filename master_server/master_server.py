@@ -147,10 +147,10 @@ def upload_file():
 #      print(task_status_response)
       t = threading.Thread(target=retry_after_timeout,args=(task_request.request_id,task_request.timeout))
       t.start()
-      if task_status_response.status == 1:
+      if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
 #        print('yyyy')
-        task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
-        return str(task_status_response)
+#        task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
+        return str(task_status_response)#.SerializeToString()
     except Exception as e:
       task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
       print(e)

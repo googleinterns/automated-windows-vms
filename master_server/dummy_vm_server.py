@@ -98,12 +98,7 @@ def hello_world():
   t.start()
   task_status_response.current_task_id = task_request.request_id
   task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
-  current_path = os.path.dirname(os.path.realpath("__file__"))
-  response_proto = os.path.join(current_path, "..\\response.pb")
-  with open(response_proto, 'wb') as response:
-    response.write(task_status_response.SerializeToString())
-    response.close()
-  return send_file(response_proto)
+  return task_status_response.SerializeToString()
 
 @APP.route('/active', methods=['GET', 'POST'])
 def is_active():
@@ -120,12 +115,7 @@ def get_status_of_request():
   task_status_request = Request_pb2.TaskStatusRequest()
   input_file = request.files['task_request']
   task_status_request.ParseFromString(input_file.read())
-  current_path = os.path.dirname(os.path.realpath("__file__"))
-  response_proto = os.path.join(current_path, "..\\response.pb")
-  with open(response_proto, 'wb') as response:
-    response.write(task_status_response.SerializeToString())
-    response.close()
-  return send_file(response_proto)
+  return task_status_request.SerializeToString()
   
 def register_vm_address():
 #  This functions tells the master server that VM is healhty.
