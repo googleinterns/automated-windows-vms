@@ -44,27 +44,3 @@ message TaskStatusResponse {
   Status status = 2;
   TaskResponse task_response = 3;
 }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
