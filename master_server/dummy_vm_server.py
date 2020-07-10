@@ -33,7 +33,7 @@ flag = False
 MASTER_SERVER = 'http://127.0.0.1:5000'
 VM_ADDRESS = 'http://127.0.0.1:'
 request_id = ''
-task_response = Request_pb2.TaskResponse()
+#task_response = Request_pb2.TaskResponse()
 task_request = Request_pb2.TaskRequest()
 task_status_response = Request_pb2.TaskStatusResponse()
 
@@ -42,7 +42,8 @@ def task_done():
      and then again print time.
   """
   global flag
-  global task_response
+#  global task_response
+  global task_status_response
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
@@ -52,15 +53,16 @@ def task_done():
   t.start()
   t.join(int(task_request.timeout))
   if t.is_alive():
-    task_response.status = Request_pb2.TaskResponse.FAILURE
-    task_response.time_taken = 0.0
+    task_status_response.task_response.status = Request_pb2.TaskResponse.FAILURE
+#    task_response.time_taken = 0.0
+    task_status_response.task_response.time_taken = 0.0
     t.terminate()
     t.join()
   else:
     stop = timeit.default_timer()
     time_taken = stop-start
-    task_response.time_taken = time_taken
-    task_response.status = Request_pb2.TaskResponse.SUCCESS
+    task_status_response.task_response.time_taken = time_taken
+    task_status_response.task_response.status = Request_pb2.TaskResponse.SUCCESS
   now = datetime.now()
 #  print(task_response)
   current_time = now.strftime('%H:%M:%S')
@@ -75,7 +77,7 @@ def execute_task():
 def task_completed():
 #  Notify the master server after task is completed.
   
-  read = task_response.SerializeToString()
+  read = task_status_response.SerializeToString()
   response = requests.post(url='http://127.0.0.1:5000/success', files=
       {'task_response': read, 'request_id': ('', str(task_request.request_id))})
   print(response.status_code)

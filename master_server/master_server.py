@@ -158,7 +158,7 @@ def upload_file():
 
 def retry_after_timeout(request_id,timeout):
 #  print('qqqq '+str(timeout)+'  '+str(request_id))
-  time.sleep(timeout)
+  time.sleep(timeout + 5.0)
   retry_again(request_id)
 
 
@@ -174,26 +174,22 @@ def get_status():
   return str(task_status_response)
 
 @APP.route('/vm_status', methods=['GET', 'POST'])
-
 def vm_status():
-
 #  Return VM address which are active.
   return str(working_vm_address_list)
 
 @APP.route('/success', methods=['GET', 'POST'])
 def task_completed():
-
 #  Receive response from vm_server.
   input_file = request.files['task_response']
   req = request.files['request_id'].read()
-  task_response = Request_pb2.TaskResponse()
-  task_response.ParseFromString(input_file.read())
+  task_status_response = Request_pb2.TaskStatusResponse()
+  task_status_response.ParseFromString(input_file.read())
   request_id = int(req.decode('utf-8'))
-  change_state(int(request_id), task_response.SerializeToString())
-  if task_response.status == Request_pb2.TaskResponse.FAILURE:
+  change_state(int(request_id), task_status_response.SerializeToString())
+  if task_status_response.task_response.status == Request_pb2.TaskResponse.FAILURE:
 #    print('bbbbb '+str(request_id))
     result = retry_again(request_id)
-
   return 'success'
 
 @APP.route('/request_status', methods=['GET', 'POST'])
@@ -214,15 +210,15 @@ def status_of_request():
       task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
       return str(task_status_response)
     else:
-      task_response = Request_pb2.TaskResponse()
-      task_response.ParseFromString(request_row.response_proto_file)
-      return str(task_response)
+      task_status_response = Request_pb2.TaskStatusResponse()
+      task_status_response.ParseFromString(request_row.response_proto_file)
+      task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
+      return str(task_status_response)
 
 def retry_again(request_id):
 #  Retry again if request fails.
-  
   request_row = get_request_status_row(request_id)
-  if request_row.number_of_retries_allowed > request_row.number_of_retries_till_now:
+  if request_row.number_of_retries_allowed >= request_row.number_of_retries_till_now:
     vm_n = find_working_vm()
     if vm_n == 'NOT':
       return 'try again later'
@@ -234,9 +230,10 @@ def retry_again(request_id):
         working_vm_address_list.remove(vm_n)
         response = requests.post(url=vm_n + '/assign_task', files={'task_request':
              task_request.SerializeToString()})
-        change_state_again(request_id, vm_n, request_row.number_of_retries_till_now+1)
+        change_state_again(request_id, vm_n, request_row.number_of_retries_till_now + 1)
         return 'success'
-      except:
+      except Exception as e:
+        print(e)
         return 'try again later'
 
 
@@ -246,9 +243,7 @@ def is_healthy(node):
        node:
   """
   try:
-
     req = requests.get(node + str('/active'))
-
     return True
   except:
     return False
@@ -261,9 +256,7 @@ def is_engaged(node):
   """
   if is_healthy(node):
     try:
-
       req = requests.get(node + str('/status'))
-
       a = req.json()
       return bool(a['status'])
     except:
@@ -271,27 +264,21 @@ def is_engaged(node):
   return False
 
 def find_working_vm():
-
 #  Find working VM address.
-
   for address in working_vm_address_list:
     if not is_engaged(address):
       return address
   return 'NOT'
 
 def get_working_vm_address():
-
 #   Append IP addresses of working VMs to a list.
-
   for address in available_vm_address_list:
     if is_healthy(address) and not is_engaged(address):
       working_vm_address_list.append(address)
 
 def get_available_vm_address():
   """Append IP addresses of available VMs to a list.
-
      It assumes IP addresses are present in a text file.
-
   """
   try:
     with open('listfile.txt', 'r') as filehandle:
