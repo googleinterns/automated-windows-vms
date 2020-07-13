@@ -73,13 +73,12 @@ class KThread(threading.Thread):
 
 def usage_message():
   """Prints the valid usage details"""
-  logging.debug("Usage: " + sys.argv[0] +  " TEST_FLAG")
+  logging.debug("Usage: %s TEST_FLAG", sys.argv[0])
   logging.debug("TEST_FLAG : Test description")
   logging.debug("--all : Run all tests at once")
   logging.debug("--1 : Run query1.txt test")
   logging.debug("--2 : Run query2.txt test")
   logging.debug("--3 : Run query3.txt test")
-  logging.debug("Usage:" +  sys.argv[0] + "TEST_FLAG")
 
 @APP.route("/success", methods=["GET", "POST"])
 def success():
@@ -93,7 +92,9 @@ def success():
   with open(ROOT + "after_response.pb", "wb") as after_response:
     after_response.write(task_status_response.SerializeToString())
     after_response.close()
-  if task_status_response.current_task_id == REQUEST_ID and task_status_response.task_response.status == Request_pb2.TaskResponse.SUCCESS:
+  if task_status_response.current_task_id == REQUEST_ID\
+     and task_status_response.task_response.status \
+     == Request_pb2.TaskResponse.SUCCESS:
     RESPONSE = True
   if RESPONSE is True:
     func = request.environ.get('werkzeug.server.shutdown')
@@ -119,8 +120,8 @@ def execute_commands(proto_text_number):
   global REQUEST_ID
   global RESPONSE
   file_name = "query" + str(proto_text_number) + ".txt"
-  logging.debug("Executing " + file_name + " test")
-  logging.debug("Creating proto file from" + file_name)
+  logging.debug("Executing %s test", file_name)
+  logging.debug("Creating proto file from %s", file_name)
   os.system("python .\\proto\\create_proto.py .\\proto\\" + file_name)
   task_request = Request_pb2.TaskRequest()
   with open(ROOT + "input_request.pb", "rb") as input_request:
@@ -130,7 +131,7 @@ def execute_commands(proto_text_number):
     REQUEST_ID = task_request.request_id
     task_status_response = Request_pb2.TaskStatusResponse()
     task_status_response.ParseFromString((response.content))
-    logging.debug("Initial response : " + str(task_status_response))
+    logging.debug("Initial response : %s", str(task_status_response))
     with open(ROOT + "initial_response.pb", "wb") as initial_response:
       initial_response.write(task_status_response.SerializeToString())
       initial_response.close()
@@ -146,9 +147,9 @@ def execute_commands(proto_text_number):
         thread.kill()
         thread.join()
       if RESPONSE is True:
-        logging.debug("Test "+ str(proto_text_number) + " passed")
+        logging.debug("Test %s passed", str(proto_text_number))
       else:
-        logging.debug("Test "+ str(proto_text_number) + " failed")
+        logging.debug("Test %s failed", str(proto_text_number))
     else:
       logging.debug("Request was not accepted")
       logging.debug(str(task_status_response))

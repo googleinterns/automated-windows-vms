@@ -33,7 +33,8 @@ def get_processes(file_name):
     file_name: Name of the file where the names of the processes are saved
   """
   logging.debug("Getting the list of processes")
-  get_process = subprocess.Popen("powershell.exe Get-Process >{file}".format(file=file_name))
+  get_process = subprocess.Popen("powershell.exe \
+                                  Get-Process >{file}".format(file=file_name))
   get_process.communicate()
 
 def get_diff_processes():
@@ -41,7 +42,9 @@ def get_diff_processes():
      after execution of a request
   """
   logging.debug("Getting the diff of the processes")
-  compare_process = subprocess.Popen("powershell.exe Compare-Object (Get-Content process_before.txt) (Get-Content process_after.txt)")
+  compare_process = subprocess.Popen("powershell.exe Compare-Object \
+                                      (Get-Content process_before.txt)\
+                                      (Get-Content process_after.txt)")
   compare_process.communicate()
 
 def remove_execute_dir(task_response):
@@ -112,7 +115,8 @@ def move_output(task_request, task_response):
                   os.path.join(destination_path, file))
   except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
-    logging.debug("Error moving the output files to the specified output directory")
+    logging.debug("Error moving the output files \
+                   to the specified output directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
 
@@ -127,7 +131,8 @@ def execute_action(task_request, task_response):
     return
   logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
-  logging.debug("Action path is: " + str(current_path + task_request.target_path))
+  logging.debug("Action path is: %s",
+                str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
   err = None
@@ -148,7 +153,8 @@ def execute_action(task_request, task_response):
     logging.debug("Execution was unsuccessful")
     task_response.status = Request_pb2.TaskResponse.FAILURE
   logging.debug("Process is running, force killing the process")
-  kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
+  kill_process = subprocess.Popen("TASKKILL /F \
+                                  /PID {pid} /T".format(pid=execute.pid))
   kill_process.communicate()
   if out is None:
     out = "".encode(encoding)
@@ -166,7 +172,7 @@ def execute_action(task_request, task_response):
     task_response.number_of_files = len(output_files)
     move_output(task_request, task_response)
   except Exception as exception:
-    logging.debug("Error writing in stdout, stderr" + str(exception))
+    logging.debug("Error writing in stdout, stderr %s", str(exception))
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
 def register_vm_address():
@@ -194,7 +200,7 @@ def task_completed(task_response):
     status_response.write(task_status_response.SerializeToString())
     status_response.close()
   remove_execute_dir(task_response)
-  logging.debug("Response Proto: " + str(task_response))
+  logging.debug("Response Proto: %s", str(task_response))
   get_processes("process_after.txt")
   # get_diff_processes()
   with open(response_proto, "rb") as status_response:
@@ -231,7 +237,7 @@ def execute_wrapper(task_request, task_response):
   execute_action(task_request, task_response)
   stop = timeit.default_timer()
   time_taken = stop-start
-  logging.debug("Time taken is " + str(time_taken))
+  logging.debug("Time taken is %s", str(time_taken))
   task_response.time_taken = time_taken
   task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
   task_completed(task_response)
@@ -245,9 +251,12 @@ def get_status():
   """Endpoint for the master to know the status of the VM"""
   global task_status_response
   request_task_status_response = Request_pb2.TaskStatusResponse()
-  request_task_status_response.ParseFromString(request.files["task_request"].read())
+  request_task_status_response.ParseFromString(
+      request.files["task_request"].read()
+  )
   response_task_status = task_status_response
-  if task_status_response.current_task_id != request_task_status_response.current_task_id:
+  if task_status_response.current_task_id != \
+     request_task_status_response.current_task_id:
     response_task_status.status = Request_pb2.TaskStatusResponse.INVALID_ID
   return response_task_status.SerializeToString()
 
@@ -258,10 +267,10 @@ def assign_task():
   global task_status_response
   get_processes("process_before.txt")
   if sem.acquire(blocking=False):
-    logging.debug("Accepted request: " + str(request))
+    logging.debug("Accepted request: %s", str(request))
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
-    logging.debug("Request Proto: " + str(task_request))
+    logging.debug("Request Proto: %s", str(task_request))
     thread = threading.Thread(target=execute_wrapper,
                               args=(task_request, task_response,))
     thread.start()
@@ -272,7 +281,7 @@ def assign_task():
     task_response.status = Request_pb2.TaskResponse.BUSY
   current_path = os.path.dirname(os.path.realpath("__file__"))
   response_proto = os.path.join(current_path, ".\\response.pb")
-  logging.debug("Task Status Response: " + str(task_status_response))
+  logging.debug("Task Status Response: %s", str(task_status_response))
   with open(response_proto, "wb") as response:
     response.write(task_status_response.SerializeToString())
     response.close()
