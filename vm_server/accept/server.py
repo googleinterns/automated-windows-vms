@@ -11,9 +11,11 @@ import shutil
 import subprocess
 import threading
 import timeit
+import sys
 import requests
 from waitress import serve
 from flask import Flask, request
+from google.cloud import storage
 import repackage
 repackage.up(2)
 from vm_server.send.proto import Request_pb2
@@ -26,6 +28,9 @@ VM_ADDRESS = "127.0.0.1"
 EXECUTE_DIR = "..\\execute"
 EXECUTE_ACTION_DIR = "..\\execute\\action"
 OUTPUT_DIR = "\\output\\"
+BUCKET_NAME = "automation-interns"
+DEBUG_FLAG = "DEBUG"
+
 def get_processes(file_name):
   """Logs the current running processes in the file named file_name
 
@@ -33,7 +38,8 @@ def get_processes(file_name):
     file_name: Name of the file where the names of the processes are saved
   """
   logging.debug("Getting the list of processes")
-  get_process = subprocess.Popen("powershell.exe Get-Process >{file}".format(file=file_name))
+  get_process = subprocess.Popen("powershell.exe Get-Process \
+                                 >{file}".format(file=file_name))
   get_process.communicate()
 
 def get_diff_processes():
@@ -41,7 +47,9 @@ def get_diff_processes():
      after execution of a request
   """
   logging.debug("Getting the diff of the processes")
-  compare_process = subprocess.Popen("powershell.exe Compare-Object (Get-Content process_before.txt) (Get-Content process_after.txt)")
+  compare_process = subprocess.Popen("powershell.exe Compare-Object \
+                                     (Get-Content process_before.txt)\
+                                     (Get-Content process_after.txt)")
   compare_process.communicate()
 
 def remove_execute_dir(task_response):
@@ -112,65 +120,83 @@ def move_output(task_request, task_response):
                   os.path.join(destination_path, file))
   except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
-    logging.debug("Error moving the output files to the specified output directory")
+    logging.debug("Error moving the output \
+                   files to the specified output directory")
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
-def download_blob(bucket_name, source_blob_name, destination_file_name):
-  """Downloads a blob from the bucket.
+def download_files_to_path(pantheon_path, destination_path, task_response):
+  """Downloads files from pantheon path to the destination path
 
   Args:
-    bucket_name: Name of the storage bucket
-    source_blob_name: Path to sorage object
-    destination_file_name: Lacal path where the object needs to be saved
+    pantheon_path: the source path in pantheon
+    destination_path: the destination path where files are saved in the VM
+    task_response: an object of TaskResponse() that will be sent back
   """
+  bucket_name = BUCKET_NAME
   storage_client = storage.Client()
-  bucket = storage_client.bucket(bucket_name)
-  blob = bucket.blob(source_blob_name)
-  blob.download_to_filename(destination_file_name)
-  print(
-      "Blob {} downloaded to {}.".format(
-          source_blob_name, destination_file_name
-      )
-  )
-def upload_output_files(task_request):
+  blobs = storage_client.list_blobs(bucket_name, prefix=pantheon_path)
+  for blob in blobs:
+    source = Path(blob.name)
+    destination_file_path = Path(str(destination_path) \
+                                 + "\\" + str(source.name))
+    if blob.name[len(blob.name)-1] == '/':
+      print("Making directory Destination path : ", destination_path)
+      os.makedirs(destination_file_path, exist_ok=True)
+    else:
+      print("Downloading file Destination path : ", destination_path)
+      os.makedirs(destination_path, exist_ok=True)
+      source = Path(blob.name)
+      print("Destination file path: ", destination_file_path)
+      try:
+        blob.download_to_filename(destination_file_path)
+      except Exception as exception:
+        logging.debug("Error while downloading files, \
+                       Exception: %s", str(exception))
+        task_response.status = Request_pb2.TaskResponse.FAILURE
+
+def download_input_files(task_request, task_response):
   """Downloads the input files from pantheon
 
   Args:
     task_request: TaskRequest() object that is read from the protobuf
+    task_response: an object of TaskResponse() that will be sent back
   """
-  current_path = "..\\execute\\action"
-  bucket_name = "automation-interns"
-  source_file_name = current_path+"\\output"
-  destination_blob_name = task_request.output_path
-  storage_client = storage.Client()
-  bucket = storage_client.bucket(bucket_name)
-  blob = bucket.blob(destination_blob_name)
-  blob.upload_from_filename(source_file_name)
-  print(
-      "File {} uploaded to {}.".format(
-          source_file_name, destination_blob_name
-      )
-  )
-
-def download_input_files(task_request):
-  """Downloads the input files from pantheon
-
-  Args:
-    task_request: TaskRequest() object that is read from the protobuf
-  """
-  remove_execute_dir()
-  current_path = "..\\execute\\action"
-  os.mkdir("..\\execute")
+  remove_execute_dir(task_response)
+  current_path = EXECUTE_ACTION_DIR
+  os.mkdir(EXECUTE_DIR)
   os.mkdir(current_path)
-  Path("..\\execute\\__init__.py").touch() # __init__.py for package
+  os.mkdir(current_path + OUTPUT_DIR)
+  Path(EXECUTE_DIR + "\\__init__.py").touch() # __init__.py for package
   Path(current_path + "\\__init__.py").touch()
-  download_blob("automation-interns", task_request.code_path,
-                current_path + "\\code")
-  Path(current_path + "\\code\\__init__.py").touch() # __init__.py for package
-  download_blob("automation-interns", task_request.data_path,
-                current_path + "\\data")
-  download_blob("automation-interns", task_request.output_path,
-                current_path + "\\output")
+  download_files_to_path(task_request.code_path,
+                         EXECUTE_ACTION_DIR + "\\code", task_response)
+  download_files_to_path(task_request.data_path,
+                         EXECUTE_ACTION_DIR + "\\data", task_response)
+
+
+def upload_output(task_request, task_response):
+  """ Upload the output files to pantheon
+
+  Args:
+    task_request: an object of TaskResponse() that is sent in the request
+    task_response: an object of TaskResponse() that will be sent back
+  """
+  bucket_name = BUCKET_NAME
+  storage_client = storage.Client()
+  bucket = storage_client.bucket(bucket_name)
+  source_path = Path(EXECUTE_ACTION_DIR + OUTPUT_DIR)
+  destination_path = task_request.output_path
+  files = os.listdir(source_path)
+  try:
+    for file in files:
+      destination_blob_path = (destination_path + file)
+      blob = bucket.blob(destination_blob_path)
+      blob.upload_from_filename(str(source_path) + "/" + str(file))
+  except Exception as exception:
+    logging.debug("Error while uploading output files, \
+                   Exception: %s", str(exception))
+    task_response.status = Request_pb2.TaskResponse.FAILURE
+
 
 def execute_action(task_request, task_response):
   """ Execute the action
@@ -183,7 +209,8 @@ def execute_action(task_request, task_response):
     return
   logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
-  logging.debug("Action path is: " + str(current_path + task_request.target_path))
+  logging.debug("Action path is: %s",
+                str(current_path + task_request.target_path))
   encoding = "utf-8"
   out = None
   err = None
@@ -204,7 +231,8 @@ def execute_action(task_request, task_response):
     logging.debug("Execution was unsuccessful")
     task_response.status = Request_pb2.TaskResponse.FAILURE
   logging.debug("Process is running, force killing the process")
-  kill_process = subprocess.Popen("TASKKILL /F /PID {pid} /T".format(pid=execute.pid))
+  kill_process = subprocess.Popen("TASKKILL /F \
+                                   /PID {pid} /T".format(pid=execute.pid))
   kill_process.communicate()
   if out is None:
     out = "".encode(encoding)
@@ -220,9 +248,12 @@ def execute_action(task_request, task_response):
     output_files = [name for name in os.listdir(EXECUTE_ACTION_DIR + OUTPUT_DIR)
                     if os.path.isfile(EXECUTE_ACTION_DIR + OUTPUT_DIR + name)]
     task_response.number_of_files = len(output_files)
-    move_output(task_request, task_response)
+    if sys.arg[1] == DEBUG_FLAG:
+      move_output(task_request, task_response)
+    else:
+      upload_output(task_request, task_response)
   except Exception as exception:
-    logging.debug("Error writing in stdout, stderr" + str(exception))
+    logging.debug("Error writing in stdout, stderr %s", str(exception))
     task_response.status = Request_pb2.TaskResponse.FAILURE
 
 def register_vm_address():
@@ -250,7 +281,7 @@ def task_completed(task_response):
     status_response.write(task_status_response.SerializeToString())
     status_response.close()
   remove_execute_dir(task_response)
-  logging.debug("Response Proto: " + str(task_response))
+  logging.debug("Response Proto: %s", str(task_response))
   get_processes("process_after.txt")
   # get_diff_processes()
   with open(response_proto, "rb") as status_response:
@@ -283,11 +314,14 @@ def execute_wrapper(task_request, task_response):
   global task_status_response
   start = timeit.default_timer()
   set_environment_variables(task_request)
-  make_directories(task_request, task_response)
+  if sys.arg[1] == DEBUG_FLAG:
+    make_directories(task_request, task_response)
+  else:
+    download_input_files(task_request, task_response)
   execute_action(task_request, task_response)
   stop = timeit.default_timer()
   time_taken = stop-start
-  logging.debug("Time taken is " + str(time_taken))
+  logging.debug("Time taken is %s", str(time_taken))
   task_response.time_taken = time_taken
   task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
   task_completed(task_response)
@@ -301,9 +335,12 @@ def get_status():
   """Endpoint for the master to know the status of the VM"""
   global task_status_response
   request_task_status_response = Request_pb2.TaskStatusResponse()
-  request_task_status_response.ParseFromString(request.files["task_request"].read())
+  request_task_status_response.ParseFromString(
+      request.files["task_request"].read()
+  )
   response_task_status = task_status_response
-  if task_status_response.current_task_id != request_task_status_response.current_task_id:
+  if task_status_response.current_task_id != \
+     request_task_status_response.current_task_id:
     response_task_status.status = Request_pb2.TaskStatusResponse.INVALID_ID
   return response_task_status.SerializeToString()
 
@@ -314,10 +351,10 @@ def assign_task():
   global task_status_response
   get_processes("process_before.txt")
   if sem.acquire(blocking=False):
-    logging.debug("Accepted request: " + str(request))
+    logging.debug("Accepted request: %s", str(request))
     task_request = Request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
-    logging.debug("Request Proto: " + str(task_request))
+    logging.debug("Request Proto: %s", str(task_request))
     thread = threading.Thread(target=execute_wrapper,
                               args=(task_request, task_response,))
     thread.start()
@@ -328,7 +365,7 @@ def assign_task():
     task_response.status = Request_pb2.TaskResponse.BUSY
   current_path = os.path.dirname(os.path.realpath("__file__"))
   response_proto = os.path.join(current_path, ".\\response.pb")
-  logging.debug("Task Status Response: " + str(task_status_response))
+  logging.debug("Task Status Response: %s", str(task_status_response))
   with open(response_proto, "wb") as response:
     response.write(task_status_response.SerializeToString())
     response.close()
@@ -342,4 +379,3 @@ if __name__ == "__main__":
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
   serve(APP, host="127.0.0.1", port=PORT)
-
