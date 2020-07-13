@@ -25,6 +25,7 @@ TEST_1 = "1"
 TEST_2 = "2"
 TEST_3 = "3"
 TEST_4 = "4"
+TEST_4 = "5"
 parser = argparse.ArgumentParser(description="Tets the working of VM Server")
 parser.add_argument("test_flag",
                     type=str,
@@ -199,6 +200,13 @@ if __name__ == "__main__":
       sys.exit(-1)
   elif arguments.test_flag == TEST_4:
     file_id = 4
+    try:
+      execute_commands(file_id)
+    except Exception as err:
+      logging.debug(err)
+      sys.exit(-1)
+  elif arguments.test_flag == TEST_5:
+    file_id = 5
     try:
       execute_commands(file_id)
     except Exception as err:
