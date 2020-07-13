@@ -248,7 +248,7 @@ def execute_action(task_request, task_response):
     output_files = [name for name in os.listdir(EXECUTE_ACTION_DIR + OUTPUT_DIR)
                     if os.path.isfile(EXECUTE_ACTION_DIR + OUTPUT_DIR + name)]
     task_response.number_of_files = len(output_files)
-    if sys.arg[1] == DEBUG_FLAG:
+    if sys.argv[1] == DEBUG_FLAG:
       move_output(task_request, task_response)
     else:
       upload_output(task_request, task_response)
@@ -314,7 +314,7 @@ def execute_wrapper(task_request, task_response):
   global task_status_response
   start = timeit.default_timer()
   set_environment_variables(task_request)
-  if sys.arg[1] == DEBUG_FLAG:
+  if sys.argv[1] == DEBUG_FLAG:
     make_directories(task_request, task_response)
   else:
     download_input_files(task_request, task_response)
