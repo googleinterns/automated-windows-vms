@@ -4,6 +4,7 @@
   It accepts the requests in the form of protobufs
   and executes the same in the specified path
 """
+import argparse
 import logging
 import os
 from pathlib import Path
@@ -30,6 +31,16 @@ EXECUTE_ACTION_DIR = "..\\execute\\action"
 OUTPUT_DIR = "\\output\\"
 BUCKET_NAME = "automation-interns"
 DEBUG_FLAG = "DEBUG"
+parser = argparse.ArgumentParser(description="VM Server")
+parser.add_argument("debug_flag",
+                    type=str,
+                    help="""Usage: " + sys.argv[0] +  DEBUG_FLAG
+                    TEST_FLAG : Test description
+                    1 : Run query1.txt test
+                    2 : Run query2.txt test
+                    3 : Run query3.txt test
+                    """)
+arguments = parser.parse_args()
 
 def get_processes(file_name):
   """Logs the current running processes in the file named file_name
@@ -248,7 +259,7 @@ def execute_action(task_request, task_response):
     output_files = [name for name in os.listdir(EXECUTE_ACTION_DIR + OUTPUT_DIR)
                     if os.path.isfile(EXECUTE_ACTION_DIR + OUTPUT_DIR + name)]
     task_response.number_of_files = len(output_files)
-    if sys.argv[1] == DEBUG_FLAG:
+    if arguments.debug_flag == DEBUG_FLAG:
       move_output(task_request, task_response)
     else:
       upload_output(task_request, task_response)
@@ -314,7 +325,7 @@ def execute_wrapper(task_request, task_response):
   global task_status_response
   start = timeit.default_timer()
   set_environment_variables(task_request)
-  if sys.argv[1] == DEBUG_FLAG:
+  if arguments.debug_flag == DEBUG_FLAG:
     make_directories(task_request, task_response)
   else:
     download_input_files(task_request, task_response)

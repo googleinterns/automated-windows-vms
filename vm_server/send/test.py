@@ -25,8 +25,8 @@ TEST_1 = "1"
 TEST_2 = "2"
 TEST_3 = "3"
 TEST_4 = "4"
-TEST_4 = "5"
-parser = argparse.ArgumentParser(description="Tets the working of VM Server")
+TEST_5 = "5"
+parser = argparse.ArgumentParser(description="Tests the working of VM Server")
 parser.add_argument("test_flag",
                     type=str,
                     help="""Usage: " + sys.argv[0] +  "TEST_FLAG
