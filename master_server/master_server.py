@@ -3,6 +3,7 @@
      requests.
      A database is created to store the incoming requests from user.
 """
+import argparse
 import os
 import requests
 from flask import Flask
@@ -34,6 +35,10 @@ DB = SQLAlchemy(APP)
 
 working_vm_address_list = []
 available_vm_address_list = []
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-d', '--debug_mode', help='debugging mode')
+args = parser.parse_args()
 
 class Newrequestentry(DB.Model):
   """This class creates a table Newrequestentry
@@ -44,33 +49,28 @@ class Newrequestentry(DB.Model):
   request_id = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
   request_proto_file = DB.Column(DB.BLOB)
   response_proto_file = DB.Column(DB.BLOB)
-
   request_status = DB.Column(DB.String(50))
   last_vm_assigned = DB.Column(DB.String(100))
   number_of_retries_allowed = DB.Column(DB.Integer)
   number_of_retries_till_now = DB.Column(DB.Integer)
-
   datetime_of_accepting_request = DB.Column(DB.DateTime, default=datetime.now())
 
   def __init__(
       self, request_proto_file, request_status, last_vm_assigned,
       number_of_retries_allowed, number_of_retries_till_now):
     self.request_proto_file = request_proto_file
-
     self.request_status = request_status
     self.last_vm_assigned = last_vm_assigned
     self.number_of_retries_allowed = number_of_retries_allowed
     self.number_of_retries_till_now = number_of_retries_till_now
 
 def create_new_request(
-
     request_proto_file, request_status, last_vm_assigned,
     number_of_retries_allowed, number_of_retries_till_now):
 #  This function adds a new row to database.
   dessert = Newrequestentry(
       request_proto_file, request_status, last_vm_assigned,
       number_of_retries_allowed, number_of_retries_till_now)
-
   DB.session.add(dessert)
   DB.session.commit()
   return dessert
@@ -79,7 +79,6 @@ def get_request_status_row(request_id):
 #  Get status of previous request.
   get_row_data = Newrequestentry.query.get(request_id)
   return get_row_data
-
 
 def change_state(request_id, input_file):
 #  Change request_status of a request.
@@ -90,49 +89,44 @@ def change_state(request_id, input_file):
 def change_state_again(request_id, last_vm_assigned,
       number_of_retries_till_now):
 #  Change request_status of a request.
-  
   Newrequestentry.query.filter_by(request_id=request_id).\
   update({Newrequestentry.last_vm_assigned: last_vm_assigned, Newrequestentry.\
       number_of_retries_till_now: number_of_retries_till_now})
-
   DB.session.commit()
 
 @APP.route('/', methods=['GET', 'POST'])
 def hello_world():
-
   return(' You have reached master server \n')
 
 @APP.route('/register', methods=['GET', 'POST'])
 def add_vm_address():
 #  Add a VM to working_vm_address_list list.
-
   address = request.data.decode('utf-8')
   if address not in working_vm_address_list:
     working_vm_address_list.append(address)
   return {'message': 'success'}
 
 @APP.route('/upload')
-
 def upload_file_webpage():
-
 #  Serve web page
   return render_template('upload.html')
 
 @APP.route('/assign_task', methods=['GET', 'POST'])
-
 def upload_file():
   """Accept proto file from user and
      assign it to VM.
   """
-  
   task_status_response = Request_pb2.TaskStatusResponse()
   f = request.files['file']
   read = f.read()
   vm_n = find_working_vm()
   if vm_n == 'NOT':
     task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
-    print('xxxx')
-    return str(task_status_response)
+#    print('xxxx')
+    if args.debug_mode == 'b':
+      return task_status_response.SerializeToString()
+    else:
+      return str(task_status_response)
   else:
     try:
       working_vm_address_list.remove(vm_n)
@@ -145,22 +139,36 @@ def upload_file():
           task_request.SerializeToString()})
       task_status_response.ParseFromString(response.content)
 #      print(task_status_response)
-      t = threading.Thread(target=retry_after_timeout,args=(task_request.request_id,task_request.timeout))
+      t = threading.Thread(target= retry_after_timeout, args= (task_request.request_id, task_request.timeout, task_request.number_of_retries))
       t.start()
       if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
 #        print('yyyy')
 #        task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
-        return str(task_status_response)#.SerializeToString()
+        if args.debug_mode == 'b':
+          return task_status_response.SerializeToString()
+        else:
+          return str(task_status_response)
     except Exception as e:
       task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
       print(e)
-      return str(task_status_response)
+      if args.debug_mode == 'b':
+        return task_status_response.SerializeToString()
+      else:
+        return str(task_status_response)
 
-def retry_after_timeout(request_id,timeout):
+def retry_after_timeout(request_id, timeout, number_of_retries):
 #  print('qqqq '+str(timeout)+'  '+str(request_id))
-  time.sleep(timeout + 5.0)
-  retry_again(request_id)
-
+  timer = timeout * (number_of_retries + 2)
+  time.sleep(timer)
+#  print('qqqq '+str(timeout)+'  '+str(request_id))
+  task_status_response = Request_pb2.TaskStatusResponse()
+  request_row = get_request_status_row(request_id)
+  if request_row.response_proto_file is None:
+    retry_again(request_id, True)
+  else:
+    task_status_response.ParseFromString(request_row.response_proto_file)
+    if task_status_response.task_response.status == Request_pb2.TaskResponse.FAILURE:
+      retry_again(request_id, True)
 
 @APP.route('/get_status',methods=['GET', 'POST'])
 def get_status():
@@ -171,7 +179,10 @@ def get_status():
           task_status_request.SerializeToString()})
   task_status_response = Request_pb2.TaskStatusResponse()
   task_status_response.ParseFromString(response.content)
-  return str(task_status_response)
+  if args.debug_mode == 'b':
+    return task_status_response.SerializeToString()
+  else:
+    return str(task_status_response)
 
 @APP.route('/vm_status', methods=['GET', 'POST'])
 def vm_status():
@@ -189,7 +200,8 @@ def task_completed():
   change_state(int(request_id), task_status_response.SerializeToString())
   if task_status_response.task_response.status == Request_pb2.TaskResponse.FAILURE:
 #    print('bbbbb '+str(request_id))
-    result = retry_again(request_id)
+    time.sleep(1)
+    result = retry_again(request_id, False)
   return 'success'
 
 @APP.route('/request_status', methods=['GET', 'POST'])
@@ -197,28 +209,35 @@ def status_of_request():
 #  Check status of a request
   req_id = request.form['request_id']
   request_row = get_request_status_row(req_id)
-  
   if request_row is None:
     task_status_response = Request_pb2.TaskStatusResponse()
     task_status_response.status = Request_pb2.TaskStatusResponse.INVALID_ID
-    return str(task_status_response)
+    if args.debug_mode == 'b':
+      return task_status_response.SerializeToString()
+    else:
+      return str(task_status_response)
   else:
-
     a = request_row.response_proto_file
     if a is None:
       task_status_response = Request_pb2.TaskStatusResponse()
       task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
-      return str(task_status_response)
+      if args.debug_mode == 'b':
+        return task_status_response.SerializeToString()
+      else:
+        return str(task_status_response)
     else:
       task_status_response = Request_pb2.TaskStatusResponse()
       task_status_response.ParseFromString(request_row.response_proto_file)
       task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
-      return str(task_status_response)
+      if args.debug_mode == 'b':
+        return task_status_response.SerializeToString()
+      else:
+        return str(task_status_response)
 
-def retry_again(request_id):
+def retry_again(request_id, flag):
 #  Retry again if request fails.
-  request_row = get_request_status_row(request_id)
-  if request_row.number_of_retries_allowed >= request_row.number_of_retries_till_now:
+  request_row = get_request_status_row(request_id)  
+  if request_row.number_of_retries_allowed > request_row.number_of_retries_till_now or flag:
     vm_n = find_working_vm()
     if vm_n == 'NOT':
       return 'try again later'
@@ -235,7 +254,6 @@ def retry_again(request_id):
       except Exception as e:
         print(e)
         return 'try again later'
-
 
 def is_healthy(node):
   """Check given VM is healthy or not.
@@ -297,4 +315,7 @@ def pre_tasks():
   get_working_vm_address()
 
 if __name__ == '__main__':
+  print( 'debug_mode {}'.format(
+        args.debug_mode,
+        ))
   APP.run()

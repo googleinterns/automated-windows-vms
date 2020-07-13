@@ -23,7 +23,7 @@ def new_dummy_server():
   os.system('python dummy_vm_server.py ' + str(port))
 
 def master_server():
-  os.system('python master_server.py')
+  os.system('python master_server.py -d b')
 
 if __name__ == '__main__':
   print( 'Starting_port {} Count {} filename {} number {} '.format(
@@ -48,4 +48,6 @@ if __name__ == '__main__':
   
   for i in range(args.number):
     RESPONSE = requests.post(url='http://127.0.0.1:5000/assign_task', files={'file': TASK_REQUEST.SerializeToString()})
-    print(RESPONSE.content)
+    task_status_response = Request_pb2.TaskStatusResponse()
+    task_status_response.ParseFromString(RESPONSE.content)
+    print(task_status_response)

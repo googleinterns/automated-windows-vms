@@ -67,7 +67,9 @@ def task_done():
 #  print(task_response)
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
-  task_completed()
+  t = threading.Thread(target = task_completed)
+  t.start()
+#  task_completed()
   flag = False
   register_vm_address()
 
@@ -76,7 +78,6 @@ def execute_task():
 
 def task_completed():
 #  Notify the master server after task is completed.
-  
   read = task_status_response.SerializeToString()
   response = requests.post(url='http://127.0.0.1:5000/success', files=
       {'task_response': read, 'request_id': ('', str(task_request.request_id))})
