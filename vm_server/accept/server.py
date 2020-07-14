@@ -34,12 +34,8 @@ DEBUG_FLAG = "DEBUG"
 parser = argparse.ArgumentParser(description="VM Server")
 parser.add_argument("debug_flag",
                     type=str,
-                    help="""Usage: " + sys.argv[0] +  DEBUG_FLAG
-                    TEST_FLAG : Test description
-                    1 : Run query1.txt test
-                    2 : Run query2.txt test
-                    3 : Run query3.txt test
-                    """)
+                    help="""Usage: " + sys.argv[0] +  DEBUG_FLAG"""
+                    )
 arguments = parser.parse_args()
 
 def get_processes(file_name):
