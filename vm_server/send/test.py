@@ -9,6 +9,7 @@ import argparse
 import logging
 import os
 import sys
+import test_initialisation
 import threading
 import requests
 from flask import Flask, request
@@ -36,41 +37,6 @@ parser.add_argument("test_flag",
                     """)
 arguments = parser.parse_args()
 
-
-class KThread(threading.Thread):
-  """A subclass of threading.Thread, with a kill() method."""
-
-  def __init__(self, *args, **keywords):
-    threading.Thread.__init__(self, *args, **keywords)
-    self.killed = False
-
-  def start(self):
-    """Start the thread."""
-    self.__run_backup = self.run
-    self.run = self.__run      # Force the Thread to install our trace.
-    threading.Thread.start(self)
-
-  def __run(self):
-    """Hacked run function, which installs the trace."""
-    sys.settrace(self.globaltrace)
-    self.__run_backup()
-    self.run = self.__run_backup
-
-  def globaltrace(self, frame, why, arg):
-    if why == 'call':
-      return self.localtrace
-    else:
-      return None
-
-  def localtrace(self, frame, why, arg):
-    if self.killed:
-      if why == 'line':
-        raise SystemExit()
-    return self.localtrace
-
-  def kill(self):
-    self.killed = True
-
 def usage_message():
   """Prints the valid usage details"""
   logging.debug("Usage: %s TEST_FLAG", sys.argv[0])
@@ -89,9 +55,7 @@ def success():
   global RESPONSE
   task_status_response = Request_pb2.TaskStatusResponse()
   task_status_response.ParseFromString(request.files["task_response"].read())
-  with open(ROOT + "after_response.pb", "wb") as after_response:
-    after_response.write(task_status_response.SerializeToString())
-    after_response.close()
+  test_initialisation.save_proto_to_file("after_response.pb", task_status_response)
   if task_status_response.current_task_id == REQUEST_ID\
      and task_status_response.task_response.status \
      == Request_pb2.TaskResponse.SUCCESS:
@@ -132,15 +96,16 @@ def execute_commands(proto_text_number):
     task_status_response = Request_pb2.TaskStatusResponse()
     task_status_response.ParseFromString((response.content))
     logging.debug("Initial response : %s", str(task_status_response))
-    with open(ROOT + "initial_response.pb", "wb") as initial_response:
-      initial_response.write(task_status_response.SerializeToString())
-      initial_response.close()
+    # with open(ROOT + "initial_response.pb", "wb") as initial_response:
+    #   initial_response.write(task_status_response.SerializeToString())
+    #   initial_response.close()
+    test_initialisation.save_proto_to_file("initial_response.pb", task_status_response)
     if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
       logging.debug("Request was accepted.")
       logging.debug("Starting up server and listening to the response")
       RESPONSE = False
       # thread = threading.Thread(target=start_server)
-      thread = KThread(target=start_server)
+      thread = test_initialisation.KThread(target=start_server)
       thread.start()
       thread.join(int(task_request.timeout) + 10)
       if thread.is_alive():

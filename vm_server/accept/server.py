@@ -177,7 +177,7 @@ def execute_action(task_request, task_response):
 
 def register_vm_address():
   """Send request to master server to inform that VM is free"""
-  data = "http://" + VM_ADDRESS + ":" + str(PORT)
+  data = "http://{}:{}".format(VM_ADDRESS, str(PORT))
   try:
     requests.get(MASTER_SERVER + str("/register"), data=data)
   except Exception as exception:
