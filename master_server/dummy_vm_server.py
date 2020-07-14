@@ -1,4 +1,3 @@
-
 """This is a dummy VM server.
   It is built to test the master server.
 """
@@ -33,7 +32,6 @@ flag = False
 MASTER_SERVER = 'http://127.0.0.1:5000'
 VM_ADDRESS = 'http://127.0.0.1:'
 request_id = ''
-#task_response = Request_pb2.TaskResponse()
 task_request = Request_pb2.TaskRequest()
 task_status_response = Request_pb2.TaskStatusResponse()
 
@@ -42,19 +40,16 @@ def task_done():
      and then again print time.
   """
   global flag
-#  global task_response
   global task_status_response
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
-#  task_response.status = Request_pb2.TaskResponse.BUSY
   start = timeit.default_timer()
   t = multiprocessing.Process(target=execute_task)
   t.start()
   t.join(int(task_request.timeout))
   if t.is_alive():
     task_status_response.task_response.status = Request_pb2.TaskResponse.FAILURE
-#    task_response.time_taken = 0.0
     task_status_response.task_response.time_taken = 0.0
     t.terminate()
     t.join()
@@ -64,12 +59,10 @@ def task_done():
     task_status_response.task_response.time_taken = time_taken
     task_status_response.task_response.status = Request_pb2.TaskResponse.SUCCESS
   now = datetime.now()
-#  print(task_response)
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
   t = threading.Thread(target = task_completed)
   t.start()
-#  task_completed()
   flag = False
   register_vm_address()
 
@@ -115,10 +108,8 @@ def flag_status():
   
 @APP.route('/get_status', methods=['GET', 'POST'])
 def get_status_of_request():
-  task_status_request = Request_pb2.TaskStatusRequest()
   input_file = request.files['task_request']
-  task_status_request.ParseFromString(input_file.read())
-  return task_status_request.SerializeToString()
+  return input_file.read()
   
 def register_vm_address():
 #  This functions tells the master server that VM is healhty.
