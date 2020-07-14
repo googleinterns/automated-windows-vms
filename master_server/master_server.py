@@ -42,7 +42,6 @@ args = parser.parse_args()
 
 class Newrequestentry(DB.Model):
   """This class creates a table Newrequestentry
-
     init function in this class inserts a new row
     the table.
   """
@@ -122,7 +121,6 @@ def upload_file():
   vm_n = find_working_vm()
   if vm_n == 'NOT':
     task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
-#    print('xxxx')
     if args.debug_mode == 'b':
       return task_status_response.SerializeToString()
     else:
@@ -138,12 +136,9 @@ def upload_file():
       response = requests.post(url=vm_n + '/assign_task', files={'task_request':
           task_request.SerializeToString()})
       task_status_response.ParseFromString(response.content)
-#      print(task_status_response)
       t = threading.Thread(target= retry_after_timeout, args= (task_request.request_id, task_request.timeout, task_request.number_of_retries))
       t.start()
       if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
-#        print('yyyy')
-#        task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
         if args.debug_mode == 'b':
           return task_status_response.SerializeToString()
         else:
@@ -157,10 +152,9 @@ def upload_file():
         return str(task_status_response)
 
 def retry_after_timeout(request_id, timeout, number_of_retries):
-#  print('qqqq '+str(timeout)+'  '+str(request_id))
+# Retry to check job status after timeout.
   timer = timeout * (number_of_retries + 2)
   time.sleep(timer)
-#  print('qqqq '+str(timeout)+'  '+str(request_id))
   task_status_response = Request_pb2.TaskStatusResponse()
   request_row = get_request_status_row(request_id)
   if request_row.response_proto_file is None:
@@ -199,7 +193,6 @@ def task_completed():
   request_id = int(req.decode('utf-8'))
   change_state(int(request_id), task_status_response.SerializeToString())
   if task_status_response.task_response.status == Request_pb2.TaskResponse.FAILURE:
-#    print('bbbbb '+str(request_id))
     time.sleep(1)
     result = retry_again(request_id, False)
   return 'success'
@@ -315,7 +308,4 @@ def pre_tasks():
   get_working_vm_address()
 
 if __name__ == '__main__':
-  print( 'debug_mode {}'.format(
-        args.debug_mode,
-        ))
   APP.run()
