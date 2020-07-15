@@ -20,10 +20,10 @@ port = args.start_port
 def new_dummy_server():
   global port
   port = port + 1
-  os.system('python3 dummy_vm_server.py ' + str(port))
+  os.system('python dummy_vm_server.py ' + str(port))
 
 def master_server():
-  os.system('python3 master_server.py -d b')
+  os.system('python master_server.py -d b')
 
 def send_request():
   print(os.getcwd())
