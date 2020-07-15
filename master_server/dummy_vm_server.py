@@ -109,7 +109,14 @@ def flag_status():
 @APP.route('/get_status', methods=['GET', 'POST'])
 def get_status_of_request():
   input_file = request.files['task_request']
-  return input_file.read()
+  task_status_request = Request_pb2.TaskStatusRequest()
+  task_status_request.ParseFromString(input_files.read())
+  if task_status_response.current_task_id == task_status_request.request_id:
+    return task_status_response.SeralizeToString()
+  else:
+    task = Request_pb2.TaskStatusResponse()
+    task.status = Request_pb2.TaskStatusResponse.INVALID_ID
+    return task.SeralizeToString()
   
 def register_vm_address():
 #  This functions tells the master server that VM is healhty.

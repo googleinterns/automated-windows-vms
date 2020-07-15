@@ -153,7 +153,7 @@ def upload_file():
 
 def retry_after_timeout(request_id, timeout, number_of_retries):
 # Retry to check job status after timeout.
-  timer = timeout * (number_of_retries + 2)
+  timer = timeout * (number_of_retries + 4)
   time.sleep(timer)
   task_status_response = Request_pb2.TaskStatusResponse()
   request_row = get_request_status_row(request_id)
@@ -167,12 +167,17 @@ def retry_after_timeout(request_id, timeout, number_of_retries):
 @APP.route('/get_status',methods=['GET', 'POST'])
 def get_status():
   task_status_request = Request_pb2.TaskStatusRequest()
-  task_status_request.request_id = request.form['request_id']
-  row = get_request_status_row(task_status_request.request_id)
-  response = requests.post(url=row.last_vm_assigned + '/get_status', files={'task_request':
-          task_status_request.SerializeToString()})
+  task_status_request.ParseFromString(request.files['file'].read())
   task_status_response = Request_pb2.TaskStatusResponse()
-  task_status_response.ParseFromString(response.content)
+#  task_status_request.request_id = request.form['request_id']
+  row = get_request_status_row(task_status_request.request_id)
+  if row.response_proto_file is None:
+    response = requests.post(url=row.last_vm_assigned + '/get_status', files={'task_request':
+            task_status_request.SerializeToString()})
+    task_status_response.ParseFromString(response.content)
+  else:
+    task_status_request.ParseFromString(row.response_proto_file)
+
   if args.debug_mode == 'b':
     return task_status_response.SerializeToString()
   else:
