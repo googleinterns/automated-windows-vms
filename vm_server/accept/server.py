@@ -16,11 +16,11 @@ from waitress import serve
 from flask import Flask, request
 import repackage
 repackage.up(2)
-from vm_server.send.proto import Request_pb2
+from vm_server.send.proto import request_pb2
 
 sem = threading.Semaphore()
 MASTER_SERVER = "http://127.0.0.1:5000"
-task_status_response = Request_pb2.TaskStatusResponse()
+task_status_response = request_pb2.TaskStatusResponse()
 PORT = 8000
 VM_ADDRESS = "127.0.0.1"
 EXECUTE_DIR = "..\\execute"
@@ -62,7 +62,7 @@ def remove_execute_dir(task_response):
   except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error deleting the execute directory")
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
 
 def make_directories(task_request, task_response):
   """Creates the directories for execution
@@ -73,7 +73,7 @@ def make_directories(task_request, task_response):
   """
   logging.debug("Creating execute directory structure")
   remove_execute_dir(task_response)
-  if task_response.status == Request_pb2.TaskResponse.FAILURE:
+  if task_response.status == request_pb2.TaskResponse.FAILURE:
     return
   current_path = EXECUTE_ACTION_DIR
   os.mkdir(EXECUTE_DIR)
@@ -91,7 +91,7 @@ def make_directories(task_request, task_response):
   except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
     logging.debug("Error copying code and data directories")
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
 
 def move_output(task_request, task_response):
   """Move the genrated output files to the output path specified
@@ -117,7 +117,7 @@ def move_output(task_request, task_response):
     logging.exception(str(exception))
     logging.debug("Error moving the output files \
                    to the specified output directory")
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
 
 
 def execute_action(task_request, task_response):
@@ -127,7 +127,7 @@ def execute_action(task_request, task_response):
     task_request: an object of TaskResponse() that is sent in the request
     task_response: an object of TaskResponse() that will be sent back
   """
-  if task_response.status == Request_pb2.TaskResponse.FAILURE:
+  if task_response.status == request_pb2.TaskResponse.FAILURE:
     return
   logging.debug("Trying to execute the action")
   current_path = "..\\execute\\action"
@@ -146,12 +146,12 @@ def execute_action(task_request, task_response):
   except Exception as exception:  # catch errors if any
     logging.debug(str(exception))
     logging.debug("FAILED TO EXECUTE THE ACTION")
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
     err = str(exception).encode(encoding)
   status = execute.returncode
   if status:
     logging.debug("Execution was unsuccessful")
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
   logging.debug("Process is running, force killing the process")
   kill_process = subprocess.Popen("TASKKILL /F \
                                   /PID {pid} /T".format(pid=execute.pid))
@@ -173,7 +173,7 @@ def execute_action(task_request, task_response):
     move_output(task_request, task_response)
   except Exception as exception:
     logging.debug("Error writing in stdout, stderr %s", str(exception))
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
 
 def register_vm_address():
   """Send request to master server to inform that VM is free"""
@@ -191,8 +191,8 @@ def task_completed(task_response):
     task_response: an object of TaskResponse() that will be sent back
   """
   global task_status_response
-  if task_response.status != Request_pb2.TaskResponse.FAILURE:
-    task_response.status = Request_pb2.TaskResponse.SUCCESS
+  if task_response.status != request_pb2.TaskResponse.FAILURE:
+    task_response.status = request_pb2.TaskResponse.SUCCESS
   task_status_response.task_response.CopyFrom(task_response)
   current_path = os.path.dirname(os.path.realpath("__file__"))
   response_proto = os.path.join(current_path, ".\\task_completed_response.pb")
@@ -239,7 +239,7 @@ def execute_wrapper(task_request, task_response):
   time_taken = stop-start
   logging.debug("Time taken is %s", str(time_taken))
   task_response.time_taken = time_taken
-  task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
+  task_status_response.status = request_pb2.TaskStatusResponse.COMPLETED
   task_completed(task_response)
   register_vm_address()
 
@@ -250,35 +250,35 @@ APP = Flask(__name__)
 def get_status():
   """Endpoint for the master to know the status of the VM"""
   global task_status_response
-  request_task_status_response = Request_pb2.TaskStatusResponse()
+  request_task_status_response = request_pb2.TaskStatusResponse()
   request_task_status_response.ParseFromString(
       request.files["task_request"].read()
   )
   response_task_status = task_status_response
   if task_status_response.current_task_id != \
      request_task_status_response.current_task_id:
-    response_task_status.status = Request_pb2.TaskStatusResponse.INVALID_ID
+    response_task_status.status = request_pb2.TaskStatusResponse.INVALID_ID
   return response_task_status.SerializeToString()
 
 @APP.route("/assign_task", methods=["POST"])
 def assign_task():
   """Endpoint to accept post requests with protobuffer"""
-  task_response = Request_pb2.TaskResponse()
+  task_response = request_pb2.TaskResponse()
   global task_status_response
   get_processes("process_before.txt")
   if sem.acquire(blocking=False):
     logging.debug("Accepted request: %s", str(request))
-    task_request = Request_pb2.TaskRequest()
+    task_request = request_pb2.TaskRequest()
     task_request.ParseFromString(request.files["task_request"].read())
     logging.debug("Request Proto: %s", str(task_request))
     thread = threading.Thread(target=execute_wrapper,
                               args=(task_request, task_response,))
     thread.start()
     task_status_response.current_task_id = task_request.request_id
-    task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
+    task_status_response.status = request_pb2.TaskStatusResponse.ACCEPTED
   else:
-    task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
-    task_response.status = Request_pb2.TaskResponse.BUSY
+    task_status_response.status = request_pb2.TaskStatusResponse.REJECTED
+    task_response.status = request_pb2.TaskResponse.BUSY
   current_path = os.path.dirname(os.path.realpath("__file__"))
   response_proto = os.path.join(current_path, ".\\response.pb")
   logging.debug("Task Status Response: %s", str(task_status_response))
@@ -295,4 +295,3 @@ if __name__ == "__main__":
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
   serve(APP, host="127.0.0.1", port=PORT)
-
