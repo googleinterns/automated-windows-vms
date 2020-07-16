@@ -5,14 +5,11 @@
     then creates the proto file from the text specified
     in query1.txt or query2.txt
 """
-import argparse
 import logging
 import os
-import sys
-import test_initialisation
-import threading
 import requests
 from flask import Flask, request
+import test_initialisation
 from proto import request_pb2
 
 
@@ -21,30 +18,7 @@ URL = "http://127.0.0.1:8000/assign_task"
 ROOT = ".\\"
 RESPONSE = False
 REQUEST_ID = 0
-ALL_TESTS = "all"
-TEST_1 = "1"
-TEST_2 = "2"
-TEST_3 = "3"
-TEST_4 = "4"
-# parser = argparse.ArgumentParser(description="Tets the working of VM Server")
-# parser.add_argument("test_flag",
-#                     type=str,
-#                     help="""Usage: " + sys.argv[0] +  "TEST_FLAG
-#                     TEST_FLAG : Test description
-#                     1 : Run query1.txt test
-#                     2 : Run query2.txt test
-#                     3 : Run query3.txt test
-#                     """)
-# arguments = parser.parse_args()
 
-def usage_message():
-  """Prints the valid usage details"""
-  logging.debug("Usage: %s TEST_FLAG", sys.argv[0])
-  logging.debug("TEST_FLAG : Test description")
-  logging.debug("--all : Run all tests at once")
-  logging.debug("--1 : Run query1.txt test")
-  logging.debug("--2 : Run query2.txt test")
-  logging.debug("--3 : Run query3.txt test")
 
 @APP.route("/success", methods=["GET", "POST"])
 def success():
@@ -55,7 +29,8 @@ def success():
   global RESPONSE
   task_status_response = request_pb2.TaskStatusResponse()
   task_status_response.ParseFromString(request.files["task_response"].read())
-  test_initialisation.save_proto_to_file("after_response.pb", task_status_response)
+  test_initialisation.save_proto_to_file("after_response.pb",
+                                         task_status_response)
   if task_status_response.current_task_id == REQUEST_ID\
      and task_status_response.task_response.status \
      == request_pb2.TaskResponse.SUCCESS:
@@ -103,7 +78,8 @@ def execute_commands(proto_text_number):
     with open(ROOT + "response.pb", "wb") as f:
       f.write(response.content)
       f.close()
-    test_initialisation.save_proto_to_file("initial_response.pb", task_status_response)
+    test_initialisation.save_proto_to_file("initial_response.pb",
+                                           task_status_response)
     if task_status_response.status == request_pb2.TaskStatusResponse.ACCEPTED:
       logging.debug("Request was accepted.")
       logging.debug("Starting up server and listening to the response")
@@ -124,7 +100,7 @@ def execute_commands(proto_text_number):
       logging.debug("Request was not accepted")
       logging.debug(str(task_status_response))
       return False
-  
+
 if __name__ == "__main__":
   logging.basicConfig(filename="response.log",
                       level=logging.DEBUG,
