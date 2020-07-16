@@ -58,8 +58,8 @@ def response(file_a, file_A, file_b, timeout, number_of_retries):
   time.sleep(timer)
   task_status_request = Request_pb2.TaskStatusRequest()
   task_status_request.request_id = file_A.current_task_id
-  RESPONSE = requests.post(url= 'http://127.0.0.1:5000/request_status',
-      data = {'request_id': file_A.current_task_id})
+  RESPONSE = requests.post(url= 'http://127.0.0.1:5000/get_status',
+      files = {'file': task_status_request.SerializeToString()})
   file_B = Request_pb2.TaskStatusResponse()
   file_B.ParseFromString(RESPONSE.content)
   match_proto(file_a, file_A , file_b, file_B)

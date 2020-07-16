@@ -166,22 +166,10 @@ def retry_after_timeout(request_id, timeout, number_of_retries):
 
 @APP.route('/get_status',methods=['GET', 'POST'])
 def get_status():
+# Check status of a request.
   task_status_request = Request_pb2.TaskStatusRequest()
   task_status_request.ParseFromString(request.files['file'].read())
-  task_status_response = Request_pb2.TaskStatusResponse()
-#  task_status_request.request_id = request.form['request_id']
-  row = get_request_status_row(task_status_request.request_id)
-  if row.response_proto_file is None:
-    response = requests.post(url=row.last_vm_assigned + '/get_status', files={'task_request':
-            task_status_request.SerializeToString()})
-    task_status_response.ParseFromString(response.content)
-  else:
-    task_status_request.ParseFromString(row.response_proto_file)
-
-  if args.debug_mode == 'b':
-    return task_status_response.SerializeToString()
-  else:
-    return str(task_status_response)
+  return status_of_request(task_status_request.request_id)
 
 @APP.route('/vm_status', methods=['GET', 'POST'])
 def vm_status():
@@ -203,9 +191,14 @@ def task_completed():
   return 'success'
 
 @APP.route('/request_status', methods=['GET', 'POST'])
-def status_of_request():
-#  Check status of a request
+def request_status():
+# Check status of a request
   req_id = request.form['request_id']
+  return status_of_request(req_id)
+
+def status_of_request(req_id):
+#  Check status of a request
+#  req_id = request.form['request_id']
   request_row = get_request_status_row(req_id)
   if request_row is None:
     task_status_response = Request_pb2.TaskStatusResponse()
