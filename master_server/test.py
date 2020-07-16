@@ -27,17 +27,18 @@ def master_server():
 
 def send_request():
   print(os.getcwd())
+  
   TEXT_FILE = open('query.txt', 'r')
   TASK_REQUEST = Request_pb2.TaskRequest()
   text_format.Parse(TEXT_FILE.read(), TASK_REQUEST)
   TEXT_FILE.close()
   file_a = Request_pb2.TaskStatusResponse()
   file_b = Request_pb2.TaskStatusResponse()
-  fil = open('a.pb', 'rb')
-  file_a.ParseFromString(fil.read())
+  fil = open('response_proto_a.txt', 'r')
+  text_format.Parse(fil.read(), file_a)
   fil.close()
-  fil = open('b.pb', 'rb')
-  file_b.ParseFromString(fil.read())
+  fil = open('response_proto_b.txt', 'r')
+  text_format.Parse(fil.read(), file_b)
   fil.close()
   
   for i in range(args.number):
@@ -53,21 +54,21 @@ def send_request():
       print(file_A)
     
 def response(file_a, file_A, file_b, timeout, number_of_retries):
-  timer = timeout * (number_of_retries + 4)
+  timer = timeout * (number_of_retries + 10)
   time.sleep(timer)
   task_status_request = Request_pb2.TaskStatusRequest()
   task_status_request.request_id = file_A.current_task_id
-  RESPONSE = requests.post(url='http://127.0.0.1:5000/request_status',
-      data = {'request_id' :file_A.current_task_id})
+  RESPONSE = requests.post(url= 'http://127.0.0.1:5000/request_status',
+      data = {'request_id': file_A.current_task_id})
   file_B = Request_pb2.TaskStatusResponse()
   file_B.ParseFromString(RESPONSE.content)
   match_proto(file_a, file_A , file_b, file_B)
 
 def match_proto(file_a, file_A ,file_b, file_B):
   if file_b.status == file_B.status and file_b.task_response.status == file_B.task_response.status:
-    print('Task request '+str(file_A.current_task_id)+' matched successfully')
+    print('Task request ' + str(file_A.current_task_id) + ' matched successfully')
   else:
-    print('Task request '+str(file_A.current_task_id)+' did not matched successfully')
+    print('Task request ' + str(file_A.current_task_id) + ' did not matched successfully')
 
 if __name__ == '__main__':
   print( 'Starting_port {} Count {} filename {} number {} '.format(

@@ -43,6 +43,7 @@ def task_done():
   global task_status_response
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
+  print('Started Task id is '+str(request_id)+' VM is '+str(VM_ADDRESS))
   print('Current Time =', current_time)
   start = timeit.default_timer()
   t = multiprocessing.Process(target=execute_task)
@@ -61,6 +62,7 @@ def task_done():
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
+  print('Ended Task id is '+str(request_id)+' VM is '+str(VM_ADDRESS))
   t = threading.Thread(target = task_completed)
   t.start()
   flag = False
@@ -128,6 +130,7 @@ def register_vm_address():
 
 def pre_task():
 #  This function performs tasks before the start of flask server.
+  global VM_ADDRESS
   if len(sys.argv) != 2:
     print('Usage:', sys.argv[0], 'INPUT_PORT')
     sys.exit(-1)
