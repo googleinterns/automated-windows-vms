@@ -4,6 +4,7 @@
   It accepts the requests in the form of protobufs
   and executes the same in the specified path
 """
+import argparse
 import logging
 import os
 from pathlib import Path
@@ -11,9 +12,11 @@ import shutil
 import subprocess
 import threading
 import timeit
+import sys
 import requests
 from waitress import serve
 from flask import Flask, request
+from google.cloud import storage
 import repackage
 repackage.up(2)
 from vm_server.send.proto import request_pb2
@@ -26,6 +29,15 @@ VM_ADDRESS = "127.0.0.1"
 EXECUTE_DIR = "..\\execute"
 EXECUTE_ACTION_DIR = "..\\execute\\action"
 OUTPUT_DIR = "\\output\\"
+BUCKET_NAME = "automation-interns"
+DEBUG_FLAG = "DEBUG"
+parser = argparse.ArgumentParser(description="VM Server")
+parser.add_argument("debug_flag",
+                    type=str,
+                    help="""Usage: " + sys.argv[0] +  DEBUG_FLAG"""
+                    )
+arguments = parser.parse_args()
+
 def get_processes(file_name):
   """Logs the current running processes in the file named file_name
 
@@ -115,9 +127,82 @@ def move_output(task_request, task_response):
                   os.path.join(destination_path, file))
   except Exception as exception:  # catch errors if any
     logging.exception(str(exception))
-    logging.debug("Error moving the output files \
-                   to the specified output directory")
-    task_response.status = request_pb2.TaskResponse.FAILURE
+    logging.debug("Error moving the output \
+                   files to the specified output directory")
+    task_response.status = Request_pb2.TaskResponse.FAILURE
+
+def download_files_to_path(pantheon_path, destination_path, task_response):
+  """Downloads files from pantheon path to the destination path
+
+  Args:
+    pantheon_path: the source path in pantheon
+    destination_path: the destination path where files are saved in the VM
+    task_response: an object of TaskResponse() that will be sent back
+  """
+  bucket_name = BUCKET_NAME
+  storage_client = storage.Client()
+  blobs = storage_client.list_blobs(bucket_name, prefix=pantheon_path)
+  for blob in blobs:
+    source = Path(blob.name)
+    destination_file_path = Path(str(destination_path) \
+                                 + "\\" + str(source.name))
+    if blob.name[len(blob.name)-1] == '/':
+      print("Making directory Destination path : ", destination_path)
+      os.makedirs(destination_file_path, exist_ok=True)
+    else:
+      print("Downloading file Destination path : ", destination_path)
+      os.makedirs(destination_path, exist_ok=True)
+      source = Path(blob.name)
+      print("Destination file path: ", destination_file_path)
+      try:
+        blob.download_to_filename(destination_file_path)
+      except Exception as exception:
+        logging.debug("Error while downloading files, \
+                       Exception: %s", str(exception))
+        task_response.status = Request_pb2.TaskResponse.FAILURE
+
+def download_input_files(task_request, task_response):
+  """Downloads the input files from pantheon
+
+  Args:
+    task_request: TaskRequest() object that is read from the protobuf
+    task_response: an object of TaskResponse() that will be sent back
+  """
+  remove_execute_dir(task_response)
+  current_path = EXECUTE_ACTION_DIR
+  os.mkdir(EXECUTE_DIR)
+  os.mkdir(current_path)
+  os.mkdir(current_path + OUTPUT_DIR)
+  Path(EXECUTE_DIR + "\\__init__.py").touch() # __init__.py for package
+  Path(current_path + "\\__init__.py").touch()
+  download_files_to_path(task_request.code_path,
+                         EXECUTE_ACTION_DIR + "\\code", task_response)
+  download_files_to_path(task_request.data_path,
+                         EXECUTE_ACTION_DIR + "\\data", task_response)
+
+
+def upload_output(task_request, task_response):
+  """ Upload the output files to pantheon
+
+  Args:
+    task_request: an object of TaskResponse() that is sent in the request
+    task_response: an object of TaskResponse() that will be sent back
+  """
+  bucket_name = BUCKET_NAME
+  storage_client = storage.Client()
+  bucket = storage_client.bucket(bucket_name)
+  source_path = Path(EXECUTE_ACTION_DIR + OUTPUT_DIR)
+  destination_path = task_request.output_path
+  files = os.listdir(source_path)
+  try:
+    for file in files:
+      destination_blob_path = (destination_path + file)
+      blob = bucket.blob(destination_blob_path)
+      blob.upload_from_filename(str(source_path) + "/" + str(file))
+  except Exception as exception:
+    logging.debug("Error while uploading output files, \
+                   Exception: %s", str(exception))
+    task_response.status = Request_pb2.TaskResponse.FAILURE
 
 
 def execute_action(task_request, task_response):
@@ -170,7 +255,10 @@ def execute_action(task_request, task_response):
     output_files = [name for name in os.listdir(EXECUTE_ACTION_DIR + OUTPUT_DIR)
                     if os.path.isfile(EXECUTE_ACTION_DIR + OUTPUT_DIR + name)]
     task_response.number_of_files = len(output_files)
-    move_output(task_request, task_response)
+    if arguments.debug_flag == DEBUG_FLAG:
+      move_output(task_request, task_response)
+    else:
+      upload_output(task_request, task_response)
   except Exception as exception:
     logging.debug("Error writing in stdout, stderr %s", str(exception))
     task_response.status = request_pb2.TaskResponse.FAILURE
@@ -233,7 +321,10 @@ def execute_wrapper(task_request, task_response):
   global task_status_response
   start = timeit.default_timer()
   set_environment_variables(task_request)
-  make_directories(task_request, task_response)
+  if arguments.debug_flag == DEBUG_FLAG:
+    make_directories(task_request, task_response)
+  else:
+    download_input_files(task_request, task_response)
   execute_action(task_request, task_response)
   stop = timeit.default_timer()
   time_taken = stop-start
