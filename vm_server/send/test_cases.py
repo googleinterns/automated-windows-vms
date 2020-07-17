@@ -22,12 +22,12 @@ def test_timeout():
 def test_config_pair():
   """Test if config pairs are being set"""
   execute = test_server.execute_commands(4)
-  assert execute == True
+  output_path = "..\\test\\config_pair\\output\\output.txt"
+  expected_output_path = "..\\test\\config_pair\\expected_output\\expected_output.txt"
+  assert filecmp.cmp(output_path, expected_output_path)
 
 def test_time_out_multiple_times():
   """Test failure due to time out multiple times""" 
   for i in range(3):
     execute = test_server.execute_commands(3)
     assert execute == False
-
-
