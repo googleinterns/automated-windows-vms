@@ -1,5 +1,5 @@
-code_path : "test/execute_macro/code/"
-data_path : "test/execute_macro/data/"
-output_path : "test/execute_macro/output/"
+code_path : "test/config_pair/code/"
+data_path : "test/config_pair/data/"
+output_path : "test/config_pair/output/"
 target_path : ".\\code\\action.ps1"
 timeout : 3600
