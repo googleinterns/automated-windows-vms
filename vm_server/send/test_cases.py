@@ -2,6 +2,9 @@ import test_server
 import filecmp
 
 
+BUCKET_NAME = "automation-interns"
+
+
 # def test_execute_macro():
 #   """Test the execute macro action"""
 #   execute = test_server.execute_commands(1)
