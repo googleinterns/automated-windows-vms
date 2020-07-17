@@ -44,5 +44,5 @@ def save_proto_to_file(file_name, proto_instance):
     proto_instance: Proto instance which is going to be written to a file
   """
   with open(file_name, "wb") as proto_response:
-    proto_response.write(proto_instance.SerializeToString())
+    proto_response.write(str(proto_instance))
     proto_response.close()

@@ -29,7 +29,7 @@ def success():
   global RESPONSE
   task_status_response = request_pb2.TaskStatusResponse()
   task_status_response.ParseFromString(request.files["task_response"].read())
-  test_initialisation.save_proto_to_file("after_response.pb",
+  test_initialisation.save_proto_to_file("after_response.txt",
                                          task_status_response)
   if task_status_response.current_task_id == REQUEST_ID\
      and task_status_response.task_response.status \
@@ -78,7 +78,7 @@ def execute_commands(proto_text_number):
     with open(ROOT + "response.pb", "wb") as f:
       f.write(response.content)
       f.close()
-    test_initialisation.save_proto_to_file("initial_response.pb",
+    test_initialisation.save_proto_to_file("initial_response.txt",
                                            task_status_response)
     if task_status_response.status == request_pb2.TaskStatusResponse.ACCEPTED:
       logging.debug("Request was accepted.")
