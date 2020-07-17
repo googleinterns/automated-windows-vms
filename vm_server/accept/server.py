@@ -34,7 +34,11 @@ DEBUG_FLAG = "DEBUG"
 parser = argparse.ArgumentParser(description="VM Server")
 parser.add_argument("debug_flag",
                     type=str,
-                    help="""Usage: " + sys.argv[0] +  DEBUG_FLAG"""
+                    help="""Usage: " + sys.argv[0] +  DEBUG_FLAG + PORT"""
+                    )
+parser.add_argument("port",
+                    type=int,
+                    help="""Usage: " + sys.argv[0] +  DEBUG_FLAG + PORT"""
                     )
 arguments = parser.parse_args()
 
@@ -385,4 +389,5 @@ if __name__ == "__main__":
                       format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
+  PORT = sys.argv[2]
   serve(APP, host="127.0.0.1", port=PORT)
