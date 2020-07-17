@@ -2,4 +2,4 @@ code_path : "test/config_pair/code/"
 data_path : "test/config_pair/data/"
 output_path : "test/config_pair/output/"
 target_path : ".\\code\\action.ps1"
-timeout : 3600
+timeout : 15
