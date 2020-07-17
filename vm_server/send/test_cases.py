@@ -1,6 +1,9 @@
+import logging
+import os
 import test_server
 import filecmp
 from google.cloud import storage
+from pathlib import Path
 
 BUCKET_NAME = "automation-interns"
 
@@ -56,12 +59,7 @@ def download_files_to_path(pantheon_path, destination_path):
       os.makedirs(destination_path, exist_ok=True)
       source = Path(blob.name)
       print("Destination file path: ", destination_file_path)
-      try:
-        blob.download_to_filename(destination_file_path)
-      except Exception as exception:
-        logging.debug("Error while downloading files, \
-                       Exception: %s", str(exception))
-        task_response.status = Request_pb2.TaskResponse.FAILURE
+      blob.download_to_filename(destination_file_path)
 
 def test_pantheon_config_pair():
   """Test config pair from pantheon"""
