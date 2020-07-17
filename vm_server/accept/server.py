@@ -308,7 +308,9 @@ def set_environment_variables(task_request):
   Args:
     task_request: an object of TaskResponse() that is sent in the request
   """
+  PRINT("i AM HERE")
   for config_pair in task_request.config_pairs:
+    print("Setting %s to %s", config_pair.key, config_pair.value)
     os.environ[config_pair.key] = config_pair.value
 
 def execute_wrapper(task_request, task_response):
