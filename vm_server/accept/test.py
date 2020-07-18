@@ -20,7 +20,7 @@ port = args.start_port
 def new_dummy_server():
   global port
   port = port + 1
-  os.system('python server.py gsutil ' + str(port))
+  os.system('python server.py DEBUG ' + str(port))
 
 def master_server():
   os.system('python master_server.py -d b')
@@ -40,34 +40,31 @@ def send_request():
   fil = open('response_proto_b.txt', 'r')
   text_format.Parse(fil.read(), file_b)
   fil.close()
-  print('xxxx')
   print(TASK_REQUEST)
-  print('xxxx')
-  print('yyyy')
   print(file_a)
-  print('yyyy')
-  print('zzzz')
   print(file_b)
-  print('zzzz')
+  
   for i in range(args.number):
     RESPONSE = requests.post(url='http://127.0.0.1:5000/assign_task',
-        files={'file': TASK_REQUEST.SerializeToString()})
+        files={'task_request': TASK_REQUEST.SerializeToString()})
     file_A = Request_pb2.TaskStatusResponse()
     file_A.ParseFromString(RESPONSE.content)
+    print("RESPONSE.content: ", RESPONSE.content)
+    print("File_A: ", file_A)
     if file_A.status == Request_pb2.TaskStatusResponse.ACCEPTED :
       t = threading.Thread(target = response, args= (file_a, file_A,
           file_b, TASK_REQUEST.timeout, TASK_REQUEST.number_of_retries))
       t.start()
     else:
-      print(file_A)
+      print("File A is: ", file_A)
     
 def response(file_a, file_A, file_b, timeout, number_of_retries):
-  timer = timeout * (number_of_retries + 10)
+  timer = timeout * (number_of_retries + 2)
   time.sleep(timer)
   task_status_request = Request_pb2.TaskStatusRequest()
   task_status_request.request_id = file_A.current_task_id
   RESPONSE = requests.post(url= 'http://127.0.0.1:5000/get_status',
-      files = {'file': task_status_request.SerializeToString()})
+      files = {'task_response': task_status_request.SerializeToString()})
   file_B = Request_pb2.TaskStatusResponse()
   file_B.ParseFromString(RESPONSE.content)
   match_proto(file_a, file_A , file_b, file_B)

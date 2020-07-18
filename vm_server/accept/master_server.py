@@ -103,7 +103,7 @@ def add_vm_address():
   address = request.data.decode('utf-8')
   if address not in working_vm_address_list:
     working_vm_address_list.append(address)
-  return {'message': 'success'}
+  return "success"
 
 @APP.route('/upload')
 def upload_file_webpage():
@@ -115,8 +115,9 @@ def upload_file():
   """Accept proto file from user and
      assign it to VM.
   """
+  print("Working VM Address list: ", working_vm_address_list)
   task_status_response = Request_pb2.TaskStatusResponse()
-  f = request.files['file']
+  f = request.files['task_request']
   read = f.read()
   vm_n = find_working_vm()
   if vm_n == 'NOT':
@@ -143,6 +144,8 @@ def upload_file():
           return task_status_response.SerializeToString()
         else:
           return str(task_status_response)
+      else:
+        return task_status_response.SerializeToString()
     except Exception as e:
       task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
       print(e)
@@ -168,7 +171,7 @@ def retry_after_timeout(request_id, timeout, number_of_retries):
 def get_status():
 # Check status of a request.
   task_status_request = Request_pb2.TaskStatusRequest()
-  task_status_request.ParseFromString(request.files['file'].read())
+  task_status_request.ParseFromString(request.files['task_response'].read())
   return status_of_request(task_status_request.request_id)
 
 @APP.route('/vm_status', methods=['GET', 'POST'])
@@ -180,10 +183,11 @@ def vm_status():
 def task_completed():
 #  Receive response from vm_server.
   input_file = request.files['task_response']
-  req = request.files['request_id'].read()
+  # req = request.files['request_id'].read()
   task_status_response = Request_pb2.TaskStatusResponse()
   task_status_response.ParseFromString(input_file.read())
-  request_id = int(req.decode('utf-8'))
+  request_id = task_status_response.current_task_id
+  print("Request ID, ", request_id)
   change_state(int(request_id), task_status_response.SerializeToString())
   if task_status_response.task_response.status == Request_pb2.TaskResponse.FAILURE:
     time.sleep(1)
@@ -266,8 +270,10 @@ def is_engaged(node):
   if is_healthy(node):
     try:
       req = requests.get(node + str('/status'))
-      a = req.json()
-      return bool(a['status'])
+      request = req.content.data.decode('utf-8')
+      print("Request: ", request)
+      if req.content == "True":
+        return True
     except:
       return False
   return False

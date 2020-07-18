@@ -151,13 +151,13 @@ def download_files_to_path(pantheon_path, destination_path, task_response):
     destination_file_path = Path(str(destination_path) \
                                  + "\\" + str(source.name))
     if blob.name[len(blob.name)-1] == '/':
-      print("Making directory Destination path : ", destination_path)
+      logging.debug("Making directory Destination path : ", destination_path)
       os.makedirs(destination_file_path, exist_ok=True)
     else:
-      print("Downloading file Destination path : ", destination_path)
+      logging.debug("Downloading file Destination path : ", destination_path)
       os.makedirs(destination_path, exist_ok=True)
       source = Path(blob.name)
-      print("Destination file path: ", destination_file_path)
+      logging.debug("Destination file path: ", destination_file_path)
       try:
         blob.download_to_filename(destination_file_path)
       except Exception as exception:
@@ -298,7 +298,7 @@ def task_completed(task_response):
   with open(response_proto, "rb") as status_response:
     try:
       requests.post(url=MASTER_SERVER + "/success",
-                    files={"task_response": status_response})
+                    files={"task_response": task_status_response.SerializeToString()})
     except Exception as exception:
       logging.debug(str(exception))
       logging.debug("Can't connect to the master server")
@@ -360,7 +360,7 @@ def assign_task():
   """Endpoint to accept post requests with protobuffer"""
   task_response = request_pb2.TaskResponse()
   global task_status_response
-  get_processes("process_before.txt")
+  # get_processes("process_before.txt")
   if sem.acquire(blocking=False):
     logging.debug("Accepted request: %s", str(request))
     task_request = request_pb2.TaskRequest()
@@ -374,27 +374,26 @@ def assign_task():
     task_status_response.status = request_pb2.TaskStatusResponse.ACCEPTED
   else:
     task_status_response.status = request_pb2.TaskStatusResponse.REJECTED
-    task_response.status = request_pb2.TaskResponse.BUSY
+    # task_response.status = request_pb2.TaskResponse.BUSY
   current_path = os.path.dirname(os.path.realpath("__file__"))
   response_proto = os.path.join(current_path, ".\\response.pb")
   logging.debug("Task Status Response: %s", str(task_status_response))
   with open(response_proto, "wb") as response:
     response.write(task_status_response.SerializeToString())
     response.close()
+  task_request = request_pb2.TaskRequest()
+  task_request.ParseFromString(request.files["task_request"].read())
   return task_status_response.SerializeToString()
 
 @APP.route('/active', methods=['GET', 'POST'])
 def is_active():
 #  Master can check here if VM is active or not.
-  return {'hello': 'world'}
+  return "Hello World"
   
 @APP.route('/status', methods=['GET', 'POST'])
 def flag_status():
 #  Returns the state of VM
-  if sem.acquire(blocking=False):
-    return {'status': False}
-  else:
-    return {'status': True}
+  return "False"
 
 if __name__ == "__main__":
   logging.basicConfig(filename="server.log",
