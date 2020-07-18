@@ -403,4 +403,5 @@ if __name__ == "__main__":
   logging.getLogger().addHandler(logging.StreamHandler())
   # APP.run(debug=True)
   PORT = sys.argv[2]
+  register_vm_address()
   serve(APP, host="127.0.0.1", port=PORT)
