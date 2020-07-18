@@ -1,0 +1,19 @@
+<html>
+  <body>
+    <a>Upload a file
+      <form action = "http://localhost:5000/assign_task" method = "POST" 
+         enctype = "multipart/form-data">
+          <input type = "file" name = "file" />
+          <input type = "submit"/>
+      </form>
+    </a>
+    <a>Get request status
+      <form action = "http://localhost:5000/request_status" method = "POST" 
+         enctype = "multipart/form-data">
+        <input type = "number" name = "request_id" />
+        <input type = "submit"/>
+       </form>
+     </a>
+     <a href= "http://localhost:5000/vm_status">VM Status</a>
+   </body>
+</html>
