@@ -369,6 +369,7 @@ def assign_task():
     thread = threading.Thread(target=execute_wrapper,
                               args=(task_request, task_response,))
     thread.start()
+    task_status_response = request_pb2.TaskStatusResponse()
     task_status_response.current_task_id = task_request.request_id
     task_status_response.status = request_pb2.TaskStatusResponse.ACCEPTED
   else:

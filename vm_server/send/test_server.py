@@ -31,6 +31,10 @@ def success():
   task_status_response.ParseFromString(request.files["task_response"].read())
   test_initialisation.save_proto_to_file("after_response.txt",
                                          task_status_response)
+  if not test_initialisation.compare_response(".\\after_response.txt",
+                                         ".\\proto\\after_response.txt"):
+      logging.debug("Text proto response files do not match")
+      raise Exception("Text proto response do not match")
   if task_status_response.current_task_id == REQUEST_ID\
      and task_status_response.task_response.status \
      == request_pb2.TaskResponse.SUCCESS:
@@ -80,6 +84,10 @@ def execute_commands(proto_text_number):
       f.close()
     test_initialisation.save_proto_to_file("initial_response.txt",
                                            task_status_response)
+    if not test_initialisation.compare_response(".\\initial_response.txt",
+                                         ".\\proto\\initial_response.txt"):
+      logging.debug("Text proto response files do not match")
+      raise Exception("Text proto response files do not match")
     if task_status_response.status == request_pb2.TaskStatusResponse.ACCEPTED:
       logging.debug("Request was accepted.")
       logging.debug("Starting up server and listening to the response")
@@ -106,3 +114,4 @@ if __name__ == "__main__":
                       level=logging.DEBUG,
                       format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
+
