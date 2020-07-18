@@ -383,6 +383,18 @@ def assign_task():
     response.close()
   return task_status_response.SerializeToString()
 
+@APP.route('/active', methods=['GET', 'POST'])
+def is_active():
+#  Master can check here if VM is active or not.
+  return {'hello': 'world'}
+  
+@APP.route('/status', methods=['GET', 'POST'])
+def flag_status():
+#  Returns the state of VM
+  if sem.acquire(blocking=False):
+    return {'status': False}
+  else
+    return {'status': True}
 
 if __name__ == "__main__":
   logging.basicConfig(filename="server.log",
