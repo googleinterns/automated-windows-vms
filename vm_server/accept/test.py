@@ -40,7 +40,15 @@ def send_request():
   fil = open('response_proto_b.txt', 'r')
   text_format.Parse(fil.read(), file_b)
   fil.close()
-  
+  print('xxxx')
+  print(TASK_REQUEST)
+  print('xxxx')
+  print('yyyy')
+  print(file_a)
+  print('yyyy')
+  print('zzzz')
+  print(file_b)
+  print('zzzz')
   for i in range(args.number):
     RESPONSE = requests.post(url='http://127.0.0.1:5000/assign_task',
         files={'file': TASK_REQUEST.SerializeToString()})
