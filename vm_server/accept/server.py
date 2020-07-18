@@ -393,7 +393,7 @@ def flag_status():
 #  Returns the state of VM
   if sem.acquire(blocking=False):
     return {'status': False}
-  else
+  else:
     return {'status': True}
 
 if __name__ == "__main__":
