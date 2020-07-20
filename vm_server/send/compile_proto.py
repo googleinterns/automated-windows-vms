@@ -3,26 +3,29 @@
 
     It compiles the proto definition and
     then creates the proto file from the text specified
-    in query1.txt or query2.txt
+    in query1.txt, query2.txt etc
 """
 import logging
 import os
 import sys
 
-def execute_commands():
-  """Executes commands to compile and create a proto file"""
-  os.chdir("proto")
+def compile_proto():
+  """Executes commands to compile a proto file"""
   logging.debug("Compile proto")
-  os.system("protoc  --python_out=.\\ .\\Request.proto")
+  os.system("protoc  --python_out=.\\ .\\proto\\request.proto")
+
+def create_proto():
+  """Executes commands to create a proto file"""
   logging.debug("Creating proto file from" + sys.argv[1])
-  os.system("python .\\create_proto.py .\\" + sys.argv[1])
+  os.system("python .\\proto\\create_proto.py .\\proto\\" + sys.argv[1])
 
 if __name__ == "__main__":
-  logging.basicConfig(filename="server.log",
+  logging.basicConfig(filename="response.log",
                       level=logging.DEBUG,
                       format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   if len(sys.argv) != 2:
     logging.debug("Usage:" + sys.argv[0] + "QUERY_TEXT_FILE")
     sys.exit(-1)
-  execute_commands()
+  compile_proto()
+  create_proto()
