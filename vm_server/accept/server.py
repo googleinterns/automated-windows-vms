@@ -294,7 +294,7 @@ def task_completed(task_request, task_response):
     status_response.close()
   remove_execute_dir(task_request, task_response)
   logging.debug("Response Proto: %s", str(task_response))
-  get_processes("process_after.txt")
+  # get_processes("process_after.txt")
   # get_diff_processes()
   with open(response_proto, "rb") as status_response:
     try:
