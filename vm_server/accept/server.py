@@ -63,15 +63,17 @@ def get_diff_processes():
                                       (Get-Content process_after.txt)")
   compare_process.communicate()
 
-def remove_execute_dir(task_response):
+def remove_execute_dir(task_request, task_response):
 
   """Deletes the execute directory if it exists
 
   Args:
+    task_request: TaskRequest() object that is read from the protobuf
     task_response: an object of TaskResponse() that will be sent back
   """
   logging.debug("Removing execute directory")
-  dirpath = Path(EXECUTE_DIR)
+  dirpath = Path(EXECUTE_ACTION_DIR + "_" + str(task_request.request_id))
+  print("Dirpath is ", dirpath)
   try:
     if dirpath.exists() and dirpath.is_dir(): # delete leftover files
       shutil.rmtree(dirpath)
@@ -88,11 +90,11 @@ def make_directories(task_request, task_response):
     task_response: an object of TaskResponse() that will be sent back
   """
   logging.debug("Creating execute directory structure")
-  remove_execute_dir(task_response)
+  remove_execute_dir(task_request, task_response)
   if task_response.status == request_pb2.TaskResponse.FAILURE:
     return
-  current_path = EXECUTE_ACTION_DIR
-  os.mkdir(EXECUTE_DIR)
+  current_path = EXECUTE_ACTION_DIR + "_" + str(task_request.request_id)
+  os.makedirs(EXECUTE_DIR, exist_ok=True)
   os.mkdir(current_path)
   os.mkdir(current_path + OUTPUT_DIR)
   Path(EXECUTE_DIR + "\\__init__.py").touch() # __init__.py for package
@@ -118,7 +120,7 @@ def move_output(task_request, task_response):
   """
   logging.debug("Moving the output path to the specified output path")
   current_path = os.getcwd()
-  source_path = Path(current_path + "\\" + EXECUTE_ACTION_DIR + OUTPUT_DIR)
+  source_path = Path(current_path + "\\" + EXECUTE_ACTION_DIR + "_" + str(task_request.request_id) + OUTPUT_DIR)
   if source_path.exists() is False:
     os.mkdir(source_path)
   destination_path = Path(current_path + "\\" + task_request.output_path)
@@ -172,17 +174,15 @@ def download_input_files(task_request, task_response):
     task_request: TaskRequest() object that is read from the protobuf
     task_response: an object of TaskResponse() that will be sent back
   """
-  remove_execute_dir(task_response)
-  current_path = EXECUTE_ACTION_DIR
-  os.mkdir(EXECUTE_DIR)
+  remove_execute_dir(task_request, task_response)
+  current_path = EXECUTE_ACTION_DIR + "_" + task_request.request_id
   os.mkdir(current_path)
   os.mkdir(current_path + OUTPUT_DIR)
-  Path(EXECUTE_DIR + "\\__init__.py").touch() # __init__.py for package
   Path(current_path + "\\__init__.py").touch()
   download_files_to_path(task_request.code_path,
-                         EXECUTE_ACTION_DIR + "\\code", task_response)
+                         current_path + "\\code", task_response)
   download_files_to_path(task_request.data_path,
-                         EXECUTE_ACTION_DIR + "\\data", task_response)
+                         current_path + "\\data", task_response)
 
 
 def upload_output(task_request, task_response):
@@ -195,7 +195,7 @@ def upload_output(task_request, task_response):
   bucket_name = BUCKET_NAME
   storage_client = storage.Client()
   bucket = storage_client.bucket(bucket_name)
-  source_path = Path(EXECUTE_ACTION_DIR + OUTPUT_DIR)
+  source_path = Path(EXECUTE_ACTION_DIR + "_" + str(task_request.request_id) + OUTPUT_DIR)
   destination_path = task_request.output_path
   files = os.listdir(source_path)
   try:
@@ -219,7 +219,7 @@ def execute_action(task_request, task_response):
   if task_response.status == request_pb2.TaskResponse.FAILURE:
     return
   logging.debug("Trying to execute the action")
-  current_path = "..\\execute\\action"
+  current_path = "..\\execute\\action" + "_" + str(task_request.request_id)
   logging.debug("Action path is: %s",
                 str(current_path + task_request.target_path))
   encoding = "utf-8"
@@ -256,8 +256,8 @@ def execute_action(task_request, task_response):
     std_err = open(current_path + OUTPUT_DIR + "stderr.txt", "w")
     std_err.write(err.decode(encoding))
     std_err.close()
-    output_files = [name for name in os.listdir(EXECUTE_ACTION_DIR + OUTPUT_DIR)
-                    if os.path.isfile(EXECUTE_ACTION_DIR + OUTPUT_DIR + name)]
+    output_files = [name for name in os.listdir(current_path + OUTPUT_DIR)
+                    if os.path.isfile(current_path + OUTPUT_DIR + name)]
     task_response.number_of_files = len(output_files)
     if arguments.debug_flag == DEBUG_FLAG:
       move_output(task_request, task_response)
@@ -276,10 +276,11 @@ def register_vm_address():
     logging.debug(str(exception))
     logging.debug("Can't connect to the master server")
 
-def task_completed(task_response):
+def task_completed(task_request, task_response):
   """Send response to the master server when the task has been executed
 
   Args:
+    task_request: TaskRequest() object that is read from the protobuf
     task_response: an object of TaskResponse() that will be sent back
   """
   global task_status_response
@@ -291,7 +292,7 @@ def task_completed(task_response):
   with open(response_proto, "wb") as status_response:
     status_response.write(task_status_response.SerializeToString())
     status_response.close()
-  remove_execute_dir(task_response)
+  remove_execute_dir(task_request, task_response)
   logging.debug("Response Proto: %s", str(task_response))
   get_processes("process_after.txt")
   # get_diff_processes()
@@ -335,7 +336,7 @@ def execute_wrapper(task_request, task_response):
   logging.debug("Time taken is %s", str(time_taken))
   task_response.time_taken = time_taken
   task_status_response.status = request_pb2.TaskStatusResponse.COMPLETED
-  task_completed(task_response)
+  task_completed(task_request, task_response)
   register_vm_address()
 
 
