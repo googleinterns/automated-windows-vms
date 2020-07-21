@@ -153,13 +153,13 @@ def download_files_to_path(pantheon_path, destination_path, task_response):
     destination_file_path = Path(str(destination_path) \
                                  + "\\" + str(source.name))
     if blob.name[len(blob.name)-1] == '/':
-      logging.debug("Making directory Destination path : ", destination_path)
+      logging.debug("Making directory Destination path : %s", destination_path)
       os.makedirs(destination_file_path, exist_ok=True)
     else:
-      logging.debug("Downloading file Destination path : ", destination_path)
+      logging.debug("Downloading file Destination path : %s", destination_path)
       os.makedirs(destination_path, exist_ok=True)
       source = Path(blob.name)
-      logging.debug("Destination file path: ", destination_file_path)
+      logging.debug("Destination file path: %s", destination_file_path)
       try:
         blob.download_to_filename(destination_file_path)
       except Exception as exception:
