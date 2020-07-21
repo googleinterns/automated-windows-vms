@@ -175,7 +175,7 @@ def download_input_files(task_request, task_response):
     task_response: an object of TaskResponse() that will be sent back
   """
   remove_execute_dir(task_request, task_response)
-  current_path = EXECUTE_ACTION_DIR + "_" + task_request.request_id
+  current_path = EXECUTE_ACTION_DIR + "_" + str(task_request.request_id)
   os.mkdir(current_path)
   os.mkdir(current_path + OUTPUT_DIR)
   Path(current_path + "\\__init__.py").touch()
