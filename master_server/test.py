@@ -28,16 +28,16 @@ def master_server():
 def send_request():
   print(os.getcwd())
   
-  TEXT_FILE = open('query.txt', 'r')
+  TEXT_FILE = open('task_request.txt', 'r')
   TASK_REQUEST = Request_pb2.TaskRequest()
   text_format.Parse(TEXT_FILE.read(), TASK_REQUEST)
   TEXT_FILE.close()
   file_a = Request_pb2.TaskStatusResponse()
   file_b = Request_pb2.TaskStatusResponse()
-  fil = open('response_proto_a.txt', 'r')
+  fil = open('initial_task_response.txt', 'r')
   text_format.Parse(fil.read(), file_a)
   fil.close()
-  fil = open('response_proto_b.txt', 'r')
+  fil = open('final_task_response.txt', 'r')
   text_format.Parse(fil.read(), file_b)
   fil.close()
   
