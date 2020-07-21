@@ -16,7 +16,7 @@ def test_initial_task_response(start_port, count_of_vm, filename, number_of_requ
   time.sleep(20)
   for i in range(number_of_request):
     response = requests.post(url='http://127.0.0.1:5000/assign_task',
-          files={'file': result[0].SerializeToString()})
+          files={'task_request': result[0].SerializeToString()})
     initial_task_response = Request_pb2.TaskStatusResponse()
     initial_task_response.ParseFromString(response.content)
     pytest.assume(initial_task_response.status == result[1].status)
@@ -30,7 +30,7 @@ def test_final_task_response():
   for task_status_response in list_:
     task_status_request.request_id = task_status_response.current_task_id
     response = requests.post(url= 'http://127.0.0.1:5000/get_status',
-        files = {'file': task_status_request.SerializeToString()})
+        files = {'task_response': task_status_request.SerializeToString()})
     final_response = Request_pb2.TaskStatusResponse()
     final_response.ParseFromString(response.content)
     flag = True
