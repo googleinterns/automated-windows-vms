@@ -5,8 +5,6 @@ import os
 import shutil
 import win32com.client
 import pythoncom
-import repackage
-repackage.up()
 
 
 def execute_macro():
@@ -14,7 +12,7 @@ def execute_macro():
   """
   pythoncom.CoInitialize()
   current_path = os.path.dirname(os.getcwd())
-  path_to_file = current_path + "\\action\\data\\excelsheet.xlsm"
+  path_to_file = ".\\data\\excelsheet.xlsm"
   if os.path.exists(path_to_file):
     xl_file = win32com.client.Dispatch("Excel.Application")
     xl_run = xl_file.Workbooks.Open(os.path.abspath(path_to_file),
@@ -24,10 +22,8 @@ def execute_macro():
     xl_run.Close()
     xl_file.Quit()
     del xl_file
-    shutil.move(path_to_file, current_path +
-                "\\action\\output\\excelsheet.xlsm")
-    shutil.move(current_path + "\\action\\data\\output.txt", current_path +
-                "\\action\\output\\output.txt")
+    shutil.move(path_to_file, ".\\output\\excelsheet.xlsm")
+    shutil.move(".\\data\\output.txt", ".\\output\\output.txt")
     print("Action successfully executed")
 
 if __name__ == "__main__":
