@@ -83,6 +83,7 @@ if __name__ == '__main__':
   time.sleep(5)
   count = args.count
   for i in range(count):
+    time.sleep(2)
     process = threading.Thread(target = new_dummy_server)
     process.start()
     

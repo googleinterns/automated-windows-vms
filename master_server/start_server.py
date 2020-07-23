@@ -25,9 +25,10 @@ def start_server(starting_port, number_of_vms, test_directory):
   time.sleep(5)
   count = number_of_vms
   for port in range(count):
+    time.sleep(2)
     t = threading.Thread(target = new_dummy_server, args= (starting_port + port,))
     t.start()
-
+  time.sleep(5)
   os.chdir(os.path.join(os.getcwd(), test_directory))
 
   TEXT_FILE = open('task_request.txt', 'r')
