@@ -9,7 +9,7 @@ import Request_pb2
 
 def new_dummy_server(port):
   try:
-    os.system('python server.py DEBUG ' + str(port))
+    os.system('python server.py gsutil ' + str(port))
   except Exception as e:
     print(e)
 
