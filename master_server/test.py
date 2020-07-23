@@ -80,7 +80,7 @@ if __name__ == '__main__':
         ))
   process = threading.Thread(target = master_server)
   process.start()
-  time.sleep(5)
+  time.sleep(10)
   count = args.count
   for i in range(count):
     time.sleep(2)

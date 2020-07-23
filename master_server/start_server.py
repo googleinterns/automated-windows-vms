@@ -22,7 +22,7 @@ def master_server():
 def start_server(starting_port, number_of_vms, test_directory):
   t = threading.Thread(target = master_server)
   t.start()
-  time.sleep(5)
+  time.sleep(10)
   count = number_of_vms
   for port in range(count):
     time.sleep(2)
