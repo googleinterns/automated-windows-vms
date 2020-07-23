@@ -1,3 +1,4 @@
+"""This file is used for custom testing."""
 import argparse
 import os
 import sys
@@ -8,8 +9,6 @@ from google.protobuf import text_format
 import Request_pb2
 
 parser = argparse.ArgumentParser()
-
-#-db DATABSE -u USERNAME -p PASSWORD -size 20
 parser.add_argument('-st', '--start_port', help='Starting port number', type=int)
 parser.add_argument('-c', '--count', help='Number of port needed' ,type=int)
 parser.add_argument('-f', '--filename', help='File name of text file')
@@ -26,12 +25,12 @@ def master_server():
   os.system('python master_server.py -d b')
 
 def send_request():
-  print(os.getcwd())
-  
-  TEXT_FILE = open('task_request.txt', 'r')
-  TASK_REQUEST = Request_pb2.TaskRequest()
-  text_format.Parse(TEXT_FILE.read(), TASK_REQUEST)
-  TEXT_FILE.close()
+  """Reads expected output and task request files from specified folder.
+     Then sends the request to Master server specified number of times."""
+  text_file = open('task_request.txt', 'r')
+  task_request = Request_pb2.TaskRequest()
+  text_format.Parse(text_file.read(), task_request)
+  text_file.close()
   file_a = Request_pb2.TaskStatusResponse()
   file_b = Request_pb2.TaskStatusResponse()
   fil = open('initial_task_response.txt', 'r')
@@ -43,17 +42,18 @@ def send_request():
   
   for i in range(args.number):
     RESPONSE = requests.post(url='http://127.0.0.1:5000/assign_task',
-        files={'file': TASK_REQUEST.SerializeToString()})
+        files={'file': task_request.SerializeToString()})
     file_A = Request_pb2.TaskStatusResponse()
     file_A.ParseFromString(RESPONSE.content)
     if file_A.status == Request_pb2.TaskStatusResponse.ACCEPTED :
-      t = threading.Thread(target = response, args= (file_a, file_A,
-          file_b, TASK_REQUEST.timeout, TASK_REQUEST.number_of_retries))
-      t.start()
+      process = threading.Thread(target = response, args= (file_a, file_A,
+          file_b, task_request.timeout, task_request.number_of_retries))
+      process.start()
     else:
       print(file_A)
     
 def response(file_a, file_A, file_b, timeout, number_of_retries):
+  """Query the Master server about the previous request,we sent to Master server."""
   timer = timeout * (number_of_retries + 10)
   time.sleep(timer)
   task_status_request = Request_pb2.TaskStatusRequest()
@@ -65,6 +65,7 @@ def response(file_a, file_A, file_b, timeout, number_of_retries):
   match_proto(file_a, file_A , file_b, file_B)
 
 def match_proto(file_a, file_A ,file_b, file_B):
+  """Match the expected and received files of the response."""
   if file_b.status == file_B.status and file_b.task_response.status == file_B.task_response.status:
     print('Task request ' + str(file_A.current_task_id) + ' matched successfully')
   else:
@@ -77,13 +78,13 @@ if __name__ == '__main__':
         args.filename,
         args.number
         ))
-  t = threading.Thread(target = master_server)
-  t.start()
+  process = threading.Thread(target = master_server)
+  process.start()
   time.sleep(5)
   count = args.count
   for i in range(count):
-    t = threading.Thread(target = new_dummy_server)
-    t.start()
+    process = threading.Thread(target = new_dummy_server)
+    process.start()
     
   time.sleep(5)
   folder_list = args.filename.split(',')
