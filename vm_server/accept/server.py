@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import threading
 import timeit
+import time
 import sys
 import requests
 from waitress import serve
@@ -383,6 +384,7 @@ def assign_task():
     response.close()
   task_request = request_pb2.TaskRequest()
   task_request.ParseFromString(request.files["task_request"].read())
+  time.sleep(120)
   return task_status_response.SerializeToString()
 
 @APP.route('/active', methods=['GET', 'POST'])
