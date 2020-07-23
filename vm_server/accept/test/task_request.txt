@@ -1,7 +1,7 @@
-code_path : "..\\test\\config_pair\\code\\"
-data_path : "..\\test\\config_pair\\data\\"
-output_path : "..\\test\\config_pair\\output\\"
+code_path : "test/config_pair/code/"
+data_path : "test/config_pair/data/"
+output_path : "test/config_pair/output/"
 target_path : ".\\code\\action.ps1"
-timeout : 30
+timeout : 15
 config_pairs : {key : "MOCHA" , value :  "Automation"} 
-config_pairs : {key : "INTERNSHIP" , value :  "Extended"} 
+config_pairs : {key : "INTERNSHIP" , value :  "Extended"}
