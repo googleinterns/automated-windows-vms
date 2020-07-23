@@ -20,7 +20,7 @@ port = args.start_port
 def new_dummy_server():
   global port
   port = port + 1
-  os.system('python server.py DEBUG ' + str(port))
+  os.system('python server.py gsutil ' + str(port))
 
 def master_server():
   os.system('python master_server.py -d b')
