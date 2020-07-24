@@ -19,14 +19,14 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\rRequest.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x63onfig_pairs\x18\x06 \x03(\x0b\x32\x0b.ConfigPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nConfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x94\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.Options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\"0\n\x07Options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07SUCCESS\x10\x02\"\'\n\x11TaskStatusRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\x05\"\xd1\x01\n\x12TaskStatusResponse\x12\x17\n\x0f\x63urrent_task_id\x18\x01 \x01(\x05\x12*\n\x06status\x18\x02 \x01(\x0e\x32\x1a.TaskStatusResponse.Status\x12$\n\rtask_response\x18\x03 \x01(\x0b\x32\r.TaskResponse\"P\n\x06Status\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x01\x12\x0c\n\x08REJECTED\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\x0e\n\nINVALID_ID\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\rRequest.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x63onfig_pairs\x18\x06 \x03(\x0b\x32\x0b.ConfigPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nConfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x9e\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\":\n\x07options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\x0b\n\x07\x46\x41ILURE\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\x62\x06proto3')
 )
 
 
 
 _TASKRESPONSE_OPTIONS = _descriptor.EnumDescriptor(
-  name='Options',
-  full_name='TaskResponse.Options',
+  name='options',
+  full_name='TaskResponse.options',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -35,54 +35,24 @@ _TASKRESPONSE_OPTIONS = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FAILURE', index=1, number=1,
+      name='BUSY', index=1, number=1,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='SUCCESS', index=2, number=2,
+      name='FAILURE', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SUCCESS', index=3, number=3,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=355,
-  serialized_end=403,
+  serialized_end=413,
 )
 _sym_db.RegisterEnumDescriptor(_TASKRESPONSE_OPTIONS)
-
-_TASKSTATUSRESPONSE_STATUS = _descriptor.EnumDescriptor(
-  name='Status',
-  full_name='TaskStatusResponse.Status',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='UNKNOWN', index=0, number=0,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='ACCEPTED', index=1, number=1,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='REJECTED', index=2, number=2,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='COMPLETED', index=3, number=3,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='INVALID_ID', index=4, number=4,
-      serialized_options=None,
-      type=None),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=576,
-  serialized_end=656,
-)
-_sym_db.RegisterEnumDescriptor(_TASKSTATUSRESPONSE_STATUS)
 
 
 _TASKREQUEST = _descriptor.Descriptor(
@@ -245,97 +215,15 @@ _TASKRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=255,
-  serialized_end=403,
-)
-
-
-_TASKSTATUSREQUEST = _descriptor.Descriptor(
-  name='TaskStatusRequest',
-  full_name='TaskStatusRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='request_id', full_name='TaskStatusRequest.request_id', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=405,
-  serialized_end=444,
-)
-
-
-_TASKSTATUSRESPONSE = _descriptor.Descriptor(
-  name='TaskStatusResponse',
-  full_name='TaskStatusResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='current_task_id', full_name='TaskStatusResponse.current_task_id', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='status', full_name='TaskStatusResponse.status', index=1,
-      number=2, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='task_response', full_name='TaskStatusResponse.task_response', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-    _TASKSTATUSRESPONSE_STATUS,
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=447,
-  serialized_end=656,
+  serialized_end=413,
 )
 
 _TASKREQUEST.fields_by_name['config_pairs'].message_type = _CONFIGPAIR
 _TASKRESPONSE.fields_by_name['status'].enum_type = _TASKRESPONSE_OPTIONS
 _TASKRESPONSE_OPTIONS.containing_type = _TASKRESPONSE
-_TASKSTATUSRESPONSE.fields_by_name['status'].enum_type = _TASKSTATUSRESPONSE_STATUS
-_TASKSTATUSRESPONSE.fields_by_name['task_response'].message_type = _TASKRESPONSE
-_TASKSTATUSRESPONSE_STATUS.containing_type = _TASKSTATUSRESPONSE
 DESCRIPTOR.message_types_by_name['TaskRequest'] = _TASKREQUEST
 DESCRIPTOR.message_types_by_name['ConfigPair'] = _CONFIGPAIR
 DESCRIPTOR.message_types_by_name['TaskResponse'] = _TASKRESPONSE
-DESCRIPTOR.message_types_by_name['TaskStatusRequest'] = _TASKSTATUSREQUEST
-DESCRIPTOR.message_types_by_name['TaskStatusResponse'] = _TASKSTATUSRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 TaskRequest = _reflection.GeneratedProtocolMessageType('TaskRequest', (_message.Message,), dict(
@@ -358,20 +246,6 @@ TaskResponse = _reflection.GeneratedProtocolMessageType('TaskResponse', (_messag
   # @@protoc_insertion_point(class_scope:TaskResponse)
   ))
 _sym_db.RegisterMessage(TaskResponse)
-
-TaskStatusRequest = _reflection.GeneratedProtocolMessageType('TaskStatusRequest', (_message.Message,), dict(
-  DESCRIPTOR = _TASKSTATUSREQUEST,
-  __module__ = 'Request_pb2'
-  # @@protoc_insertion_point(class_scope:TaskStatusRequest)
-  ))
-_sym_db.RegisterMessage(TaskStatusRequest)
-
-TaskStatusResponse = _reflection.GeneratedProtocolMessageType('TaskStatusResponse', (_message.Message,), dict(
-  DESCRIPTOR = _TASKSTATUSRESPONSE,
-  __module__ = 'Request_pb2'
-  # @@protoc_insertion_point(class_scope:TaskStatusResponse)
-  ))
-_sym_db.RegisterMessage(TaskStatusResponse)
 
 
 # @@protoc_insertion_point(module_scope)

@@ -1,4 +1,0 @@
-status: COMPLETED
-task_response {
-  status: SUCCESS
-}
