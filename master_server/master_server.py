@@ -136,13 +136,13 @@ def upload_file():
       response = requests.post(url=vm_n + '/assign_task', files={'task_request':
           task_request.SerializeToString()})
       task_status_response.ParseFromString(response.content)
-      t = threading.Thread(target= retry_after_timeout, args= (task_request.request_id, task_request.timeout, task_request.number_of_retries))
+      t = threading.Thread(target= retry_after_timeout, args= (task_request.request_id,
+          task_request.timeout, task_request.number_of_retries))
       t.start()
-      if task_status_response.status == Request_pb2.TaskStatusResponse.ACCEPTED:
-        if args.debug_mode == 'b':
-          return task_status_response.SerializeToString()
-        else:
-          return str(task_status_response)
+      if args.debug_mode == 'b':
+        return task_status_response.SerializeToString()
+      else:
+        return str(task_status_response)
     except Exception as e:
       task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
       print(e)
