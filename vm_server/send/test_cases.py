@@ -17,8 +17,7 @@ def test_execute_macro():
   """Test the execute macro action"""
   test_server.execute_commands(1)
   output_path = "..\\test\\execute_macro\\output\\output.txt"
-  expected_output_path = "..\\test\\execute_macro\\\
-                          expected_output\\expected_output.txt"
+  expected_output_path = "..\\test\\execute_macro\\expected_output\\expected_output.txt"
   assert filecmp.cmp(output_path, expected_output_path)
 
 def test_screenshot():
@@ -35,8 +34,7 @@ def test_config_pair():
   """Test if config pairs are being set"""
   test_server.execute_commands(4)
   output_path = "..\\test\\config_pair\\output\\output.txt"
-  expected_output_path = "..\\test\\config_pair\\\
-                          expected_output\\expected_output.txt"
+  expected_output_path = "..\\test\\config_pair\\expected_output\\expected_output.txt"
   assert filecmp.cmp(output_path, expected_output_path)
 
 def test_time_out_multiple_times():
@@ -69,14 +67,14 @@ def download_files_to_path(pantheon_path, destination_path):
       print("Destination file path: ", destination_file_path)
       blob.download_to_filename(destination_file_path)
 
-def test_pantheon_config_pair():
-  """Test config pair from pantheon"""
-  test_server.execute_commands(5)
-  pantheon_path = "test/config_pair/expected_output/"
-  destination_path = ".\\"
-  download_files_to_path(pantheon_path, destination_path)
-  pantheon_path = "test/config_pair/output/"
-  download_files_to_path(pantheon_path, destination_path)
-  output_path = ".\\output.txt"
-  expected_output_path = ".\\expected_output.txt"
-  assert filecmp.cmp(output_path, expected_output_path)
+# def test_pantheon_config_pair():
+#   """Test config pair from pantheon"""
+#   test_server.execute_commands(5)
+#   pantheon_path = "test/config_pair/expected_output/"
+#   destination_path = ".\\"
+#   download_files_to_path(pantheon_path, destination_path)
+#   pantheon_path = "test/config_pair/output/"
+#   download_files_to_path(pantheon_path, destination_path)
+#   output_path = ".\\output.txt"
+#   expected_output_path = ".\\expected_output.txt"
+#   assert filecmp.cmp(output_path, expected_output_path)
