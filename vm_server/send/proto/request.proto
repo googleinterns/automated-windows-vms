@@ -20,9 +20,8 @@ message ConfigPair {
 message TaskResponse {
   enum options {
     UNKNOWN = 0;
-    BUSY = 1;
-    FAILURE = 2;
-    SUCCESS = 3;
+    FAILURE = 1;
+    SUCCESS = 2;
   }
   options status = 1;    
   int32 number_of_files = 2;

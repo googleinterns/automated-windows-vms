@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x13proto/request.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x63onfig_pairs\x18\x06 \x03(\x0b\x32\x0b.ConfigPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nConfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x9e\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\":\n\x07options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\x0b\n\x07\x46\x41ILURE\x10\x02\x12\x0b\n\x07SUCCESS\x10\x03\"\'\n\x11TaskStatusRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\x05\"\xd1\x01\n\x12TaskStatusResponse\x12\x17\n\x0f\x63urrent_task_id\x18\x01 \x01(\x05\x12*\n\x06status\x18\x02 \x01(\x0e\x32\x1a.TaskStatusResponse.Status\x12$\n\rtask_response\x18\x03 \x01(\x0b\x32\r.TaskResponse\"P\n\x06Status\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x01\x12\x0c\n\x08REJECTED\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\x0e\n\nINVALID_ID\x10\x04\x62\x06proto3'
+  serialized_pb=b'\n\x13proto/request.proto\"\xc0\x01\n\x0bTaskRequest\x12\x11\n\tcode_path\x18\x01 \x01(\t\x12\x11\n\tdata_path\x18\x02 \x01(\t\x12\x13\n\x0boutput_path\x18\x03 \x01(\t\x12\x13\n\x0btarget_path\x18\x04 \x01(\t\x12\x0f\n\x07timeout\x18\x05 \x01(\x01\x12!\n\x0c\x63onfig_pairs\x18\x06 \x03(\x0b\x32\x0b.ConfigPair\x12\x19\n\x11number_of_retries\x18\x07 \x01(\x05\x12\x12\n\nrequest_id\x18\x08 \x01(\x05\"(\n\nConfigPair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"\x94\x01\n\x0cTaskResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.TaskResponse.options\x12\x17\n\x0fnumber_of_files\x18\x02 \x01(\x05\x12\x12\n\ntime_taken\x18\x03 \x01(\x01\"0\n\x07options\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07SUCCESS\x10\x02\"\'\n\x11TaskStatusRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\x05\"\xd1\x01\n\x12TaskStatusResponse\x12\x17\n\x0f\x63urrent_task_id\x18\x01 \x01(\x05\x12*\n\x06status\x18\x02 \x01(\x0e\x32\x1a.TaskStatusResponse.Status\x12$\n\rtask_response\x18\x03 \x01(\x0b\x32\r.TaskResponse\"P\n\x06Status\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x01\x12\x0c\n\x08REJECTED\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\x0e\n\nINVALID_ID\x10\x04\x62\x06proto3'
 )
 
 
@@ -37,17 +37,12 @@ _TASKRESPONSE_OPTIONS = _descriptor.EnumDescriptor(
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='BUSY', index=1, number=1,
+      name='FAILURE', index=1, number=1,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='FAILURE', index=2, number=2,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='SUCCESS', index=3, number=3,
+      name='SUCCESS', index=2, number=2,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
@@ -55,7 +50,7 @@ _TASKRESPONSE_OPTIONS = _descriptor.EnumDescriptor(
   containing_type=None,
   serialized_options=None,
   serialized_start=361,
-  serialized_end=419,
+  serialized_end=409,
 )
 _sym_db.RegisterEnumDescriptor(_TASKRESPONSE_OPTIONS)
 
@@ -94,8 +89,8 @@ _TASKSTATUSRESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=592,
-  serialized_end=672,
+  serialized_start=582,
+  serialized_end=662,
 )
 _sym_db.RegisterEnumDescriptor(_TASKSTATUSRESPONSE_STATUS)
 
@@ -263,7 +258,7 @@ _TASKRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=261,
-  serialized_end=419,
+  serialized_end=409,
 )
 
 
@@ -294,8 +289,8 @@ _TASKSTATUSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=421,
-  serialized_end=460,
+  serialized_start=411,
+  serialized_end=450,
 )
 
 
@@ -341,8 +336,8 @@ _TASKSTATUSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=463,
-  serialized_end=672,
+  serialized_start=453,
+  serialized_end=662,
 )
 
 _TASKREQUEST.fields_by_name['config_pairs'].message_type = _CONFIGPAIR

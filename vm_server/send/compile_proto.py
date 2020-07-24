@@ -16,8 +16,8 @@ def compile_proto():
 
 def create_proto():
   """Executes commands to create a proto file"""
-  logging.debug("Creating proto file from" + sys.argv[1])
-  os.system("python .\\proto\\create_proto.py .\\proto\\" + sys.argv[1])
+  logging.debug("Creating proto file from %s", sys.argv[1])
+  os.system("python .\\proto\\create_proto.py .\\proto\\%s", sys.argv[1])
 
 if __name__ == "__main__":
   logging.basicConfig(filename="response.log",
@@ -25,7 +25,7 @@ if __name__ == "__main__":
                       format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
   if len(sys.argv) != 2:
-    logging.debug("Usage:" + sys.argv[0] + "QUERY_TEXT_FILE")
+    logging.debug("Usage: %s QUERY_TEXT_FILE", sys.argv[0])
     sys.exit(-1)
   compile_proto()
   create_proto()
