@@ -388,12 +388,12 @@ def assign_task():
 
 @APP.route('/active', methods=['GET', 'POST'])
 def is_active():
-#  Master can check here if VM is active or not.
-  return "Hello World"
+  """Master can check here if VM is active or not."""
+  return "VM Server is active"
   
 @APP.route('/status', methods=['GET', 'POST'])
 def flag_status():
-#  Returns the state of VM
+  """Returns the state of VM"""
   return "False"
 
 if __name__ == "__main__":
