@@ -11,7 +11,6 @@ import time
 import requests
 from flask import request
 from flask import Flask
-from flask import send_file
 import Request_pb2
 
 class MyFlaskApp(Flask):
@@ -43,7 +42,7 @@ def task_done():
   global task_status_response
   now = datetime.now()
   current_time = now.strftime('%H:%M:%S')
-  print('Started Task id is '+str(request_id)+' VM is '+str(VM_ADDRESS))
+  print('Started Task id is ' + str(request_id)+' VM is '+str(VM_ADDRESS))
   print('Current Time =', current_time)
   start = timeit.default_timer()
   process = multiprocessing.Process(target=execute_task)
