@@ -1,7 +1,7 @@
 import sys
 import threading
-from proto import request_pb2
 from google.protobuf import text_format
+from proto import request_pb2
 
 
 class KThread(threading.Thread):

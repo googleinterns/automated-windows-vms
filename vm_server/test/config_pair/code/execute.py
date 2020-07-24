@@ -1,7 +1,6 @@
 #!/usr/bin/python
 """Program to check the value of an environment variable
 """
-import logging
 import os
 
 

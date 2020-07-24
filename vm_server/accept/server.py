@@ -35,11 +35,11 @@ parser = argparse.ArgumentParser(description="VM Server")
 parser.add_argument("debug_flag",
                     type=str,
                     help="""Usage: " + sys.argv[0] +  DEBUG_FLAG + PORT"""
-                    )
+                   )
 parser.add_argument("port",
                     type=int,
                     help="""Usage: " + sys.argv[0] +  DEBUG_FLAG + PORT"""
-                    )
+                   )
 arguments = parser.parse_args()
 
 def get_processes(file_name):
@@ -120,7 +120,8 @@ def move_output(task_request, task_response):
   """
   logging.debug("Moving the output path to the specified output path")
   current_path = os.getcwd()
-  source_path = Path(current_path + "\\" + EXECUTE_ACTION_DIR + "_" + str(task_request.request_id) + OUTPUT_DIR)
+  source_path = Path(current_path + "\\" + EXECUTE_ACTION_DIR + \
+                "_" + str(task_request.request_id) + OUTPUT_DIR)
   if source_path.exists() is False:
     os.mkdir(source_path)
   destination_path = Path(current_path + "\\" + task_request.output_path)
@@ -135,7 +136,7 @@ def move_output(task_request, task_response):
     logging.exception(str(exception))
     logging.debug("Error moving the output \
                    files to the specified output directory")
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
 
 def download_files_to_path(pantheon_path, destination_path, task_response):
   """Downloads files from pantheon path to the destination path
@@ -165,7 +166,7 @@ def download_files_to_path(pantheon_path, destination_path, task_response):
       except Exception as exception:
         logging.debug("Error while downloading files, \
                        Exception: %s", str(exception))
-        task_response.status = Request_pb2.TaskResponse.FAILURE
+        task_response.status = request_pb2.TaskResponse.FAILURE
 
 def download_input_files(task_request, task_response):
   """Downloads the input files from pantheon
@@ -195,7 +196,8 @@ def upload_output(task_request, task_response):
   bucket_name = BUCKET_NAME
   storage_client = storage.Client()
   bucket = storage_client.bucket(bucket_name)
-  source_path = Path(EXECUTE_ACTION_DIR + "_" + str(task_request.request_id) + OUTPUT_DIR)
+  source_path = Path(EXECUTE_ACTION_DIR + "_" + \
+                str(task_request.request_id) + OUTPUT_DIR)
   destination_path = task_request.output_path
   files = os.listdir(source_path)
   try:
@@ -206,7 +208,7 @@ def upload_output(task_request, task_response):
   except Exception as exception:
     logging.debug("Error while uploading output files, \
                    Exception: %s", str(exception))
-    task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_response.status = request_pb2.TaskResponse.FAILURE
 
 
 def execute_action(task_request, task_response):
@@ -298,8 +300,8 @@ def task_completed(task_request, task_response):
   # get_diff_processes()
   with open(response_proto, "rb") as status_response:
     try:
-      requests.post(url=MASTER_SERVER + "/success",
-                    files={"task_response": task_status_response.SerializeToString()})
+      requests.post(url=MASTER_SERVER + "/success", files={"task_response": \
+                    task_status_response.SerializeToString()})
     except Exception as exception:
       logging.debug(str(exception))
       logging.debug("Can't connect to the master server")
@@ -390,7 +392,7 @@ def assign_task():
 def is_active():
   """Master can check here if VM is active or not."""
   return "VM Server is active"
-  
+
 @APP.route('/status', methods=['GET', 'POST'])
 def flag_status():
   """Returns the state of VM"""
