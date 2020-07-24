@@ -1,7 +1,8 @@
 # Automated Windows VMs
 
 Automating tasks that require manual effort over windows machines.
-
+### Install dependencies
+* Run `pip install requirements.txt`
 ## Steps to run the VM server
 * Change directory to `vm_server/accept/`
 * Run `python server.py DEBUG_FLAG PORT_NO`
