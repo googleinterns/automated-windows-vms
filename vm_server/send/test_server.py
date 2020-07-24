@@ -85,8 +85,7 @@ def execute_commands(proto_text_number):
     test_initialisation.save_proto_to_file("initial_response.txt",
                                            task_status_response)
     if not test_initialisation.compare_response(".\\initial_response.txt",
-                                                ".\\proto\\\
-                                                initial_response.txt"):
+                                                ".\\proto\\initial_response.txt"):
       logging.debug("Text proto response files do not match")
       raise Exception("Text proto response files do not match")
     if task_status_response.status == request_pb2.TaskStatusResponse.ACCEPTED:
@@ -115,4 +114,5 @@ if __name__ == "__main__":
                       level=logging.DEBUG,
                       format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
+  execute_commands(1)
 
