@@ -20,14 +20,14 @@ def master_server():
     print(e)
 
 def start_server(starting_port, number_of_vms, test_directory):
-  process = threading.Thread(target = master_server)
-  process.start()
+  t = threading.Thread(target = master_server)
+  t.start()
   time.sleep(10)
   count = number_of_vms
   for port in range(count):
     time.sleep(2)
-    process = threading.Thread(target = new_dummy_server, args= (starting_port + port,))
-    process.start()
+    t = threading.Thread(target = new_dummy_server, args= (starting_port + port,))
+    t.start()
   time.sleep(5)
   os.chdir(os.path.join(os.getcwd(), test_directory))
 
