@@ -15,7 +15,7 @@ Automating tasks that require manual effort over windows machines.
  
     PORT_NO is the port number on which the dummy_vm_server starts
     
-## Steps to run tests on Master server
+## Steps to run pytest tests on Master server
 * Change directory to `master_server/`
 * Run `python -m pytest START_PORT TEST_FOLDER COUNT_OF_VM_SERVER NUMBER_OF_TIMES_TO_SEND_REQUEST`
     
@@ -26,7 +26,19 @@ Automating tasks that require manual effort over windows machines.
     COUNT_OF_VM_SERVER = --count_of_vm="number",number specifies the number of VM server we want.
     
     NUMBER_OF_TIMES_TO_SEND_REQUEST = --number_of_request="number",number specifies the number of times,we want to send the same request to the Master server. 
-   
+
+## Steps to run custom test on Master server
+* Change directory to `master_server/`
+* Run `python test.py START_PORT TEST_FOLDER COUNT_OF_VM_SERVER NUMBER_OF_TIMES_TO_SEND_REQUEST`
+
+     START_PORT = --start_port PORT_NUMBER,port specifies the starting port of the vm server.
+    
+    TEST_FOLDER = --filename FOLDER_NAME,folder name which contains the test.
+    
+    COUNT_OF_VM_SERVER = --count NUMBER,number specifies the number of VM server we want.
+    
+    NUMBER_OF_TIMES_TO_SEND_REQUEST = --number NUMBER,number specifies the number of times,we want to send the same request to the Master server.
+    
 ## Steps to run the VM server
 * Change directory to `vm_server/accept/`
 * Run `python server.py DEBUG_FLAG PORT_NO`
