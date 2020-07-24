@@ -9,25 +9,25 @@ import Request_pb2
 
 def new_dummy_server(port):
   try:
-    os.system('python dummy_vm_server.py ' + str(port))
+    os.system('python3 dummy_vm_server.py ' + str(port))
   except Exception as e:
     print(e)
 
 def master_server():
   try:
-    os.system('python master_server.py -d b')
+    os.system('python3 master_server.py -d b')
   except Exception as e:
     print(e)
 
 def start_server(starting_port, number_of_vms, test_directory):
-  t = threading.Thread(target = master_server)
-  t.start()
+  process = threading.Thread(target = master_server)
+  process.start()
   time.sleep(10)
   count = number_of_vms
   for port in range(count):
     time.sleep(2)
-    t = threading.Thread(target = new_dummy_server, args= (starting_port + port,))
-    t.start()
+    process = threading.Thread(target = new_dummy_server, args= (starting_port + port,))
+    process.start()
   time.sleep(5)
   os.chdir(os.path.join(os.getcwd(), test_directory))
 
