@@ -114,5 +114,3 @@ if __name__ == "__main__":
                       level=logging.DEBUG,
                       format="%(asctime)s:%(levelname)s: %(message)s")
   logging.getLogger().addHandler(logging.StreamHandler())
-  execute_commands(1)
-
