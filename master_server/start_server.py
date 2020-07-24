@@ -9,13 +9,13 @@ import Request_pb2
 
 def new_dummy_server(port):
   try:
-    os.system('python3 dummy_vm_server.py ' + str(port))
+    os.system('python dummy_vm_server.py ' + str(port))
   except Exception as e:
     print(e)
 
 def master_server():
   try:
-    os.system('python3 master_server.py -d b')
+    os.system('python master_server.py -d b')
   except Exception as e:
     print(e)
 
