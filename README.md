@@ -2,6 +2,17 @@
 
 Automating tasks that require manual effort over windows machines.
 
+## Steps to run the VM server
+* Change directory to `vm_server/accept/`
+* Run `python server.py DEBUG_FLAG PORT_NO`
+    
+    DEBUG_FLAG = DEBUG if we want to run locally, otherwise by default it looks for the paths in Pantheon
+    
+    PORT_NO is the port number on which the VM starts
+## Steps to run tests on VM server
+* Change directory to `vm_server/send/`
+* Run `python -m pytest`
+    
 **This is not an officially supported Google product.**
 
 ## Source Code Headers
