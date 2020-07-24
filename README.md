@@ -27,7 +27,7 @@ Automating tasks that require manual effort over windows machines.
     
     NUMBER_OF_TIMES_TO_SEND_REQUEST = --number_of_request="number",number specifies the number of times,we want to send the same request to the Master server. 
 
-## Steps to run custom test on Master server
+## Steps to run custom tests on Master server
 * Change directory to `master_server/`
 * Run `python test.py START_PORT TEST_FOLDER COUNT_OF_VM_SERVER NUMBER_OF_TIMES_TO_SEND_REQUEST`
 
