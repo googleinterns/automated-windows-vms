@@ -26,8 +26,8 @@ class MyFlaskApp(Flask):
         host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
 
 APP = MyFlaskApp(__name__)
-
-APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.DB'
+APP.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 DB = SQLAlchemy(APP)
 
 
@@ -65,7 +65,7 @@ def create_new_request(
 
     request_proto_file, request_status, last_vm_assigned,
     number_of_retries_allowed, number_of_retries_till_now):
-#  This function adds a new row to database.
+  """This function adds a new row to database."""
   dessert = Newrequestentry(
       request_proto_file, request_status, last_vm_assigned,
       number_of_retries_allowed, number_of_retries_till_now)
@@ -81,15 +81,14 @@ def get_status(request_id):
 
 
 def change_state(request_id, input_file):
-#  Change request_status of a request.
+  """Change request_status of a request."""
   Newrequestentry.query.filter_by(request_id=request_id).\
   update({Newrequestentry.response_proto_file: input_file})
   DB.session.commit()
 
 def change_state_again(request_id, last_vm_assigned,
       number_of_retries_till_now):
-#  Change request_status of a request.
-  
+  """Change request_status of a request."""
   Newrequestentry.query.filter_by(request_id=request_id).\
   update({Newrequestentry.last_vm_assigned: last_vm_assigned, Newrequestentry.\
       number_of_retries_till_now: number_of_retries_till_now})
@@ -103,8 +102,7 @@ def hello_world():
 
 @APP.route('/register', methods=['GET', 'POST'])
 def add_vm_address():
-#  Add a VM to working_vm_address_list list.
-
+  """Add a VM to working_vm_address_list list."""
   address = request.data.decode('utf-8')
   if address not in working_vm_address_list:
     working_vm_address_list.append(address)
@@ -113,8 +111,7 @@ def add_vm_address():
 @APP.route('/upload')
 
 def upload_file_webpage():
-
-#  Serve web page
+  """Serve web page"""
   return render_template('upload.html')
 
 @APP.route('/uploader', methods=['GET', 'POST'])
@@ -123,40 +120,71 @@ def upload_file():
   """Accept proto file from user and
      assign it to VM.
   """
-
-  f = request.files['file']
-  read = f.read()
-  vm_n = find_working_vm()
-  if vm_n == 'NOT':
-    return 'try again later'
+  task_status_response = Request_pb2.TaskStatusResponse()
+  file_ = request.files['file']
+  read = file_.read()
+  vm_address = find_working_vm()
+  if vm_address == 'NOT':
+    task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
+    if args.debug_mode == 'b':
+      return task_status_response.SerializeToString()
+    else:
+      return str(task_status_response)
   else:
     try:
-      working_vm_address_list.remove(vm_n)
+      working_vm_address_list.remove(vm_address)
       task_request = Request_pb2.TaskRequest()
       task_request.ParseFromString(read)
       requ = create_new_request(
-
-          read, 'accepted', vm_n, task_request. number_of_retries, 0)
+          read, 'accepted', vm_address, task_request. number_of_retries, 0)
       task_request.request_id = requ.request_id
-      response = requests.post(url=vm_n, files={'task_request':
+      response = requests.post(url=vm_address + '/assign_task', files={'task_request':
           task_request.SerializeToString()})
-      return 'file uploaded successfully,your request_id is '+ \
-          str(requ.request_id)+'  ' + ' address is ' + str(requ.last_vm_assigned)+ \
-          ' number of retries allowed is ' + str(requ.number_of_retries_allowed)
-    except:
-      return 'try again later'
+      task_status_response.ParseFromString(response.content)
+      process = threading.Thread(target= retry_after_timeout, args= (task_request.request_id,
+          task_request.timeout, task_request.number_of_retries))
+      process.start()
+      if args.debug_mode == 'b':
+        return task_status_response.SerializeToString()
+      else:
+        return str(task_status_response)
+    except Exception as e:
+      task_status_response.status = Request_pb2.TaskStatusResponse.REJECTED
+      print(e)
+      if args.debug_mode == 'b':
+        return task_status_response.SerializeToString()
+      else:
+        return str(task_status_response)
+
+def retry_after_timeout(request_id, timeout, number_of_retries):
+  """Retry to check job status after timeout."""
+  timer = timeout * (number_of_retries + 4)
+  time.sleep(timer)
+  task_status_response = Request_pb2.TaskStatusResponse()
+  request_row = get_request_status_row(request_id)
+  if request_row.response_proto_file is None:
+    retry_again(request_id, True)
+  else:
+    task_status_response.ParseFromString(request_row.response_proto_file)
+    if task_status_response.task_response.status == Request_pb2.TaskResponse.FAILURE:
+      retry_again(request_id, True)
+
+@APP.route('/get_status',methods=['GET', 'POST'])
+def get_status():
+  """Check status of a request."""
+  task_status_request = Request_pb2.TaskStatusRequest()
+  task_status_request.ParseFromString(request.files['file'].read())
+  return status_of_request(task_status_request.request_id)
 
 @APP.route('/vm_status', methods=['GET', 'POST'])
 
 def vm_status():
-
-#  Return VM address which are active.
+  """Return VM address which are active."""
   return str(working_vm_address_list)
 
 @APP.route('/success', methods=['GET', 'POST'])
 def task_completed():
-
-#  Receive response from vm_server.
+  """Receive response protocol buffer file from vm_server."""
   input_file = request.files['task_response']
   req = request.files['request_id'].read()
   task_response = Request_pb2.TaskResponse()
@@ -169,10 +197,14 @@ def task_completed():
   return 'success'
 
 @APP.route('/request_status', methods=['GET', 'POST'])
-def status_of_request():
-#  Check status of a request
+def request_status():
+  """Check status of a request"""
   req_id = request.form['request_id']
-  request_row = get_status(req_id)
+  return status_of_request(req_id)
+
+def status_of_request(req_id):
+  """Check status of a request."""
+  request_row = get_request_status_row(req_id)
   if request_row is None:
     return 'invalid request'
   else:
@@ -181,27 +213,30 @@ def status_of_request():
     if a is None:
       return 'request pending'
     else:
-      task_response = Request_pb2.TaskResponse()
-      task_response.ParseFromString(request_row.response_proto_file)
-      return str(task_response)
+      task_status_response = Request_pb2.TaskStatusResponse()
+      task_status_response.ParseFromString(request_row.response_proto_file)
+      task_status_response.status = Request_pb2.TaskStatusResponse.COMPLETED
+      if args.debug_mode == 'b':
+        return task_status_response.SerializeToString()
+      else:
+        return str(task_status_response)
 
-def retry_again(request_id):
-#  Retry again if request fails.
-  
-  request_row = get_status(request_id)
-  if request_row.number_of_retries_allowed > request_row.number_of_retries_till_now:
-    vm_n = find_working_vm()
-    if vm_n == 'NOT':
+def retry_again(request_id, flag):
+  """Retry again,if request fails."""
+  request_row = get_request_status_row(request_id)  
+  if request_row.number_of_retries_allowed > request_row.number_of_retries_till_now or flag:
+    vm_address = find_working_vm()
+    if vm_address == 'NOT':
       return 'try again later'
     else:
       try:
         task_request = Request_pb2.TaskRequest()
         task_request.ParseFromString(request_row.request_proto_file)
         task_request.request_id = request_id
-        working_vm_address_list.remove(vm_n)
-        response = requests.post(url=vm_n, files={'task_request':
+        working_vm_address_list.remove(vm_address)
+        response = requests.post(url=vm_address + '/assign_task', files={'task_request':
              task_request.SerializeToString()})
-        change_state_again(request_id, vm_n, request_row.number_of_retries_till_now+1)
+        change_state_again(request_id, vm_address, request_row.number_of_retries_till_now + 1)
         return 'success'
       except:
         return 'try again later'
@@ -230,26 +265,21 @@ def is_engaged(node):
     try:
 
       req = requests.get(node + str('/status'))
-
-      a = req.json()
-      return bool(a['status'])
+      status = req.json()
+      return bool(status['status'])
     except:
       return False
   return False
 
 def find_working_vm():
-
-#  Find working VM address.
-
+  """Find working VM address."""
   for address in working_vm_address_list:
     if not is_engaged(address):
       return address
   return 'NOT'
 
 def get_working_vm_address():
-
-#   Append IP addresses of working VMs to a list.
-
+  """Append IP addresses of working VMs to a list."""
   for address in available_vm_address_list:
     if is_healthy(address) and not is_engaged(address):
       working_vm_address_list.append(address)
@@ -266,9 +296,7 @@ def get_available_vm_address():
       available_vm_address_list.append(new_address)
 
 def pre_tasks():
-
-#   Tasks to do before flask server starts.
-
+  """Tasks to do before flask server starts."""
   DB.create_all()
   get_available_vm_address()
   get_working_vm_address()

@@ -46,14 +46,14 @@ def task_done():
   print('Current Time =', current_time)
   task_response.status = Request_pb2.TaskResponse.BUSY
   start = timeit.default_timer()
-  t = multiprocessing.Process(target=execute_task)
-  t.start()
-  t.join(int(task_request.timeout))
-  if t.is_alive():
-    task_response.status = Request_pb2.TaskResponse.FAILURE
-    task_response.time_taken = 0.0
-    t.terminate()
-    t.join()
+  process = multiprocessing.Process(target=execute_task)
+  process.start()
+  process.join(int(task_request.timeout))
+  if process.is_alive():
+    task_status_response.task_response.status = Request_pb2.TaskResponse.FAILURE
+    task_status_response.task_response.time_taken = 0.0
+    process.terminate()
+    process.join()
   else:
     stop = timeit.default_timer()
     time_taken = stop-start
@@ -63,7 +63,9 @@ def task_done():
 #  print(task_response)
   current_time = now.strftime('%H:%M:%S')
   print('Current Time =', current_time)
-  task_completed()
+  print('Ended Task id is '+str(request_id)+' VM is '+str(VM_ADDRESS))
+  process = threading.Thread(target = task_completed)
+  process.start()
   flag = False
   register_vm_address()
 
@@ -71,9 +73,8 @@ def execute_task():
   time.sleep(10)
 
 def task_completed():
-#  Notify the master server after task is completed.
-  
-  read = task_response.SerializeToString()
+  """Notify the master server after task is completed."""
+  read = task_status_response.SerializeToString()
   response = requests.post(url='http://127.0.0.1:5000/success', files=
       {'task_response': read, 'request_id': ('', str(task_request.request_id))})
 
@@ -90,22 +91,37 @@ def hello_world():
   print(task_request)
   request_id = task_request.request_id
   flag = True
-  t = threading.Thread(target=task_done)
-  t.start()
-  return 'success'
+  process = threading.Thread(target=task_done)
+  process.start()
+  task_status_response.current_task_id = task_request.request_id
+  task_status_response.status = Request_pb2.TaskStatusResponse.ACCEPTED
+  return task_status_response.SerializeToString()
 
 @APP.route('/active', methods=['GET', 'POST'])
 def is_active():
-#  Master can check here if VM is active or not.
+  """Master can check here if VM is active or not."""
   return {'hello': 'world'}
 
 @APP.route('/status', methods=['GET', 'POST'])
 def flag_status():
-#  Returns the state of VM
+  """Returns the state of VM."""
   return {'status': flag}
-
+  
+@APP.route('/get_status', methods=['GET', 'POST'])
+def get_status_of_request():
+  """Return the current status of the executing request."""
+  input_file = request.files['task_request']
+  task_status_request = Request_pb2.TaskStatusRequest()
+  task_status_request.ParseFromString(input_files.read())
+  if task_status_response.current_task_id == task_status_request.request_id:
+    return task_status_response.SeralizeToString()
+  else:
+    task = Request_pb2.TaskStatusResponse()
+    task.status = Request_pb2.TaskStatusResponse.INVALID_ID
+    return task.SeralizeToString()
+  
 def register_vm_address():
-#  This functions tells the master server that VM is healhty.
+  """This functions tells the master server that VM is healhty."""
   data = 'http://127.0.0.1:' + str(sys.argv[1])
   try:
     req = requests.get(MASTER_SERVER + str('/register'), data=data)
@@ -113,7 +129,8 @@ def register_vm_address():
     print('can''t connect to master server')
 
 def pre_task():
-#  This function performs tasks before the start of flask server.
+  """This function performs tasks before the start of flask server."""
+  global VM_ADDRESS
   if len(sys.argv) != 2:
     print('Usage:', sys.argv[0], 'INPUT_PORT')
     sys.exit(-1)
