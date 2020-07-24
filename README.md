@@ -20,8 +20,11 @@ Automating tasks that require manual effort over windows machines.
 * Run 'python -m pytest START_PORT TEST_FOLDER COUNT_OF_VM_SERVER NUMBER_OF_TIMES_TO_SEND_REQUEST
     
     START_PORT = --start_port="port_number",port specifies the starting port of the vm server.
+    
     TEST_FOLDER = --filename="folder_name",folder name which contains the test.
+    
     COUNT_OF_VM_SERVER = --count_of_vm="number",number specifies the number of VM server we want.
+    
     NUMBER_OF_TIMES_TO_SEND_REQUEST = --number_of_request="number",number specifies the number of times,we want to send the same request to the Master server. 
    
 ## Steps to run the VM server
