@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+message TaskRequest {
+  string code_path = 1; // Pantheon path where the input code is stored.
+  string data_path = 2; // Pantheon path where the input files are stored.
+  string output_path = 3; // Pantheon path where the output will be stored.
+  string target_path = 4; // Path to file from code root that is to be executed.
+  double timeout = 5; // Timeout for the execution.
+  repeated ConfigPair config_pairs = 6; // Key value pairs containing action and related parameters.
+  int32 number_of_retries = 7; // Number of times the request will be sent again in case of failure.
+  int32 request_id = 8; // Request id that is assigned to the task by the master server.
+}
+
+// Key value pairs containing action and related parameters.
+message ConfigPair {
+  string key = 1;
+  string value = 2;
+}
+
+message TaskResponse {
+  enum options {
+    UNKNOWN = 0;
+    FAILURE = 1;
+    SUCCESS = 2;
+  }
+  options status = 1;    
+  int32 number_of_files = 2;
+  double time_taken = 3;
+}
+
+message TaskStatusRequest {                                                                                        
+  int32 request_id = 1;                                                                                            
+}
+
+message TaskStatusResponse {                                                                                       
+  enum Status {                                                                                                    
+    UNKNOWN = 0;                                                                                                   
+    ACCEPTED = 1;                                                                                                  
+    REJECTED = 2;                                                                                                  
+    COMPLETED = 3;                                                                                                 
+    INVALID_ID = 4; // if the request if doesnt match with the request id on the system                            
+  }                                                                                                                
+  int32 current_task_id = 1;                                                                                       
+  Status status = 2;                                                                                               
+  TaskResponse task_response = 3; 
+  }

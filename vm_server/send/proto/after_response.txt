@@ -1,4 +1,6 @@
 status: COMPLETED
 task_response {
   status: SUCCESS
+  number_of_files: 4
+  time_taken: 34.009596099999996
 }

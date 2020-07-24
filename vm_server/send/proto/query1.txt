@@ -2,4 +2,4 @@ code_path : "..\\test\\execute_macro\\code\\"
 data_path : "..\\test\\execute_macro\\data\\"
 output_path : "..\\test\\execute_macro\\output\\"
 target_path : ".\\code\\action.ps1"
-timeout : 5
+timeout : 3600

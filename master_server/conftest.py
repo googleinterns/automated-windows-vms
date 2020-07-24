@@ -6,7 +6,7 @@ def pytest_addoption(parser):
   parser.addoption("--count_of_vm", action="store", help="Number of VM server")
   parser.addoption("--filename", action="store", help="Name of test folder")
   parser.addoption("--number_of_request", action="store", help="Number of request per test case")
-  
+
 
 @pytest.fixture
 def start_port(request):

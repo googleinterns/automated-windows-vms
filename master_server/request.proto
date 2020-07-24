@@ -18,29 +18,14 @@ message ConfigPair {
 }
 
 message TaskResponse {
-  enum Options {
+  enum options {
     UNKNOWN = 0;
-    FAILURE = 1;
-    SUCCESS = 2;
+    BUSY = 1;
+    FAILURE = 2;
+    SUCCESS = 3;
   }
-  Options status = 1;    
+  options status = 1;    
   int32 number_of_files = 2;
   double time_taken = 3;
 }
-
-message TaskStatusRequest {
-  int32 request_id = 1;
-}
-
-message TaskStatusResponse {
-  enum Status {
-    UNKNOWN = 0;
-    ACCEPTED = 1;
-    REJECTED = 2;
-    COMPLETED = 3;
-    INVALID_ID = 4;
-  }
-  int32 current_task_id = 1;
-  Status status = 2;
-  TaskResponse task_response = 3;
-}
+ 
