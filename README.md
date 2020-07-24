@@ -4,20 +4,20 @@ Automating tasks that require manual effort over windows machines.
 ### Install dependencies
 * Run `pip install requirements.txt`
 ## Steps to run the Master server
-* Change directory to 'master_server/'
+* Change directory to `master_server/`
 * Run 'python master_server.py DEBUG_MODE'
 
     DEBUG_MODE = --binary if we want end to end testing, otherwise by default it looks starts in UI mode.
     
 ## Steps to run the dummy_vm_server
-* Change directory to 'master_server/'
+* Change directory to `master_server/`
 * Run 'python dummy_vm_server.py PORT_NO'
  
     PORT_NO is the port number on which the dummy_vm_server starts
     
 ## Steps to run tests on Master server
-* Change directory to 'master_server/'
-* Run 'python -m pytest START_PORT TEST_FOLDER COUNT_OF_VM_SERVER NUMBER_OF_TIMES_TO_SEND_REQUEST
+* Change directory to `master_server/`
+* Run `python -m pytest START_PORT TEST_FOLDER COUNT_OF_VM_SERVER NUMBER_OF_TIMES_TO_SEND_REQUEST`
     
     START_PORT = --start_port="port_number",port specifies the starting port of the vm server.
     
